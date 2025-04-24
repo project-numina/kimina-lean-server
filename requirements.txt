@@ -1,0 +1,16 @@
+func_timeout==4.3.5
+loguru
+tqdm
+tenacity
+pandas
+fastapi
+uvicorn
+pytest
+pydantic_settings
+aiohttp
+httpx
+nest_asyncio
+datasets
+mypy
+types-setuptools
+types-tqdm

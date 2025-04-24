@@ -1,0 +1,15 @@
+.ipynb_checkpoints/
+__pycache__/
+.pytest_cache
+.venv
+mathlib4/
+mathlib4_problem/
+repl/
+log/
+logs/
+.coverage
+*.egg-info/
+.DS_Store
+.vscode/
+.env
+*.csv

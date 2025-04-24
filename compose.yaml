@@ -1,0 +1,27 @@
+services:
+  kimina-lean-server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        LEAN_VERSION: v4.15.0
+    image: projectnumina/kimina-lean-server:1.0.0
+    container_name: kimina-lean-server
+    restart: unless-stopped
+    ports:
+      - "80:${LEANSERVER_PORT:-12332}"
+    volumes:
+      - ./logs:/app/logs
+    env_file:
+      - .env
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:12332/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 5s
+    # deploy:
+    #   resources:
+    #     limits:
+    #       cpus: "4"
+    #       memory: 16G
