@@ -1,4 +1,4 @@
-# Lean Verify
+# Kimina Lean Server
 
 This project serves the [Lean REPL](https://github.com/leanprover-community/repl) using FastAPI.
 It supports massive parallelization to verify Lean 4 proofs at scale.
