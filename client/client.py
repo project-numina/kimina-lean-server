@@ -166,7 +166,7 @@ class Lean4Client(object):
             parsed = urlparse(f"{default_scheme}://{url}")
         return urlunparse(parsed)
 
-    def _test_connection(self) -> bool:
+    def _test_connection(self):
         """Test the connection to the Lean server.
 
         Sends a simple GET request to the root endpoint to verify

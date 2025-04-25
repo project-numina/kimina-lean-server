@@ -1,5 +1,6 @@
 import os
 
+from loguru import logger
 from datasets import load_dataset
 
 from client.client import Lean4Client, batch_verify_proof
@@ -45,17 +46,17 @@ if __name__ == "__main__":
     n = 100
     timeout = 60
     batch_size = 1
-    num_proc = os.cpu_count()
-    url = "http://localhost:12332"
+    num_proc = os.cpu_count() or 16
+    url = "http://localhost:80"
 
-    print("Testing cached mode")
+    logger.info("Testing cached mode")
 
     # Test cached mode
     client = Lean4Client(base_url=url, disable_cache=False)
 
     benchmark_api(client, n, timeout, batch_size, num_proc)
 
-    print("Testing non-cached mode")
+    logger.info("Testing non-cached mode")
 
     # Test non-cached mode
     client = Lean4Client(base_url=url, disable_cache=True)
