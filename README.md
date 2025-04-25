@@ -10,7 +10,6 @@ It supports massive parallelization to verify Lean 4 proofs at scale.
 - High-throughput Lean4 proof verification
 - FastAPI-based async server with configurable concurrency
 - REPL pooling and context caching for performance
-- Step prover
 
 ## 📦 Setup
 
@@ -180,16 +179,16 @@ Server logs may show the following failure when a REPL gets acquired prior to be
 
 | Mode       | Valid Proofs (%) | Total Verification Time (s) | Average Verification Time (s) |
 | ---------- | ---------------- | --------------------------- | ----------------------------- |
-| Cached     | 91.00            | 702.70                      | 7.72                          |
-| Non-Cached | 91.00            | 1653.47                     | 18.17                         |
+| Cached     | 96.00            | 350.29                      | 3.65                          |
+| Non-Cached | 96.00            | 493.67                      | 5.14                          |
 
 **Note**:
 
-- The benchmarks were run on a machine with **16 CPUs** (Intel Core i5-1240P).
+- The benchmarks were run on a machine with **10 CPUs** (MacBook Pro M2).
 - Script used: [`benchmark.py`](./benchmark.py)
 - Dataset: First 100 samples from [`Goedel-LM/Lean-workbook-proofs`](https://huggingface.co/datasets/Goedel-LM/Lean-workbook-proofs)
-- Params: `timeout = 60s`, `batch = 1`, `num_proc = 16` (number of CPU cores)
-- Server: `LEANSERVER_MAX_REPLS = 16` and `LEANSERVER_MAX_CONCURRENT_REQUESTS = 16`
+- Params: `timeout = 60s`, `batch = 1`, `num_proc = 10` (number of CPU cores)
+- Server: `LEANSERVER_MAX_REPLS = 10` and `LEANSERVER_MAX_CONCURRENT_REQUESTS = 10`
 
 ## 🙌 Contributing
 
