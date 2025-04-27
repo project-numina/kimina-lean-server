@@ -55,8 +55,10 @@ docker compose logs -f
 
 ### Direct installation
 
-Install elan(Lean version manager): reference [elan](https://github.com/leanprover/elan)
+First, install elan — the Lean version manager: [reference](https://github.com/leanprover/elan).
 
+After installing elan, make sure that `elan --version` works correctly.
+(`lake --version` should also work after elan is properly installed.)
 
 Install dependencies:
 
