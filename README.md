@@ -55,6 +55,9 @@ docker compose logs -f
 
 ### Direct installation
 
+Install elan(Lean version manager): reference [elan](https://github.com/leanprover/elan)
+
+
 Install dependencies:
 
 ```sh

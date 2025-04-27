@@ -158,7 +158,7 @@ class LeanREPL:
         """
         try:
             # Terminate the entire process group
-            os.killpg(os.getpgid(self.process.pid), signal.SIGTERM)
+            os.killpg(os.getpgid(self.process.pid), signal.SIGKILL)
         except ProcessLookupError:
             # Process already terminated
             pass
