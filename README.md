@@ -203,3 +203,16 @@ Contributions are welcome! Please open an issue or submit a pull request.
 
 This project is licensed under the MIT License.
 You are free to use, modify, and distribute this software with proper attribution. See the [LICENSE](./LICENSE) file for full details.
+
+## 📑 Citation
+```
+@misc{santos2025kiminaleanservertechnical,
+      title={Kimina Lean Server: Technical Report}, 
+      author={Marco Dos Santos and Haiming Wang and Hugues de Saxcé and Ran Wang and Mantas Baksys and Mert Unsal and Junqi Liu and Zhengying Liu and Jia Li},
+      year={2025},
+      eprint={2504.21230},
+      archivePrefix={arXiv},
+      primaryClass={cs.LO},
+      url={https://arxiv.org/abs/2504.21230}, 
+}
+```
