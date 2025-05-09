@@ -157,8 +157,8 @@ class LeanREPL:
         Terminate the REPL process and all its child processes.
         """
         try:
-            # Terminate the entire process group
-            os.killpg(os.getpgid(self.process.pid), signal.SIGKILL)
+            # stop input to repl (which will result in the program loop for lean repl terminating)
+            self.process.stdin.close()
         except ProcessLookupError:
             # Process already terminated
             pass
