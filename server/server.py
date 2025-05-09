@@ -152,7 +152,7 @@ lean_repl_dep = Annotated[dict[str, tuple[str, LeanREPL | None]], Depends(get_re
 
 # ------ Schemas ------
 class Code(BaseModel):
-    custom_id: str
+    custom_id: str | int
     proof: str = Field(None)
     code: str = Field(None)  # To be backward compatibility with autoformalizer client
 
