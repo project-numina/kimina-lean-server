@@ -8,7 +8,7 @@ from typing import Annotated
 
 from fastapi import Depends, FastAPI, Header, HTTPException, Request
 from loguru import logger
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from tqdm import tqdm
 
 from utils.proof_utils import split_proof_header
@@ -152,8 +152,12 @@ lean_repl_dep = Annotated[dict[str, tuple[str, LeanREPL | None]], Depends(get_re
 
 # ------ Schemas ------
 class Code(BaseModel):
-    custom_id: str
-    proof: str
+    custom_id: str | int
+    proof: str = Field(None)
+    code: str = Field(None)  # To be backward compatibility with autoformalizer client
+
+    def get_proof_content(self) -> str:
+        return self.proof if self.proof is not None else self.code
 
 
 class VerifyRequestBody(BaseModel):
@@ -219,7 +223,7 @@ async def process_one_code_with_repl_fast(
         grepl_id = str(uuid.uuid4())
 
         custom_id = code.custom_id
-        proof = code.proof
+        proof = code.get_proof_content()
 
         if proof is None:
             return custom_id, "No code provided", response
@@ -277,6 +281,16 @@ async def process_one_code_with_repl_fast(
 
         repl[grepl_id] = None
         return custom_id, error_msg, response
+
+
+@app.post("/one_pass_verify_batch")
+async def one_pass_verify_batch(
+    body: VerifyRequestBody,
+    lean_repl: lean_repl_dep,
+    access: require_access_dep,
+):
+    """Backward compatible endpoint: accepts both 'proof' / 'code' fields."""
+    return await verify(body, lean_repl, access)
 
 
 app.include_router(router)
