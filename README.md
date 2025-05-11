@@ -86,7 +86,9 @@ Once running, the server exposes a FastAPI application for LeanREPL interaction.
 > [!NOTE]
 > Make sure `mathlib4` and `repl` exist in the workspace directory before launching the server.
 
-The server is up! You can test the endpoint with:
+The server is up! You can test the endpoint with the same cURL request as in the containerized section.
+
+If you change the code, validate your changes by running tests with:
 
 ```sh
 pytest
