@@ -11,10 +11,12 @@ class Settings(BaseSettings):
     LOG_DIR: str = Field("./logs")
     LOG_LEVEL: str = Field("INFO")
     WORKSPACE: str = Field(default_factory=os.getcwd)
-    MAX_REPLS: int = Field(64)
-    MAX_CONCURRENT_REQUESTS: int = Field(64)
-    REPL_MEMORY_LIMIT_GB: int = Field(20)
-    REPL_MEMORY_CHECK_INTERVAL: int = Field(20)
+    MAX_REPLS: int = Field(os.cpu_count() or 1)
+    MAX_CONCURRENT_REQUESTS: int = Field(os.cpu_count() or 1)
+    REPL_MEMORY_LIMIT_GB: int | None = Field(None)
+    REPL_MEMORY_CHECK_INTERVAL: int | None = Field(None)
+    HEALTHCHECK_CPU_USAGE_THRESHOLD: int | None = Field(None)
+    HEALTHCHECK_MEMORY_USAGE_THRESHOLD: int | None = Field(None)
 
     model_config = SettingsConfigDict(
         env_file=".env", env_file_encoding="utf-8", env_prefix="LEANSERVER_"
@@ -48,6 +50,33 @@ class Settings(BaseSettings):
             return os.cpu_count() or 1
         return v
 
+    @field_validator("HEALTHCHECK_CPU_USAGE_THRESHOLD", mode="before")
+    @classmethod
+    def validate_healthcheck_cpu_usage_threshold(cls, v):
+        if v == "":
+            return None
+        return v
+
+    @field_validator("HEALTHCHECK_MEMORY_USAGE_THRESHOLD", mode="before")
+    @classmethod
+    def validate_healthcheck_memory_usage_threshold(cls, v):
+        if v == "":
+            return None
+        return v
+
+    @field_validator("REPL_MEMORY_LIMIT_GB", mode="before")
+    @classmethod
+    def validate_repl_memory_limit_gb(cls, v):
+        if v == "":
+            return None
+        return v
+
+    @field_validator("REPL_MEMORY_CHECK_INTERVAL", mode="before")
+    @classmethod
+    def validate_repl_memory_check_interval(cls, v):
+        if v == "":
+            return None
+        return v
 
 try:
     settings = Settings()

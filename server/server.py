@@ -277,7 +277,9 @@ async def process_one_code_with_repl_fast(
             return custom_id, error_msg, response
 
         exceeds_limit = False
-        if repl[grepl_id][1].run_command_total % settings.REPL_MEMORY_CHECK_INTERVAL == 0:
+        if settings.REPL_MEMORY_CHECK_INTERVAL is not None and \
+            settings.REPL_MEMORY_LIMIT_GB is not None and \
+            repl[grepl_id][1].run_command_total % settings.REPL_MEMORY_CHECK_INTERVAL == 0:
             # Check if the REPL exceeds memory limit after execution
             exceeds_limit = await asyncio.to_thread(
                 repl[grepl_id][1].exceeds_memory_limit, settings.REPL_MEMORY_LIMIT_GB
