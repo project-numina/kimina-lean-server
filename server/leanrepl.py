@@ -35,6 +35,9 @@ class LeanREPL:
         # Create a lock for thread safety
         self.lock = threading.Lock()
         self.header = None
+        self.psutil_process = None
+        self.children_processes = []
+        self.run_command_total = 0 
 
     def _send_command(self, command):
         """
@@ -43,6 +46,7 @@ class LeanREPL:
 
         with self.lock:
             try:
+                self.run_command_total += 1
                 # Convert the command to JSON and add two newlines
                 json_command = json.dumps(command, ensure_ascii=False) + "\n\n"
                 # Send the command to the REPL
@@ -176,15 +180,20 @@ class LeanREPL:
         Check if the REPL process exceeds the given memory limit.
         Returns True if memory usage exceeds limit, False otherwise.
         """
-        if hasattr(self, 'process') and self.process and self.process.pid:
+
+        if self.psutil_process is None:
+            self.psutil_process = psutil.Process(self.process.pid)
+
+        if self.psutil_process is not None:
             try:
-                process = psutil.Process(self.process.pid)
-                memory_usage = process.memory_info().rss
+                memory_usage = self.psutil_process.memory_info().rss
                 
                 try:
-                    children = process.children(recursive=True)
-                    if children:
-                        child_memory = sum(child.memory_info().rss for child in children)
+                    if not self.children_processes:
+                        self.children_processes = self.psutil_process.children()
+                        
+                    if self.children_processes:
+                        child_memory = sum(child.memory_info().rss for child in self.children_processes)
                         total_memory = memory_usage + child_memory
                     else:
                         total_memory = memory_usage
@@ -192,7 +201,7 @@ class LeanREPL:
                     logger.error(f"Error getting child processes: {e}")
                     total_memory = memory_usage
                 
-                logger.debug(f"REPL pid {self.process.pid} using {total_memory/1024/1024/1024:.2f}GB")
+                logger.info(f"REPL pid {self.process.pid} using {total_memory/1024/1024/1024:.2f}GB")
                 return total_memory > limit_bytes
             except (psutil.NoSuchProcess, psutil.AccessDenied) as e:
                 logger.error(f"Error accessing process: {e}")

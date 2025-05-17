@@ -14,6 +14,7 @@ class Settings(BaseSettings):
     MAX_REPLS: int = Field(64)
     MAX_CONCURRENT_REQUESTS: int = Field(64)
     MEMORY_LIMIT_BYTES: int = Field(20 * 1024 * 1024 * 1024) # 20GB
+    CHECK_MEMORY_INTERVAL: int = Field(50)
 
     model_config = SettingsConfigDict(
         env_file=".env", env_file_encoding="utf-8", env_prefix="LEANSERVER_"

@@ -1,4 +1,5 @@
 import asyncio
+import sys
 import uuid
 from collections import Counter
 from concurrent.futures import ThreadPoolExecutor
@@ -275,12 +276,13 @@ async def process_one_code_with_repl_fast(
                 await repl_cache.destroy(proof_header, *repl[grepl_id])
             return custom_id, error_msg, response
 
-        # Check if the REPL exceeds memory limit after execution
-        exceeds_limit = await asyncio.to_thread(
-            repl[grepl_id][1].exceeds_memory_limit, settings.MEMORY_LIMIT_BYTES
-        )
-        
-        # Successfully extended the context, but handle differently based on memory usage
+        exceeds_limit = False
+        if repl[grepl_id][1].run_command_total % 50 == 0:
+            # Check if the REPL exceeds memory limit after execution
+            exceeds_limit = await asyncio.to_thread(
+                repl[grepl_id][1].exceeds_memory_limit, settings.MEMORY_LIMIT_BYTES
+            )
+
         if exceeds_limit:
             logger.warning(f"REPL exceeds memory limit after execution, destroying it. proof_header: {proof_header}")
             if repl[grepl_id][0] is None:
