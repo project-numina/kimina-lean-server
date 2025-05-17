@@ -2,7 +2,7 @@ import asyncio
 import uuid
 from collections import OrderedDict, deque
 from queue import Queue
-
+import psutil
 
 def safe_rm(queue, id, repl):
     """Safely remove a REPL instance from the queue."""
@@ -14,7 +14,7 @@ def safe_rm(queue, id, repl):
 
 
 class LRUReplCache:
-    def __init__(self, max_size=500):
+    def __init__(self, max_size=500, memory_limit_bytes=20 * 1024 * 1024 * 1024):
         self.cache = {}  # The cache that will store REPL pools
         self.global_repl_pool = (
             OrderedDict()
@@ -27,6 +27,7 @@ class LRUReplCache:
             "cache_hits": 0,
             "cache_misses": 0,
         }
+        self.memory_limit_bytes = memory_limit_bytes
 
     async def get(self, key):
         """Get a REPL instance for the given header key."""
@@ -52,10 +53,72 @@ class LRUReplCache:
             self.cache[key].append((id, repl))
             # Also add it to the global LRU list
             self.global_repl_pool[id] = (key, repl)
+            self._evict_if_memory_exceeds()
             self._evict_if_needed()
 
+    def _evict_if_memory_exceeds(self):
+        """Evict REPLs with Memory usage exceeding memory limit."""
+        items_to_check = list(self.global_repl_pool.items())
+        for id, (header_key, repl) in items_to_check:
+            # Check if the REPL process exists and has a valid process ID
+            if hasattr(repl, 'process') and repl.process and repl.process.pid:
+                try:
+                    process = psutil.Process(repl.process.pid)
+                    
+                    # 基本内存信息
+                    memory_usage = process.memory_info().rss
+                    
+                    # 获取更详细的内存信息用于调试
+                    try:
+                        full_info = process.memory_full_info()
+                        print(f"[DEBUG] REPL {str(id)[:8]}/pid {repl.process.pid} memory details:")
+                        print(f"  - RSS: {full_info.rss/1024/1024/1024:.2f}GB")
+                        print(f"  - VMS: {full_info.vms/1024/1024/1024:.2f}GB")
+                        if hasattr(full_info, 'uss'):
+                            print(f"  - USS: {full_info.uss/1024/1024/1024:.2f}GB")
+                        if hasattr(full_info, 'pss'):
+                            print(f"  - PSS: {full_info.pss/1024/1024/1024:.2f}GB")
+                        if hasattr(full_info, 'swap'):
+                            print(f"  - SWAP: {full_info.swap/1024/1024/1024:.2f}GB")
+                    except Exception as e:
+                        print(f"[DEBUG] Could not get full memory info: {e}")
+                    
+                    # 尝试获取子进程内存信息
+                    try:
+                        children = process.children(recursive=True)
+                        if children:
+                            child_memory = sum(child.memory_info().rss for child in children)
+                            print(f"[DEBUG] Child processes memory: {child_memory/1024/1024/1024:.2f}GB from {len(children)} children")
+                            # 合并主进程和子进程内存
+                            total_memory = memory_usage + child_memory
+                        else:
+                            total_memory = memory_usage
+                    except Exception as e:
+                        print(f"[DEBUG] Error getting child processes: {e}")
+                        total_memory = memory_usage
+                    
+                    print(f"REPL with id {str(id)[:8]}/pid {repl.process.pid} using {memory_usage/1024/1024/1024:.2f}GB (process only) / {total_memory/1024/1024/1024:.2f}GB (with children)")
+
+                    if total_memory > self.memory_limit_bytes:
+                        print(f"[EVICTING] REPL {str(id)[:8]} exceeds memory limit of {self.memory_limit_bytes/1024/1024/1024:.2f}GB")
+                        
+                        # Remove from global pool
+                        del self.global_repl_pool[id]
+                        
+                        # Evict from the cache as well
+                        if self.cache[header_key] and safe_rm(self.cache[header_key], id, repl):
+                            print(f"Succesfully evicted header {str([header_key])[:30]} with id {str(id)[:8]} due to high memory usage")
+                            self.close_queue.put((id, repl))
+                        else:
+                            print(f"Failed to evict header {str([header_key])[:30]} with id {str(id)[:8]}, putting it back")
+                            self.global_repl_pool[id] = (header_key, repl)
+                except (psutil.NoSuchProcess, psutil.AccessDenied) as e:
+                    print(f"Error accessing process {str(id)[:8]}: {e}")
+                except Exception as e:
+                    print(f"Error checking memory for process {str(id)[:8]}: {e}")
+
     def _evict_if_needed(self):
-        """Evict the least recently used REPLs globally if the cache size exceeds the max size."""
+        # Then check for max size as before
         if len(self.global_repl_pool) > self.max_size:
             # Pop the oldest item from the global LRU list (least recently used)
             while len(self.global_repl_pool) > self.max_size:

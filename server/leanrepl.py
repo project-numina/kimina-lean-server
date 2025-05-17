@@ -159,6 +159,7 @@ class LeanREPL:
         try:
             # stop input to repl (which will result in the program loop for lean repl terminating)
             self.process.stdin.close()
+            os.killpg(os.getpgid(self.process.pid), signal.SIGKILL)
         except ProcessLookupError:
             # Process already terminated
             pass

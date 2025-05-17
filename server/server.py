@@ -24,7 +24,7 @@ logger.add(f"{settings.LOG_DIR}/server_{time_stamp}.log")
 
 repls = {}
 semaphore = asyncio.Semaphore(settings.MAX_CONCURRENT_REQUESTS)
-repl_cache = LRUReplCache(max_size=settings.MAX_REPLS)
+repl_cache = LRUReplCache(max_size=settings.MAX_REPLS, memory_limit_bytes=settings.MEMORY_LIMIT_BYTES)
 
 
 async def _repl_creater():
@@ -257,6 +257,7 @@ async def process_one_code_with_repl_fast(
                 )
             except LeanCrashError as e:
                 error_msg = str(e)
+                await repl_cache.destroy(proof_header, *repl[grepl_id])
                 return custom_id, error_msg, response
 
         try:
