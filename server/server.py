@@ -30,6 +30,7 @@ repl_cache = LRUReplCache(max_size=settings.MAX_REPLS, memory_limit_bytes=settin
 async def _repl_creater():
     while True:
         await asyncio.sleep(10)
+        
         if len(repl_cache.create_queue) > 0:
             repl_to_create = Counter(repl_cache.create_queue)
             repl_cache.create_queue = []
@@ -54,6 +55,8 @@ async def _repl_creater():
                 # put the repls in the cache
                 for repl in creating_repls:
                     await repl_cache.put(header, repl)
+                    
+        repl_cache.evict_if_memory_exceeds()
 
 
 async def _repl_cleaner():

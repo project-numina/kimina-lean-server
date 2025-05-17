@@ -53,10 +53,9 @@ class LRUReplCache:
             self.cache[key].append((id, repl))
             # Also add it to the global LRU list
             self.global_repl_pool[id] = (key, repl)
-            self._evict_if_memory_exceeds()
             self._evict_if_needed()
 
-    def _evict_if_memory_exceeds(self):
+    def evict_if_memory_exceeds(self):
         """Evict REPLs with Memory usage exceeding memory limit."""
         items_to_check = list(self.global_repl_pool.items())
         for id, (header_key, repl) in items_to_check:
