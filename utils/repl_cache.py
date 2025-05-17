@@ -27,7 +27,6 @@ class LRUReplCache:
             "cache_hits": 0,
             "cache_misses": 0,
         }
-        self.memory_limit_bytes = memory_limit_bytes
 
     async def get(self, key):
         """Get a REPL instance for the given header key."""
