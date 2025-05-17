@@ -13,8 +13,8 @@ class Settings(BaseSettings):
     WORKSPACE: str = Field(default_factory=os.getcwd)
     MAX_REPLS: int = Field(64)
     MAX_CONCURRENT_REQUESTS: int = Field(64)
-    MEMORY_LIMIT_BYTES: int = Field(20 * 1024 * 1024 * 1024) # 20GB
-    CHECK_MEMORY_INTERVAL: int = Field(50)
+    REPL_MEMORY_LIMIT_GB: int = Field(20)
+    REPL_MEMORY_CHECK_INTERVAL: int = Field(20)
 
     model_config = SettingsConfigDict(
         env_file=".env", env_file_encoding="utf-8", env_prefix="LEANSERVER_"

@@ -175,7 +175,7 @@ class LeanREPL:
     def __del__(self):
         self.close()
 
-    def exceeds_memory_limit(self, limit_bytes):
+    def exceeds_memory_limit(self, limit_gb):
         """
         Check if the REPL process exceeds the given memory limit.
         Returns True if memory usage exceeds limit, False otherwise.
@@ -187,7 +187,6 @@ class LeanREPL:
         if self.psutil_process is not None:
             try:
                 memory_usage = self.psutil_process.memory_info().rss
-                
                 try:
                     if not self.children_processes:
                         self.children_processes = self.psutil_process.children()
@@ -202,7 +201,7 @@ class LeanREPL:
                     total_memory = memory_usage
                 
                 logger.info(f"REPL pid {self.process.pid} using {total_memory/1024/1024/1024:.2f}GB")
-                return total_memory > limit_bytes
+                return total_memory > limit_gb * 1024 * 1024 * 1024
             except (psutil.NoSuchProcess, psutil.AccessDenied) as e:
                 logger.error(f"Error accessing process: {e}")
                 return False
