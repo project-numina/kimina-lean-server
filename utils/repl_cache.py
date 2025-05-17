@@ -64,32 +64,13 @@ class LRUReplCache:
             if hasattr(repl, 'process') and repl.process and repl.process.pid:
                 try:
                     process = psutil.Process(repl.process.pid)
-                    
-                    # 基本内存信息
                     memory_usage = process.memory_info().rss
-                    
-                    # 获取更详细的内存信息用于调试
-                    try:
-                        full_info = process.memory_full_info()
-                        print(f"[DEBUG] REPL {str(id)[:8]}/pid {repl.process.pid} memory details:")
-                        print(f"  - RSS: {full_info.rss/1024/1024/1024:.2f}GB")
-                        print(f"  - VMS: {full_info.vms/1024/1024/1024:.2f}GB")
-                        if hasattr(full_info, 'uss'):
-                            print(f"  - USS: {full_info.uss/1024/1024/1024:.2f}GB")
-                        if hasattr(full_info, 'pss'):
-                            print(f"  - PSS: {full_info.pss/1024/1024/1024:.2f}GB")
-                        if hasattr(full_info, 'swap'):
-                            print(f"  - SWAP: {full_info.swap/1024/1024/1024:.2f}GB")
-                    except Exception as e:
-                        print(f"[DEBUG] Could not get full memory info: {e}")
-                    
-                    # 尝试获取子进程内存信息
+                
                     try:
                         children = process.children(recursive=True)
                         if children:
                             child_memory = sum(child.memory_info().rss for child in children)
                             print(f"[DEBUG] Child processes memory: {child_memory/1024/1024/1024:.2f}GB from {len(children)} children")
-                            # 合并主进程和子进程内存
                             total_memory = memory_usage + child_memory
                         else:
                             total_memory = memory_usage
