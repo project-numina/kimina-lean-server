@@ -55,48 +55,6 @@ class LRUReplCache:
             self.global_repl_pool[id] = (key, repl)
             self._evict_if_needed()
 
-    def evict_if_memory_exceeds(self):
-        """Evict REPLs with Memory usage exceeding memory limit."""
-        items_to_check = list(self.global_repl_pool.items())
-        for id, (header_key, repl) in items_to_check:
-            # Check if the REPL process exists and has a valid process ID
-            if hasattr(repl, 'process') and repl.process and repl.process.pid:
-                try:
-                    process = psutil.Process(repl.process.pid)
-                    memory_usage = process.memory_info().rss
-                
-                    try:
-                        children = process.children(recursive=True)
-                        if children:
-                            child_memory = sum(child.memory_info().rss for child in children)
-                            print(f"[DEBUG] Child processes memory: {child_memory/1024/1024/1024:.2f}GB from {len(children)} children")
-                            total_memory = memory_usage + child_memory
-                        else:
-                            total_memory = memory_usage
-                    except Exception as e:
-                        print(f"[DEBUG] Error getting child processes: {e}")
-                        total_memory = memory_usage
-                    
-                    print(f"REPL with id {str(id)[:8]}/pid {repl.process.pid} using {memory_usage/1024/1024/1024:.2f}GB (process only) / {total_memory/1024/1024/1024:.2f}GB (with children)")
-
-                    if total_memory > self.memory_limit_bytes:
-                        print(f"[EVICTING] REPL {str(id)[:8]} exceeds memory limit of {self.memory_limit_bytes/1024/1024/1024:.2f}GB")
-                        
-                        # Remove from global pool
-                        del self.global_repl_pool[id]
-                        
-                        # Evict from the cache as well
-                        if self.cache[header_key] and safe_rm(self.cache[header_key], id, repl):
-                            print(f"Succesfully evicted header {str([header_key])[:30]} with id {str(id)[:8]} due to high memory usage")
-                            self.close_queue.put((id, repl))
-                        else:
-                            print(f"Failed to evict header {str([header_key])[:30]} with id {str(id)[:8]}, putting it back")
-                            self.global_repl_pool[id] = (header_key, repl)
-                except (psutil.NoSuchProcess, psutil.AccessDenied) as e:
-                    print(f"Error accessing process {str(id)[:8]}: {e}")
-                except Exception as e:
-                    print(f"Error checking memory for process {str(id)[:8]}: {e}")
-
     def _evict_if_needed(self):
         # Then check for max size as before
         if len(self.global_repl_pool) > self.max_size:

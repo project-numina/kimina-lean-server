@@ -5,6 +5,7 @@ import subprocess
 import tempfile
 import threading
 import time
+import psutil
 
 from func_timeout import FunctionTimedOut, func_timeout  # type: ignore
 from loguru import logger
@@ -169,3 +170,34 @@ class LeanREPL:
 
     def __del__(self):
         self.close()
+
+    def exceeds_memory_limit(self, limit_bytes):
+        """
+        Check if the REPL process exceeds the given memory limit.
+        Returns True if memory usage exceeds limit, False otherwise.
+        """
+        if hasattr(self, 'process') and self.process and self.process.pid:
+            try:
+                process = psutil.Process(self.process.pid)
+                memory_usage = process.memory_info().rss
+                
+                try:
+                    children = process.children(recursive=True)
+                    if children:
+                        child_memory = sum(child.memory_info().rss for child in children)
+                        total_memory = memory_usage + child_memory
+                    else:
+                        total_memory = memory_usage
+                except Exception as e:
+                    logger.error(f"Error getting child processes: {e}")
+                    total_memory = memory_usage
+                
+                logger.debug(f"REPL pid {self.process.pid} using {total_memory/1024/1024/1024:.2f}GB")
+                return total_memory > limit_bytes
+            except (psutil.NoSuchProcess, psutil.AccessDenied) as e:
+                logger.error(f"Error accessing process: {e}")
+                return False
+            except Exception as e:
+                logger.error(f"Error checking memory: {e}")
+                return False
+        return False
