@@ -276,33 +276,34 @@ async def process_one_code_with_repl_fast(
                 await repl_cache.destroy(proof_header, *repl[grepl_id])
             return custom_id, error_msg, response
 
-        exceeds_limit = False
-        if settings.REPL_MEMORY_CHECK_INTERVAL is not None and \
-            settings.REPL_MEMORY_LIMIT_GB is not None and \
-            repl[grepl_id][1].run_command_total % settings.REPL_MEMORY_CHECK_INTERVAL == 0:
-            # Check if the REPL exceeds memory limit after execution
-            exceeds_limit = await asyncio.to_thread(
-                repl[grepl_id][1].exceeds_memory_limit, settings.REPL_MEMORY_LIMIT_GB
-            )
+    # Move out semaphore
+    exceeds_limit = False
+    if settings.REPL_MEMORY_CHECK_INTERVAL is not None and \
+        settings.REPL_MEMORY_LIMIT_GB is not None and \
+        repl[grepl_id][1].run_command_total % settings.REPL_MEMORY_CHECK_INTERVAL == 0:
+        # Check if the REPL exceeds memory limit after execution
+        exceeds_limit = await asyncio.to_thread(
+            repl[grepl_id][1].exceeds_memory_limit, settings.REPL_MEMORY_LIMIT_GB
+        )
 
-        if exceeds_limit:
-            logger.warning(f"REPL exceeds memory limit after execution, destroying it. proof_header: {proof_header}")
-            if repl[grepl_id][0] is None:
-                await repl_cache.destroy(proof_header, *repl[grepl_id])
-            else:
-                id, repl_instance = repl[grepl_id]
-                await repl_cache.destroy(proof_header, id, repl_instance)
-                # Create a new REPL for this header to replace the one we're destroying
-                repl_cache.create_queue.append(proof_header)
+    if exceeds_limit:
+        logger.warning(f"REPL exceeds memory limit after execution, destroying it. proof_header: {proof_header}")
+        if repl[grepl_id][0] is None:
+            await repl_cache.destroy(proof_header, *repl[grepl_id])
         else:
-            # Release back to the cache if memory is within limits
-            if repl[grepl_id][0] is None:
-                await repl_cache.put(proof_header, repl[grepl_id][1])
-            else:
-                await repl_cache.release(proof_header, *repl[grepl_id])
+            id, repl_instance = repl[grepl_id]
+            await repl_cache.destroy(proof_header, id, repl_instance)
+            # Create a new REPL for this header to replace the one we're destroying
+            repl_cache.create_queue.append(proof_header)
+    else:
+        # Release back to the cache if memory is within limits
+        if repl[grepl_id][0] is None:
+            await repl_cache.put(proof_header, repl[grepl_id][1])
+        else:
+            await repl_cache.release(proof_header, *repl[grepl_id])
 
-        repl[grepl_id] = None
-        return custom_id, error_msg, response
+    repl[grepl_id] = None
+    return custom_id, error_msg, response
 
 
 @app.post("/one_pass_verify_batch")

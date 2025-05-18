@@ -200,7 +200,7 @@ class LeanREPL:
                     logger.error(f"Error getting child processes: {e}")
                     total_memory = memory_usage
                 
-                logger.info(f"REPL pid {self.process.pid} using {total_memory/1024/1024/1024:.2f}GB")
+                logger.debug(f"REPL pid {self.process.pid} using {total_memory/1024/1024/1024:.2f}GB")
                 return total_memory > limit_gb * 1024 * 1024 * 1024
             except (psutil.NoSuchProcess, psutil.AccessDenied) as e:
                 logger.error(f"Error accessing process: {e}")
