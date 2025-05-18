@@ -1,12 +1,11 @@
 import asyncio
-import uuid
 from collections import Counter
 from concurrent.futures import ThreadPoolExecutor
 from contextlib import asynccontextmanager
-from datetime import datetime
 from typing import Annotated
 
 from fastapi import Depends, FastAPI, Header, HTTPException, Request
+import fastapi.logger
 from loguru import logger
 from pydantic import BaseModel, Field
 from tqdm import tqdm
@@ -18,10 +17,6 @@ from .config import settings
 from .healthcheck import router
 from .leanrepl import LeanCrashError, LeanREPL
 
-time_stamp = datetime.now().strftime("%Y%m%d-%H%M%S")
-logger.remove()
-logger.add(f"{settings.LOG_DIR}/server_{time_stamp}.log")
-
 repls = {}
 semaphore = asyncio.Semaphore(settings.MAX_CONCURRENT_REQUESTS)
 repl_cache = LRUReplCache(max_size=settings.MAX_REPLS)
@@ -30,6 +25,7 @@ repl_cache = LRUReplCache(max_size=settings.MAX_REPLS)
 async def _repl_creater():
     while True:
         await asyncio.sleep(10)
+        
         if len(repl_cache.create_queue) > 0:
             repl_to_create = Counter(repl_cache.create_queue)
             repl_cache.create_queue = []
@@ -55,6 +51,8 @@ async def _repl_creater():
                 for repl in creating_repls:
                     await repl_cache.put(header, repl)
 
+        repl_cache.evict_if_needed()
+                    
 
 async def _repl_cleaner():
     while True:
@@ -125,30 +123,7 @@ def validate_api_access(request: Request, authorization: str = Header(None)) -> 
     if token != api_key:
         raise HTTPException(status_code=403, detail="Invalid API Key")
 
-
-async def get_repl(request: Request):
-    repl = {}
-
-    try:
-        yield repl
-    except Exception as ex:
-        for _, id_and_repl in repl.items():
-            if id_and_repl is None:
-                continue
-            id, repl_instance = id_and_repl
-            if id is not None:
-                assert repl_instance.header is not None
-                await repl_cache.destroy(repl_instance.header, id, repl_instance)
-                repl_cache.create_queue.append(repl_instance.header)
-                logger.info("teardown_request:", id, id in repl_cache.global_repl_pool)
-            repl_cache.close_queue.put((id, repl_instance))
-
-        raise ex
-
-
 require_access_dep = Annotated[None, Depends(validate_api_access)]
-lean_repl_dep = Annotated[dict[str, tuple[str, LeanREPL | None]], Depends(get_repl)]
-
 
 # ------ Schemas ------
 class Code(BaseModel):
@@ -176,7 +151,6 @@ async def root(require_access_dep: require_access_dep):
 @app.post("/verify")
 async def verify(
     body: VerifyRequestBody,
-    lean_repl: lean_repl_dep,
     access: require_access_dep,
 ):
     """verify the proof code."""
@@ -187,7 +161,7 @@ async def verify(
 
     tasks = [
         process_one_code_with_repl_fast(
-            code, timeout, infotree_type, lean_repl, disable_cache=disable_cache
+            code, timeout, infotree_type, disable_cache=disable_cache
         )
         for code in codes
     ]
@@ -213,14 +187,12 @@ async def process_one_code_with_repl_fast(
     code: Code,
     timeout: int,
     infotree_type: str | None,
-    repl: lean_repl_dep,
     disable_cache: bool = False,
 ):
     # Throttle the incoming request
     async with semaphore:
         error_msg = None
         response = None
-        grepl_id = str(uuid.uuid4())
 
         custom_id = code.custom_id
         proof = code.get_proof_content()
@@ -244,24 +216,25 @@ async def process_one_code_with_repl_fast(
             return custom_id, error_msg, response
 
         # Get lean repl instance from the lrucache
-        repl[grepl_id] = await repl_cache.get(proof_header)
+        grep_id, repl = await repl_cache.get(proof_header)
 
         # If we can not get the repl from the lrucache, we will create a new repl
-        if repl[grepl_id][0] is None:
-            repl[grepl_id] = None, LeanREPL()
+        if grep_id is None:
+            repl = LeanREPL()
 
             # And import the proof header
             try:
                 response = await asyncio.to_thread(
-                    repl[grepl_id][1].create_env, proof_header, timeout
+                    repl.create_env, proof_header, timeout
                 )
             except LeanCrashError as e:
                 error_msg = str(e)
+                del repl
                 return custom_id, error_msg, response
 
         try:
             response = await asyncio.to_thread(
-                repl[grepl_id][1].extend_env,
+                repl.extend_env,
                 0,
                 proof_body,
                 timeout,
@@ -269,28 +242,45 @@ async def process_one_code_with_repl_fast(
             )
         except LeanCrashError as e:
             error_msg = str(e)
-            if repl[grepl_id][0] is None:
-                await repl_cache.destroy(proof_header, *repl[grepl_id])
+            if grep_id is not None:
+                await repl_cache.destroy(proof_header, grep_id, repl)
+            else:
+                del repl
             return custom_id, error_msg, response
 
-        # Successfully extended the context, release the REPL back to the cache
-        if repl[grepl_id][0] is None:
-            await repl_cache.put(proof_header, repl[grepl_id][1])
-        else:
-            await repl_cache.release(proof_header, *repl[grepl_id])
+    # Move out semaphore
+    exceeds_limit = False
+    if settings.REPL_MEMORY_CHECK_INTERVAL is not None and \
+        settings.REPL_MEMORY_LIMIT_GB is not None and \
+        repl.run_command_total % settings.REPL_MEMORY_CHECK_INTERVAL == 0:
+        # Check if the REPL exceeds memory limit after execution
+        exceeds_limit = await asyncio.to_thread(
+            repl.exceeds_memory_limit, settings.REPL_MEMORY_LIMIT_GB
+        )
 
-        repl[grepl_id] = None
-        return custom_id, error_msg, response
+    if exceeds_limit:
+        logger.warning(f"REPL exceeds memory limit after execution, destroying it. proof_header: {proof_header}")
+        if grep_id is None:
+            del repl
+        else:
+            await repl_cache.destroy(proof_header, grep_id, repl)
+    else:
+        # release back to the cache if memory is within limits
+        if grep_id is None:
+            await repl_cache.put(proof_header, repl)
+        else:
+            await repl_cache.release(proof_header, grep_id, repl)
+
+    return custom_id, error_msg, response
 
 
 @app.post("/one_pass_verify_batch")
 async def one_pass_verify_batch(
     body: VerifyRequestBody,
-    lean_repl: lean_repl_dep,
     access: require_access_dep,
 ):
     """Backward compatible endpoint: accepts both 'proof' / 'code' fields."""
-    return await verify(body, lean_repl, access)
+    return await verify(body, access)
 
 
 app.include_router(router)
