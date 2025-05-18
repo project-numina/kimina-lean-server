@@ -153,7 +153,7 @@ class LeanREPL:
     def get_error_content(self):
         # Ensure that we seek back to the beginning of the file before reading
         if self.error_file is None:
-            print("Error file is None")
+            logger.debug("Error file is None")
         self.error_file.seek(0)
         return self.error_file.read()
 
