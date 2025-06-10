@@ -2,7 +2,7 @@ import asyncio
 import uuid
 from collections import OrderedDict, deque
 from queue import Queue
-
+from loguru import logger
 
 def safe_rm(queue, id, repl):
     """Safely remove a REPL instance from the queue."""
@@ -28,11 +28,11 @@ class LRUReplCache:
             "cache_misses": 0,
         }
 
-    async def get(self, key):
+    async def get(self, header):
         """Get a REPL instance for the given header key."""
         async with self.lock:  # Ensure thread-safety
-            if key in self.cache and self.cache[key]:
-                id, repl = self.cache[key].pop()
+            if header in self.cache and self.cache[header]:
+                id, repl = self.cache[header].pop()
                 # Move this REPL to the global LRU list to mark it as recently used
                 assert id in self.global_repl_pool
                 self.global_repl_pool.move_to_end(id)
@@ -41,21 +41,20 @@ class LRUReplCache:
             self.stats["cache_misses"] += 1
             return None, None
 
-    async def put(self, key, repl):
+    async def put(self, header, repl):
         """Put a new REPL instance into the cache for a specific header."""
         async with self.lock:
-            if key not in self.cache:
-                self.cache[key] = deque()
+            if header not in self.cache:
+                self.cache[header] = deque()
 
             # Add the new REPL to the list for that header
             id = uuid.uuid4()
-            self.cache[key].append((id, repl))
+            self.cache[header].append((id, repl))
             # Also add it to the global LRU list
-            self.global_repl_pool[id] = (key, repl)
-            self._evict_if_needed()
+            self.global_repl_pool[id] = (header, repl)
 
-    def _evict_if_needed(self):
-        """Evict the least recently used REPLs globally if the cache size exceeds the max size."""
+    def evict_if_needed(self):
+        # Then check for max size as before
         if len(self.global_repl_pool) > self.max_size:
             # Pop the oldest item from the global LRU list (least recently used)
             while len(self.global_repl_pool) > self.max_size:
@@ -65,23 +64,23 @@ class LRUReplCache:
 
                 # Evict the REPL instance from the cache as well
                 if self.cache[header_key] and safe_rm(self.cache[header_key], id, repl):
-                    print(
+                    logger.info(
                         f"Succesfully evicted header {str([header_key])[:30]} with id {str(id)}"
                     )
                     self.close_queue.put((id, repl))
                 else:
-                    print(
+                    logger.info(
                         f"Failed to evict header {str([header_key])[:30]} with id {str(id)}, putting it back"
                     )
                     self.global_repl_pool[id] = (header_key, repl)
 
-    async def destroy(self, key, id, repl):
+    async def destroy(self, header, id, repl):
         """Close a REPL instance and remove it from the cache."""
-        print(f"Destroying header {str([key])[:30]} with id {str(id)}")
+        logger.info(f"Destroying header {str([header])[:30]} with id {str(id)}")
         async with self.lock:
             # Remove the REPL from the cache
-            if key in self.cache:
-                safe_rm(self.cache[key], id, repl)
+            if header in self.cache:
+                safe_rm(self.cache[header], id, repl)
 
             # Remove the REPL from the global LRU list
             if id in self.global_repl_pool:
@@ -89,12 +88,12 @@ class LRUReplCache:
             # Close the REPL instance
             self.close_queue.put((id, repl))
 
-    async def release(self, key, id, repl):
+    async def release(self, header, id, repl):
         """Release a REPL back to the cache, marking it as recently used."""
         async with self.lock:
             # Remove and then re-add the REPL to mark it as recently used
-            if key in self.cache:
-                self.cache[key].append((id, repl))
+            if header in self.cache:
+                self.cache[header].append((id, repl))
                 self.global_repl_pool.move_to_end(id)
 
     def create(self, header):
@@ -113,20 +112,21 @@ class LRUReplCache:
                 if not self.cache[header]:
                     del self.cache[header]
                     deleted_headers.append(header)
-        print("[Clean cache entry] Num deleted headers: ", len(deleted_headers))
+        logger.info("[Clean cache entry] Num deleted headers: ", len(deleted_headers))
 
     async def print_status(self, update_interval=5):
-        """Print the current status of the cache."""
-        # Print the header
-        print("=" * 65)
-        print(f"{'Idx':<5} | {'Header':<45} | {'Pool Size':<10}")
-        print("-" * 65)
+        """logger.info the current status of the cache."""
+        # Build a single output string instead of multiple logger.info calls
+        output = ["\n"]
+        output.append("=" * 65)
+        output.append(f"{'Idx':<5} | {'Header':<45} | {'Pool Size':<10}")
+        output.append("-" * 65)
 
         idx = 1
         idle_count = 0
 
         async with self.lock:
-            # Print the cache status
+            # Get cache status
             proof_headers = list(self.cache.keys())
             qsizes = [len(self.cache[header]) for header in proof_headers]
         proof_headers_and_qsizes = sorted(
@@ -136,18 +136,17 @@ class LRUReplCache:
         for header, qsize in proof_headers_and_qsizes:
             proof_header = str([header])[:43]
             if idx < 30:
-                print(f"{idx:<5} | {proof_header:<45} | {qsize:<10}")
+                output.append(f"{idx:<5} | {proof_header:<45} | {qsize:<10}")
             elif idx == 30:
-                print(f"{'...':<5} | {'...':<45} | {'...':<10}")
+                output.append(f"{'...':<5} | {'...':<45} | {'...':<10}")
             idx += 1
             idle_count += qsize
 
-        print("-" * 65)
-        # print top 10 global LRU pool
-        print("Top 10 global LRU repl:")
-        print("-" * 65)
-        print(f"{'Idx':<5} | {'Header':<45} | {'ID':<10}")
-        print("-" * 65)
+        output.append("-" * 65)
+        output.append("Top 10 global LRU repl:")
+        output.append("-" * 65)
+        output.append(f"{'Idx':<5} | {'Header':<45} | {'ID':<10}")
+        output.append("-" * 65)
 
         # reverse iteration on global_repl_pool
         async with self.lock:
@@ -156,25 +155,28 @@ class LRUReplCache:
             ):
                 header = str([header])[:43]
                 if idx < 10:
-                    print(f"{idx + 1:<5} | {header:<45} | {str(id)[:8]:<10}")
+                    output.append(f"{idx + 1:<5} | {header:<45} | {str(id)[:8]:<10}")
                 elif idx == 10:
-                    print(f"{'...':<5} | {'...':<45} | {'...':<10}")
+                    output.append(f"{'...':<5} | {'...':<45} | {'...':<10}")
                     break
 
-        print("-" * 65)
-        print(f"{'':<5} | {'Total':<45} | {len(self.global_repl_pool):<10}")
-        print(f"{'':<5} | {'Idle':<45} | {idle_count:<10}")
-        print(f"{'':<5} | {'Create Queue':<45} | {len(self.create_queue):<10}")
-        print(f"{'':<5} | {'Close Queue':<45} | {self.close_queue.qsize():<10}")
-        print(f"{'':<5} | {'Cache Hits':<45} | {self.stats['cache_hits']:<10}")
-        print(f"{'':<5} | {'Cache Misses':<45} | {self.stats['cache_misses']:<10}")
-        print(
+        output.append("-" * 65)
+        output.append(f"{'':<5} | {'Total':<45} | {len(self.global_repl_pool):<10}")
+        output.append(f"{'':<5} | {'Idle':<45} | {idle_count:<10}")
+        output.append(f"{'':<5} | {'Create Queue':<45} | {len(self.create_queue):<10}")
+        output.append(f"{'':<5} | {'Close Queue':<45} | {self.close_queue.qsize():<10}")
+        output.append(f"{'':<5} | {'Cache Hits':<45} | {self.stats['cache_hits']:<10}")
+        output.append(f"{'':<5} | {'Cache Misses':<45} | {self.stats['cache_misses']:<10}")
+        output.append(
             f"{'':<5} | {'Cache ratio':<45} | {self.stats['cache_hits'] / (self.stats['cache_hits'] + self.stats['cache_misses'] + 1):<10.2f}"
         )
-        print(
+        output.append(
             f"{'':<5} | {'its':<45} | {(self.stats['cache_hits'] + self.stats['cache_misses']) / update_interval:<10}"
         )
-        print("=" * 65)
+        output.append("=" * 65)
+
+        # Print the entire output as a single string
+        logger.info("\n".join(output))
 
         self.stats["cache_hits"] = 0
         self.stats["cache_misses"] = 0

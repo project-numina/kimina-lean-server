@@ -5,6 +5,7 @@ import subprocess
 import tempfile
 import threading
 import time
+import psutil
 
 from func_timeout import FunctionTimedOut, func_timeout  # type: ignore
 from loguru import logger
@@ -34,6 +35,9 @@ class LeanREPL:
         # Create a lock for thread safety
         self.lock = threading.Lock()
         self.header = None
+        self.psutil_process = None
+        self.children_processes = []
+        self.run_command_total = 0 
 
     def _send_command(self, command):
         """
@@ -42,6 +46,7 @@ class LeanREPL:
 
         with self.lock:
             try:
+                self.run_command_total += 1
                 # Convert the command to JSON and add two newlines
                 json_command = json.dumps(command, ensure_ascii=False) + "\n\n"
                 # Send the command to the REPL
@@ -148,7 +153,7 @@ class LeanREPL:
     def get_error_content(self):
         # Ensure that we seek back to the beginning of the file before reading
         if self.error_file is None:
-            print("Error file is None")
+            logger.debug("Error file is None")
         self.error_file.seek(0)
         return self.error_file.read()
 
@@ -159,6 +164,7 @@ class LeanREPL:
         try:
             # stop input to repl (which will result in the program loop for lean repl terminating)
             self.process.stdin.close()
+            os.killpg(os.getpgid(self.process.pid), signal.SIGKILL)
         except ProcessLookupError:
             # Process already terminated
             pass
@@ -168,3 +174,38 @@ class LeanREPL:
 
     def __del__(self):
         self.close()
+
+    def exceeds_memory_limit(self, limit_gb):
+        """
+        Check if the REPL process exceeds the given memory limit.
+        Returns True if memory usage exceeds limit, False otherwise.
+        """
+
+        if self.psutil_process is None:
+            self.psutil_process = psutil.Process(self.process.pid)
+
+        if self.psutil_process is not None:
+            try:
+                memory_usage = self.psutil_process.memory_info().rss
+                try:
+                    if not self.children_processes:
+                        self.children_processes = self.psutil_process.children()
+                        
+                    if self.children_processes:
+                        child_memory = sum(child.memory_info().rss for child in self.children_processes)
+                        total_memory = memory_usage + child_memory
+                    else:
+                        total_memory = memory_usage
+                except Exception as e:
+                    logger.error(f"Error getting child processes: {e}")
+                    total_memory = memory_usage
+                
+                logger.debug(f"REPL pid {self.process.pid} using {total_memory/1024/1024/1024:.2f}GB")
+                return total_memory > limit_gb * 1024 * 1024 * 1024
+            except (psutil.NoSuchProcess, psutil.AccessDenied) as e:
+                logger.error(f"Error accessing process: {e}")
+                return False
+            except Exception as e:
+                logger.error(f"Error checking memory: {e}")
+                return False
+        return False
