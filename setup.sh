@@ -2,6 +2,7 @@
 set -euxo pipefail
 
 LEAN_VERSION="v4.15.0"
+ELAN_HOME="$HOME/.elan" # Change this if you want to install elan in a different location, you will need also to add $ELAN_HOME to your PATH
 
 command -v curl > /dev/null 2>&1 || { echo "Error: curl is not installed." >&2; exit 1; }
 
@@ -9,7 +10,7 @@ command -v curl > /dev/null 2>&1 || { echo "Error: curl is not installed." >&2; 
 echo "Installing lean ${LEAN_VERSION}"
 pushd ~
 curl https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -sSf | sh -s -- --default-toolchain ${LEAN_VERSION} -y
-source $HOME/.elan/env
+source $ELAN_HOME/env
 popd
 
 # Install REPL
