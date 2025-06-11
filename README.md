@@ -118,7 +118,7 @@ theorem lean_workbook_10009 (a b c: ℝ) (ha : a ≥ 0 ∧ b ≥ 0 ∧ c ≥ 0 �
 nlinarith [sq_nonneg (a - b), sq_nonneg (b - c), sq_nonneg (c - a),
 sq_nonneg (a + b + c)]"""
 
-resposne = client.verify([
+response = client.verify([
     {"proof": mock_proof, "custom_id": "1"},
     {"proof": mock_proof, "custom_id": "2"}
 ], timeout=30)
