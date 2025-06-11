@@ -167,6 +167,16 @@ response:
 | `LEANSERVER_WORKSPACE`               | $(pwd)        | Root directory containing `mathlib` and `repl`         |
 | `LEANSERVER_MAX_REPLS`               | **CPU count** | Maximum number of Lean REPL instances                  |
 | `LEANSERVER_MAX_CONCURRENT_REQUESTS` | **CPU count** | Maximum number of concurrent requests in the Lean REPL |
+| `LEANSERVER_HEALTHCHECK_CPU_USAGE_THRESHOLD` | **None** | CPU usage threshold for healthcheck |
+| `LEANSERVER_HEALTHCHECK_MEMORY_USAGE_THRESHOLD` | **None** | Memory usage threshold for healthcheck |
+| `LEANSERVER_REPL_MEMORY_LIMIT_GB` | **None** | Memory limit for REPLs |
+| `LEANSERVER_REPL_MEMORY_CHECK_INTERVAL` | **None** | Number of consecutive commands that run on REPL before memory check |
+
+
+Note:
+-  `LEANSERVER_REPL_MEMORY_LIMIT_GB` needs to be used together with `LEANSERVER_REPL_MEMORY_CHECK_INTERVAL`
+-  In some bloated systems, memory detection can be slow, which impacts performance. However, this isn't an issue in streamlined systems.
+
 
 ## 🚀 Performance Benchmarks
 
