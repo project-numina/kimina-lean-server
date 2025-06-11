@@ -211,6 +211,7 @@ async def process_one_code_with_repl_fast(
                 )
             except LeanCrashError as e:
                 error_msg = str(e)
+                logger.error(f"Error raised in one_pass_verify with 1-shot repl: {error_msg}. Proof was: {proof}.")
             finally:
                 del lean_repl
             return custom_id, error_msg, response
@@ -229,6 +230,7 @@ async def process_one_code_with_repl_fast(
                 )
             except LeanCrashError as e:
                 error_msg = str(e)
+                logger.error(f"Error raised while creating repl env with header: {proof_header}. Error was: {error_msg}")
                 del repl
                 return custom_id, error_msg, response
 
@@ -242,7 +244,9 @@ async def process_one_code_with_repl_fast(
             )
         except LeanCrashError as e:
             error_msg = str(e)
+            logger.error(f"Error raised while extending repl env with proof body: {error_msg}. Proof body: {proof_body}")
             if grep_id is not None:
+                logger.error(f"Removing repl from cache: {grep_id}")
                 await repl_cache.destroy(proof_header, grep_id, repl)
             else:
                 del repl
@@ -263,6 +267,7 @@ async def process_one_code_with_repl_fast(
         if grep_id is None:
             del repl
         else:
+            logger.warning(f"Removing repl from cache: {grep_id}")
             await repl_cache.destroy(proof_header, grep_id, repl)
     else:
         # release back to the cache if memory is within limits
