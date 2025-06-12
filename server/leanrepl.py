@@ -201,7 +201,7 @@ class LeanREPL:
                     total_memory = memory_usage
                 
                 logger.debug(f"REPL pid {self.process.pid} using {total_memory/1024/1024/1024:.2f}GB")
-                return total_memory > limit_gb * 1024 * 1024 * 1024
+                return total_memory > limit_gb * 1024 * 1024 * 1024, total_memory
             except (psutil.NoSuchProcess, psutil.AccessDenied) as e:
                 logger.error(f"Error accessing process: {e}")
                 return False
