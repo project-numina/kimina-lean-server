@@ -23,12 +23,12 @@ def benchmark_api(client, n: int, timeout: int, batch_size: int, num_proc: int):
     Returns:
         None: Results are printed to stdout by the analyze function.
     """
-    dataset = load_dataset("Goedel-LM/Lean-workbook-proofs", split="train")
-    dataset = dataset.select(range(n))
+    dataset = load_dataset("AI-MO/math-test-inference-results", split="train")
+    # dataset = dataset.select(range(n))
 
     samples = [
-        {"custom_id": sample["problem_id"], "proof": sample["full_proof"]}
-        for sample in dataset
+        {"custom_id": str(sample["problem_id"]) + "_" + str(i), "proof": sample["proof"]}
+        for i, sample in enumerate(dataset)
     ]
 
     result = batch_verify_proof(
@@ -44,10 +44,10 @@ def benchmark_api(client, n: int, timeout: int, batch_size: int, num_proc: int):
 
 if __name__ == "__main__":
     n = 100
-    timeout = 60
-    batch_size = 1
-    num_proc = os.cpu_count() or 16
-    url = "http://localhost:80"
+    timeout = 240
+    batch_size = 8
+    num_proc = 64
+    url = "your_url"
 
     logger.info("Testing cached mode")
 
