@@ -198,9 +198,16 @@ async def process_one_code_with_repl_fast(
         proof = code.get_proof_content()
 
         if proof is None:
+            logger.warning(f"[{custom_id}] No code provided")
             return custom_id, "No code provided", response
 
         proof_header, proof_body = split_proof_header(proof)
+
+        logger.debug(f"[{custom_id}] Processing code:\n"
+                    f"  - custom_id: {custom_id}\n"
+                    f"  - proof_header: {proof_header}\n"
+                    f"  - proof_body: {proof_body}\n"
+                    f"  - timeout: {timeout}")
 
         # if we can not found the proof header, create a new repl
         if len(proof_header.strip()) == 0 or disable_cache:
@@ -211,7 +218,13 @@ async def process_one_code_with_repl_fast(
                 )
             except LeanCrashError as e:
                 error_msg = str(e)
-                logger.error(f"Error raised in one_pass_verify with 1-shot repl: {error_msg}. Proof was: {proof}.")
+                logger.error(f"[{custom_id}] Error raised in one_pass_verify with 1-shot repl:\n"
+                           f"  - Error: {error_msg}\n"
+                           f"  - Proof: {proof}\n"
+                           f"  - custom_id: {custom_id}\n"
+                           f"  - proof_header: {proof_header}\n"
+                           f"  - proof_body: {proof_body}\n"
+                           f"  - timeout: {timeout}")
             finally:
                 del lean_repl
             return custom_id, error_msg, response
@@ -230,7 +243,13 @@ async def process_one_code_with_repl_fast(
                 )
             except LeanCrashError as e:
                 error_msg = str(e)
-                logger.error(f"Error raised while creating repl env with header: {proof_header}. Error was: {error_msg}")
+                logger.error(f"[{custom_id}] Error raised while creating repl env with header:\n"
+                           f"  - Header: {proof_header}\n"
+                           f"  - Error: {error_msg}\n"
+                           f"  - custom_id: {custom_id}\n"
+                           f"  - proof_header: {proof_header}\n"
+                           f"  - proof_body: {proof_body}\n"
+                           f"  - timeout: {timeout}")
                 del repl
                 return custom_id, error_msg, response
 
@@ -244,9 +263,15 @@ async def process_one_code_with_repl_fast(
             )
         except LeanCrashError as e:
             error_msg = str(e)
-            logger.error(f"Error raised while extending repl env with proof body: {error_msg}. Proof body: {proof_body}")
+            logger.error(f"[{custom_id}] Error raised while extending repl env with proof:\n"
+                       f"  - Error: {error_msg}\n"
+                       f"  - Proof body: {proof_body}\n"
+                       f"  - custom_id: {custom_id}\n"
+                       f"  - proof_header: {proof_header}\n"
+                       f"  - proof_body: {proof_body}\n"
+                       f"  - timeout: {timeout}")
             if grep_id is not None:
-                logger.error(f"Removing repl from cache: {grep_id}")
+                logger.error(f"[{custom_id}] Removing repl from cache: {grep_id}")
                 await repl_cache.destroy(proof_header, grep_id, repl)
             else:
                 del repl
@@ -258,16 +283,21 @@ async def process_one_code_with_repl_fast(
         settings.REPL_MEMORY_LIMIT_GB is not None and \
         repl.run_command_total % settings.REPL_MEMORY_CHECK_INTERVAL == 0:
         # Check if the REPL exceeds memory limit after execution
-        exceeds_limit = await asyncio.to_thread(
+        exceeds_limit, total_memory = await asyncio.to_thread(
             repl.exceeds_memory_limit, settings.REPL_MEMORY_LIMIT_GB
         )
 
     if exceeds_limit:
-        logger.warning(f"REPL exceeds memory limit after execution, destroying it. proof_header: {proof_header}")
+        logger.warning(f"[{custom_id}] REPL exceeds memory limit after execution, destroying it:\n"
+                      f"  - custom_id: {custom_id}\n"
+                      f"  - proof_header: {proof_header}\n"
+                      f"  - proof_body: {proof_body}\n"
+                      f"  - total_memory: {total_memory/1024/1024/1024:.2f}GB\n"
+                      f"  - timeout: {timeout}")
         if grep_id is None:
             del repl
         else:
-            logger.warning(f"Removing repl from cache: {grep_id}")
+            logger.warning(f"[{custom_id}] Removing repl from cache: {grep_id}")
             await repl_cache.destroy(proof_header, grep_id, repl)
     else:
         # release back to the cache if memory is within limits
