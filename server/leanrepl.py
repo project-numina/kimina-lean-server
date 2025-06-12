@@ -76,7 +76,7 @@ class LeanREPL:
     def _check_memory_exceeded(self):
         """Check if memory has been exceeded and raise exception if so."""
         if self.memory_exceeded:
-            raise LeanCrashError("Lean process exceeded memory limit")
+            raise LeanCrashError(f"Lean process exceeded memory of {self.memory_limit_gb}GB")
 
     def _send_command(self, command):
         """
