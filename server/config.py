@@ -15,6 +15,8 @@ class Settings(BaseSettings):
     MAX_CONCURRENT_REQUESTS: int = Field(os.cpu_count() or 1)
     REPL_MEMORY_LIMIT_GB: int | None = Field(None)
     REPL_MEMORY_CHECK_INTERVAL: int | None = Field(None)
+    REPL_MEMORY_RUNTIME_CHECK_INTERVAL: int | None = Field(None)
+
     HEALTHCHECK_CPU_USAGE_THRESHOLD: int | None = Field(None)
     HEALTHCHECK_MEMORY_USAGE_THRESHOLD: int | None = Field(None)
 

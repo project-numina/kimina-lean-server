@@ -38,11 +38,52 @@ class LeanREPL:
         self.psutil_process = None
         self.children_processes = []
         self.run_command_total = 0 
+        
+        # Memory monitoring attributes
+        self.memory_limit_gb = settings.REPL_MEMORY_LIMIT_GB
+        self.memory_check_interval = settings.REPL_MEMORY_RUNTIME_CHECK_INTERVAL
+        self.memory_exceeded = False
+        self.memory_monitor_stop_event = threading.Event()
+        self.memory_monitor_thread = None
+        
+        # Start memory monitoring thread
+        if self.memory_limit_gb and self.memory_limit_gb > 0 and self.memory_check_interval is not None:
+            self._start_memory_monitor()
+
+    def _start_memory_monitor(self):
+        """Start the memory monitoring thread."""
+        self.memory_monitor_thread = threading.Thread(
+            target=self._memory_monitor_loop,
+            daemon=True
+        )
+        self.memory_monitor_thread.start()
+        logger.info(f"Started memory monitor thread with limit {self.memory_limit_gb}GB, check interval {self.memory_check_interval}s")
+
+    def _memory_monitor_loop(self):
+        """Memory monitoring loop that runs in a separate thread."""
+        while not self.memory_monitor_stop_event.wait(self.memory_check_interval):
+            try:
+                exceeded, total_memory = self.exceeds_memory_limit(self.memory_limit_gb)
+                if exceeded:
+                    logger.error(f"Memory limit exceeded: {total_memory/1024/1024/1024:.2f}GB > {self.memory_limit_gb}GB")
+                    self.memory_exceeded = True
+                    break
+            except Exception as e:
+                logger.error(f"Error in memory monitor loop: {e}")
+        
+        logger.info("Memory monitor thread stopped")
+
+    def _check_memory_exceeded(self):
+        """Check if memory has been exceeded and raise exception if so."""
+        if self.memory_exceeded:
+            raise LeanCrashError("Lean process exceeded memory limit")
 
     def _send_command(self, command):
         """
         Send a JSON command to the REPL and return the JSON response.
         """
+        # Check memory before sending command
+        self._check_memory_exceeded()
 
         with self.lock:
             try:
@@ -59,6 +100,9 @@ class LeanREPL:
                 stderr_lines = []
 
                 while True:
+                    # Check memory during command execution
+                    self._check_memory_exceeded()
+                    
                     # Read from both stdout and stderr
                     stdout_line = self.process.stdout.readline()
 
@@ -100,6 +144,9 @@ class LeanREPL:
         """
         Send code to verify in one pass.
         """
+        # Check memory before verification
+        self._check_memory_exceeded()
+        
         if infotree_type is None:
             command = {"cmd": code}
         else:
@@ -114,6 +161,9 @@ class LeanREPL:
         """
         Send code to create a new context.
         """
+        # Check memory before creating environment
+        self._check_memory_exceeded()
+        
         command = {"cmd": code}
         try:
             response = func_timeout(timeout, self._send_command, args=(command,))
@@ -127,6 +177,9 @@ class LeanREPL:
         """
         Send code to extend a context.
         """
+        # Check memory before extending environment
+        self._check_memory_exceeded()
+        
         if infotree_type is None:
             command = {"cmd": code, "env": context_id}
         else:
@@ -161,6 +214,12 @@ class LeanREPL:
         """
         Terminate the REPL process and all its child processes.
         """
+        # Stop memory monitoring thread
+        if self.memory_monitor_thread is not None:
+            self.memory_monitor_stop_event.set()
+            self.memory_monitor_thread.join(timeout=2.0)
+            logger.info("Memory monitor thread stopped")
+        
         try:
             # stop input to repl (which will result in the program loop for lean repl terminating)
             self.process.stdin.close()
@@ -186,6 +245,7 @@ class LeanREPL:
 
         if self.psutil_process is not None:
             try:
+                start_time = time.time()
                 memory_usage = self.psutil_process.memory_info().rss
                 try:
                     if not self.children_processes:
@@ -200,7 +260,7 @@ class LeanREPL:
                     logger.error(f"Error getting child processes: {e}")
                     total_memory = memory_usage
                 
-                logger.debug(f"REPL pid {self.process.pid} using {total_memory/1024/1024/1024:.2f}GB")
+                logger.debug(f"REPL pid {self.process.pid} using {total_memory/1024/1024/1024:.2f}GB, time elapsed {time.time() - start_time:.2f}s")
                 return total_memory > limit_gb * 1024 * 1024 * 1024, total_memory
             except (psutil.NoSuchProcess, psutil.AccessDenied) as e:
                 logger.error(f"Error accessing process: {e}")

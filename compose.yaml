@@ -5,13 +5,13 @@ services:
       dockerfile: Dockerfile
       args:
         LEAN_VERSION: v4.15.0
-    image: projectnumina/kimina-lean-server:1.0.2
+    image: redamancy0326/kimina-lean4-verify-server:1.1.4
     container_name: kimina-lean-server
     restart: unless-stopped
     ports:
       - "80:${LEANSERVER_PORT:-12332}"
     volumes:
-      - ./logs:/app/logs
+      - ./logs:/root/logs
     env_file:
       - .env
     healthcheck:
