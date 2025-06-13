@@ -5,8 +5,8 @@ import subprocess
 import tempfile
 import threading
 import time
-import psutil
 
+import psutil
 from func_timeout import FunctionTimedOut, func_timeout  # type: ignore
 from loguru import logger
 
@@ -37,7 +37,7 @@ class LeanREPL:
         self.header = None
         self.psutil_process = None
         self.children_processes = []
-        self.run_command_total = 0 
+        self.run_command_total = 0
 
     def _send_command(self, command):
         """
@@ -95,6 +95,36 @@ class LeanREPL:
                 )
             response_json["time"] = time_elapsed
             return response_json
+
+    def extend_env_minibatch(
+        self,
+        context_id,
+        proofs,
+        buckets=5,
+        timeout=150,
+        infotree_type=None,
+        mode="naive",
+    ):
+        """
+        Send code to extend a context id.
+        """
+        command = {
+            "cmds": proofs,
+            "env": context_id,
+            "timeout": timeout * 1000,
+            "mode": mode,
+        }
+        if infotree_type is not None:
+            command["infotree"] = infotree_type
+        if mode == "parrallel":
+            # TODO :: make a constant for bucket count
+            command["buckets"] = buckets
+
+        try:
+            response = func_timeout(timeout, self._send_command, args=(command,))
+        except FunctionTimedOut:
+            raise LeanCrashError("Lean process timed out")
+        return response
 
     def one_pass_verify(self, code, timeout, infotree_type=None):
         """
@@ -190,17 +220,21 @@ class LeanREPL:
                 try:
                     if not self.children_processes:
                         self.children_processes = self.psutil_process.children()
-                        
+
                     if self.children_processes:
-                        child_memory = sum(child.memory_info().rss for child in self.children_processes)
+                        child_memory = sum(
+                            child.memory_info().rss for child in self.children_processes
+                        )
                         total_memory = memory_usage + child_memory
                     else:
                         total_memory = memory_usage
                 except Exception as e:
                     logger.error(f"Error getting child processes: {e}")
                     total_memory = memory_usage
-                
-                logger.debug(f"REPL pid {self.process.pid} using {total_memory/1024/1024/1024:.2f}GB")
+
+                logger.debug(
+                    f"REPL pid {self.process.pid} using {total_memory/1024/1024/1024:.2f}GB"
+                )
                 return total_memory > limit_gb * 1024 * 1024 * 1024, total_memory
             except (psutil.NoSuchProcess, psutil.AccessDenied) as e:
                 logger.error(f"Error accessing process: {e}")

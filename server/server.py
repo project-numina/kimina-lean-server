@@ -10,7 +10,7 @@ from loguru import logger
 from pydantic import BaseModel, Field
 from tqdm import tqdm
 
-from utils.proof_utils import split_proof_header
+from utils.proof_utils import split_proof_header, split_into_minibatches
 from utils.repl_cache import LRUReplCache
 
 from .config import settings
@@ -141,6 +141,15 @@ class VerifyRequestBody(BaseModel):
     infotree_type: str | None = None
     disable_cache: bool = False
 
+class VerifyWithMiniBatchRequestBody(BaseModel):
+    codes: list[Code]
+    timeout: int = 300
+    infotree_type: str | None = None
+    mode: str
+    buckets: int | None = None
+    minibatch_size: int
+    disable_cache: bool = False
+
 
 # ------ Endpoint ------
 @app.get("/")
@@ -179,6 +188,58 @@ async def verify(
                 "response": response,
             }
         )
+
+    return {"results": results}
+
+@app.post("/verify_with_minibatch")
+async def verify_with_minibatch(
+    body: VerifyWithMiniBatchRequestBody,
+    access: require_access_dep,
+):
+    """verify the proof code by splitting into minibatches and using thread parrallel on each minibatch. Assumes header is the same for all proofs."""
+    codes = body.codes
+    timeout = body.timeout
+    mode = body.mode
+    buckets = body.buckets
+    subbatch_size = body.minibatch_size
+    infotree_type = body.infotree_type
+    disable_cache = body.disable_cache
+
+    minibatches = split_into_minibatches(codes, 5)
+
+    tasks = [
+        process_minibatch_code_with_fixed_header(
+            minibatch, timeout, infotree_type, mode, buckets, disable_cache=disable_cache
+        )
+        for minibatch in minibatches
+    ]
+
+    # Await the results of all the tasks concurrently
+    results_data = await asyncio.gather(*tasks)
+
+    results = []
+    for minibatch_result in results_data:
+        error, response = minibatch_result
+        results.extend(
+            {
+                "error": error,
+                "response": response,
+            }
+        )
+    for sub_batch in results_data:
+        if sub_batch[1] is not None:
+            results.extend([{
+                "error": sub_batch[0],
+                "response": res
+            } for res in sub_batch[1]])
+        else:
+            results.extend([{
+                "error": sub_batch[0],
+                "response": sub_batch[1]
+            }] * subbatch_size)
+    
+    for result, code in zip(results, codes):
+        result["custom_id"] = code.custom_id
 
     return {"results": results}
 
@@ -307,6 +368,99 @@ async def process_one_code_with_repl_fast(
             await repl_cache.release(proof_header, grep_id, repl)
 
     return custom_id, error_msg, response
+
+async def process_minibatch_code_with_fixed_header(
+    proofs : list[Code], 
+    timeout : int, 
+    infotree_type: str | None,
+    mode : str, 
+    buckets : int | None = None,
+    disable_cache: bool = False):
+    # Throttle the incoming request
+    async with semaphore:
+        error_msg = None
+        response = None
+
+        proof_header, _ = split_proof_header(proofs[0])
+        proof_bodys = [split_proof_header(proof)[1] for proof in proofs]
+
+        # if we can not found the proof header, create a new repl
+        if len(proof_header.strip()) == 0 or disable_cache:
+            lean_repl = LeanREPL()
+            try:
+                response = await asyncio.to_thread(
+                    lean_repl.extend_env_minibatch, proof_bodys, buckets, timeout, infotree_type, mode
+                )
+            except LeanCrashError as e:
+                error_msg = str(e)
+                logger.error(f"Error raised in one_pass_verify with 1-shot repl: {error_msg}. Proof minibatch was: {proof_bodys}.")
+            finally:
+                del lean_repl
+            return error_msg, response
+
+        # Get lean repl instance from the lrucache
+        grep_id, repl = await repl_cache.get(proof_header)
+
+        # If we can not get the repl from the lrucache, we will create a new repl
+        if grep_id is None:
+            repl = LeanREPL()
+
+            # And import the proof header
+            try:
+                response = await asyncio.to_thread(
+                    repl.create_env, proof_header, timeout
+                )
+            except LeanCrashError as e:
+                error_msg = str(e)
+                logger.error(f"Error raised while creating repl env with header: {proof_header}. Error was: {error_msg}")
+                del repl
+                return error_msg, response
+
+        try:
+            response = await asyncio.to_thread(
+                repl.extend_env_minibatch,
+                0,
+                proof_bodys,
+                buckets,
+                timeout,
+                infotree_type,
+                mode
+            )
+        except LeanCrashError as e:
+            error_msg = str(e)
+            logger.error(f"Error raised while extending repl env with proof body: {error_msg}. Proof mini batch: {proof_bodys}")
+            if grep_id is not None:
+                logger.error(f"Removing repl from cache: {grep_id}")
+                await repl_cache.destroy(proof_header, grep_id, repl)
+            else:
+                del repl
+            return error_msg, response
+
+    # Move out semaphore
+    exceeds_limit = False
+    if settings.REPL_MEMORY_CHECK_INTERVAL is not None and \
+        settings.REPL_MEMORY_LIMIT_GB is not None and \
+        repl.run_command_total % settings.REPL_MEMORY_CHECK_INTERVAL == 0:
+        # Check if the REPL exceeds memory limit after execution
+        exceeds_limit = await asyncio.to_thread(
+            repl.exceeds_memory_limit, settings.REPL_MEMORY_LIMIT_GB
+        )
+
+    if exceeds_limit:
+        logger.warning(f"REPL exceeds memory limit after execution, destroying it. proof_header: {proof_header}")
+        if grep_id is None:
+            del repl
+        else:
+            logger.warning(f"Removing repl from cache: {grep_id}")
+            await repl_cache.destroy(proof_header, grep_id, repl)
+    else:
+        # release back to the cache if memory is within limits
+        if grep_id is None:
+            await repl_cache.put(proof_header, repl)
+        else:
+            await repl_cache.release(proof_header, grep_id, repl)
+
+    return error_msg, response
 
 
 @app.post("/one_pass_verify_batch")
