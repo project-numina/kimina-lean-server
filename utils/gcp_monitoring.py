@@ -70,81 +70,65 @@ async def send_cached_metrics():
                 metric_cache.clear()
                 last_send_time = current_time
         
-        # Send metrics concurrently
-        tasks = []
-        for metric_name, metric_value in metrics_to_send.items():
-            task = asyncio.create_task(
-                send_event_metric_safe(metric_name, metric_value)
-            )
-            tasks.append(task)
+        # Send all metrics in a single batch to avoid GCP rate limiting
+        if metrics_to_send:
+            try:
+                logger.debug(
+                    f"[GCP Monitoring]Sending batch of {len(metrics_to_send)} metrics"
+                )
+                await send_batch_metrics(metrics_to_send)
+            except Exception as e:
+                logger.error(
+                    f"[GCP Monitoring]Error sending batch metrics: {e}"
+                )
+
+
+async def send_batch_metrics(metrics_dict: dict):
+    """Send multiple metrics in a single batch request"""
+    try:
+        time_series_list = []
         
-        if tasks:
-            await asyncio.gather(*tasks, return_exceptions=True)
+        for metric_name, metric_value in metrics_dict.items():
+            series = monitoring_v3.TimeSeries()
+            series.metric.type = f"custom.googleapis.com/lean4_server/{metric_name}"
 
+            series.resource.type = RESOURCE_TYPE
+            for key, value in RESOURCE_LABELS.items():
+                series.resource.labels[key] = str(value)
 
-async def send_event_metric_safe(metric_name: str, metric_value: int, metric_labels: dict | None = None):
-    """Safe wrapper for send_event_metric with error handling"""
-    try:
-        logger.debug(
-            f"[GCP Monitoring]Sending cached metric {metric_name}: {metric_value}"
-        )
-        await send_event_metric(metric_name, metric_value, metric_labels)
+            now_timestamp = time.time()
+            seconds = int(now_timestamp)
+            nanos = int((now_timestamp - seconds) * 10**9)
+
+            point = monitoring_v3.Point()
+
+            end_time = Timestamp(seconds=seconds, nanos=nanos)
+            start_time = Timestamp(seconds=seconds, nanos=nanos)
+
+            point.interval = monitoring_v3.TimeInterval(
+                end_time=end_time, start_time=start_time
+            )
+
+            point.value.int64_value = metric_value
+            series.points.append(point)
+            time_series_list.append(series)
+
+        # Send all metrics in a single batch request
+        if time_series_list:
+            loop = asyncio.get_event_loop()
+            request = monitoring_v3.CreateTimeSeriesRequest(
+                name=project_name,
+                time_series=time_series_list
+            )
+            await loop.run_in_executor(
+                None, 
+                monitoring_client.create_time_series,
+                request
+            )
+            logger.debug(f"[GCP Monitoring]Successfully sent batch of {len(time_series_list)} metrics")
+            
     except Exception as e:
-        logger.error(
-            f"[GCP Monitoring]Error sending cached metric {metric_name}: {e}"
-        )
-
-
-async def send_event_metric(
-    metric_name: str, metric_value: int, metric_labels: dict | None = None
-):
-    """
-    Sends a metric data point to Cloud Monitoring indicating that an event occurred.
-
-    Args:
-    metric_name (str): The name of a custom metric, e.g. 'successful_requests_total'.
-    metric_value (int): The value of the event, e.g. '1' for one occurrence.
-    metric_labels (dict, optional): Additional metric labels, e.g. {'endpoint': '/data'}.
-    """
-    try:
-        series = monitoring_v3.TimeSeries()
-        series.metric.type = f"custom.googleapis.com/lean4_server/{metric_name}"
-
-        if metric_labels:
-            for key, value in metric_labels.items():
-                series.metric.labels[key] = str(value)
-
-        series.resource.type = RESOURCE_TYPE
-        for key, value in RESOURCE_LABELS.items():
-            series.resource.labels[key] = str(value)
-
-        now_timestamp = time.time()
-        seconds = int(now_timestamp)
-        nanos = int((now_timestamp - seconds) * 10**9)
-
-        point = monitoring_v3.Point()
-
-        end_time = Timestamp(seconds=seconds, nanos=nanos)
-        start_time = Timestamp(seconds=seconds, nanos=nanos)
-
-        point.interval = monitoring_v3.TimeInterval(
-            end_time=end_time, start_time=start_time
-        )
-
-        point.value.int64_value = metric_value
-
-        series.points.append(point)
-
-        # Run the blocking operation in a thread pool
-        loop = asyncio.get_event_loop()
-        await loop.run_in_executor(
-            None, 
-            monitoring_client.create_time_series, 
-            project_name, 
-            [series]
-        )
-    except Exception as e:
-        logger.error(f"[GCP Monitoring]Error sending metric {metric_name}: {e}")
+        logger.error(f"[GCP Monitoring]Error sending batch metrics: {e}")
 
 
 async def record_metric(metric_name: str, metric_value: int = 1):
