@@ -13,7 +13,6 @@ from loguru import logger
 PROJECT_ID = settings.GCP_PROJECT_ID
 
 
-monitoring_client = monitoring_v3.MetricServiceClient()
 project_name = f"projects/{PROJECT_ID}"
 
 SEND_INTERVAL = settings.METRIC_UPDATE_INTERVAL
@@ -24,6 +23,8 @@ RESOURCE_LABELS = {}
 # Initialize metadata on gcp VM instance
 if PROJECT_ID:
     try:
+        monitoring_client = monitoring_v3.MetricServiceClient()
+
         metadata_url = "http://metadata.google.internal/computeMetadata/v1/instance/"
         headers = {"Metadata-Flavor": "Google"}
 
