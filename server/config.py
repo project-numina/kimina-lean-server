@@ -18,6 +18,7 @@ class Settings(BaseSettings):
     HEALTHCHECK_CPU_USAGE_THRESHOLD: int | None = Field(None)
     HEALTHCHECK_MEMORY_USAGE_THRESHOLD: int | None = Field(None)
     GCP_PROJECT_ID: str | None = Field(None)
+    METRIC_UPDATE_INTERVAL: int = Field(60)
 
     model_config = SettingsConfigDict(
         env_file=".env", env_file_encoding="utf-8", env_prefix="LEANSERVER_"

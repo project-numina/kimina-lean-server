@@ -16,6 +16,8 @@ PROJECT_ID = settings.GCP_PROJECT_ID
 monitoring_client = monitoring_v3.MetricServiceClient()
 project_name = f"projects/{PROJECT_ID}"
 
+SEND_INTERVAL = settings.METRIC_UPDATE_INTERVAL
+
 RESOURCE_TYPE = "gce_instance"
 RESOURCE_LABELS = {}
 
@@ -46,7 +48,7 @@ if PROJECT_ID:
         raise e
 
     logger.info(
-        f"[GCP Monitoring]Finally used resource type: {RESOURCE_TYPE}, label: {RESOURCE_LABELS}"
+        f"[GCP Monitoring]Finally used resource type: {RESOURCE_TYPE}, label: {RESOURCE_LABELS}, metric update interval: {SEND_INTERVAL}"
     )
 else:
     logger.info("[GCP Monitoring]GCP project ID is not set, skipping GCP monitoring")
@@ -54,7 +56,6 @@ else:
 metric_cache = defaultdict(int)
 cache_lock = asyncio.Lock()
 last_send_time = time.time()
-SEND_INTERVAL = 60
 
 
 async def send_cached_metrics():
