@@ -106,7 +106,8 @@ async def lifespan(app: FastAPI):
     try:
         yield
     finally:
-        send_cached_metrics()
+        if settings.GCP_PROJECT_ID:
+            send_cached_metrics()
         
         # Cancel cache manager task
         for task in relp_cache_tasks:
