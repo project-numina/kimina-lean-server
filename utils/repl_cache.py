@@ -74,8 +74,6 @@ class LRUReplCache:
                         f"Failed to evict header {str([header_key])[:30]} with id {str(id)}, putting it back"
                     )
                     self.global_repl_pool[id] = (header_key, repl)
-                
-                time.sleep(0)
 
     async def destroy(self, header, id, repl):
         """Close a REPL instance and remove it from the cache."""
