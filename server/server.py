@@ -28,8 +28,6 @@ repl_cache = LRUReplCache(max_size=settings.MAX_REPLS)
 
 async def _repl_creater():
     while True:
-        await asyncio.sleep(10)
-        
         if len(repl_cache.create_queue) > 0:
             repl_to_create = Counter(repl_cache.create_queue)
             repl_cache.create_queue = []
@@ -56,6 +54,7 @@ async def _repl_creater():
                     await repl_cache.put(header, repl)
 
         repl_cache.evict_if_needed()
+        await asyncio.sleep(10)
                     
 
 async def _repl_cleaner():
@@ -77,7 +76,7 @@ async def _stat_printer():
 async def _metric_sender():
     while True:
         await asyncio.sleep(SEND_METRIC_INTERVAL_IN_SECONDS)
-        send_cached_metrics()
+        await send_cached_metrics()
 
 
 @asynccontextmanager
@@ -107,7 +106,7 @@ async def lifespan(app: FastAPI):
         yield
     finally:
         if settings.GCP_PROJECT_ID:
-            send_cached_metrics()
+            await send_cached_metrics()
         
         # Cancel cache manager task
         for task in relp_cache_tasks:
@@ -199,12 +198,12 @@ async def verify(
     return {"results": results}
 
 
-def send_proof_verification_failed_metric():
-    record_metric("proof_verification_failed", 1)
+async def send_proof_verification_failed_metric():
+    await record_metric("proof_verification_failed", 1)
 
 
-def send_proof_verification_successful_metric():
-    record_metric("proof_verification_successful", 1)
+async def send_proof_verification_successful_metric():
+    await record_metric("proof_verification_successful", 1)
 
 
 async def process_one_code_with_repl_fast(
@@ -242,7 +241,7 @@ async def process_one_code_with_repl_fast(
                 )
             except LeanCrashError as e:
                 error_msg = str(e)
-                send_proof_verification_failed_metric()
+                await send_proof_verification_failed_metric()
                 logger.error(
                     f"[{custom_id}] Error raised in one_pass_verify with 1-shot repl:\n"
                     f"  - Error: {error_msg}\n"
@@ -270,7 +269,7 @@ async def process_one_code_with_repl_fast(
                 )
             except LeanCrashError as e:
                 error_msg = str(e)
-                send_proof_verification_failed_metric()
+                await send_proof_verification_failed_metric()
                 logger.error(
                     f"[{custom_id}] Error raised while creating repl env with header:\n"
                     f"  - Header: {proof_header}\n"
@@ -293,7 +292,7 @@ async def process_one_code_with_repl_fast(
             )
         except LeanCrashError as e:
             error_msg = str(e)
-            send_proof_verification_failed_metric()
+            await send_proof_verification_failed_metric()
             logger.error(
                 f"[{custom_id}] Error raised while extending repl env with proof:\n"
                 f"  - Error: {error_msg}\n"
@@ -341,7 +340,7 @@ async def process_one_code_with_repl_fast(
         else:
             await repl_cache.release(proof_header, grep_id, repl)
 
-    send_proof_verification_successful_metric()
+    await send_proof_verification_successful_metric()
     return custom_id, error_msg, response
 
 

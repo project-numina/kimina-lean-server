@@ -1,10 +1,9 @@
+import asyncio
+import requests
 from google.cloud import monitoring_v3
 from google.protobuf.timestamp_pb2 import Timestamp
 import time
 from collections import defaultdict
-from threading import Lock
-
-import requests
 
 from server.config import settings
 
@@ -20,6 +19,7 @@ project_name = f"projects/{PROJECT_ID}"
 RESOURCE_TYPE = "gce_instance"
 RESOURCE_LABELS = {}
 
+# Initialize metadata on gcp VM instance
 if PROJECT_ID:
     try:
         metadata_url = "http://metadata.google.internal/computeMetadata/v1/instance/"
@@ -52,36 +52,50 @@ else:
     logger.info("[GCP Monitoring]GCP project ID is not set, skipping GCP monitoring")
 
 metric_cache = defaultdict(int)
-cache_lock = Lock()
+cache_lock = asyncio.Lock()
 last_send_time = time.time()
 SEND_INTERVAL = 60
 
 
-def send_cached_metrics():
+async def send_cached_metrics():
+    """Send cached metrics asynchronously"""
     global last_send_time
     current_time = time.time()
 
     if current_time - last_send_time >= SEND_INTERVAL:
         metrics_to_send = {}
-        with cache_lock:
+        async with cache_lock:
             if metric_cache:
                 metrics_to_send = dict(metric_cache)
                 metric_cache.clear()
                 last_send_time = current_time
         
+        # Send metrics concurrently
+        tasks = []
         for metric_name, metric_value in metrics_to_send.items():
-            try:
-                logger.debug(
-                    f"[GCP Monitoring]Sending cached metric {metric_name}: {metric_value}"
-                )
-                send_event_metric(metric_name, metric_value)
-            except Exception as e:
-                logger.error(
-                    f"[GCP Monitoring]Error sending cached metric {metric_name}: {e}"
-                )
+            task = asyncio.create_task(
+                send_event_metric_safe(metric_name, metric_value)
+            )
+            tasks.append(task)
+        
+        if tasks:
+            await asyncio.gather(*tasks, return_exceptions=True)
 
 
-def send_event_metric(
+async def send_event_metric_safe(metric_name: str, metric_value: int, metric_labels: dict | None = None):
+    """Safe wrapper for send_event_metric with error handling"""
+    try:
+        logger.debug(
+            f"[GCP Monitoring]Sending cached metric {metric_name}: {metric_value}"
+        )
+        await send_event_metric(metric_name, metric_value, metric_labels)
+    except Exception as e:
+        logger.error(
+            f"[GCP Monitoring]Error sending cached metric {metric_name}: {e}"
+        )
+
+
+async def send_event_metric(
     metric_name: str, metric_value: int, metric_labels: dict | None = None
 ):
     """
@@ -121,11 +135,19 @@ def send_event_metric(
 
         series.points.append(point)
 
-        monitoring_client.create_time_series(name=project_name, time_series=[series])
+        # Run the blocking operation in a thread pool
+        loop = asyncio.get_event_loop()
+        await loop.run_in_executor(
+            None, 
+            monitoring_client.create_time_series, 
+            project_name, 
+            [series]
+        )
     except Exception as e:
         logger.error(f"[GCP Monitoring]Error sending metric {metric_name}: {e}")
 
 
-def record_metric(metric_name: str, metric_value: int = 1):
-    with cache_lock:
+async def record_metric(metric_name: str, metric_value: int = 1):
+    """Record a metric asynchronously"""
+    async with cache_lock:
         metric_cache[metric_name] += metric_value
