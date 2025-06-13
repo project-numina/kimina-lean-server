@@ -54,7 +54,7 @@ else:
 metric_cache = defaultdict(int)
 cache_lock = Lock()
 last_send_time = time.time()
-SEND_INTERVAL = 30
+SEND_INTERVAL = 60
 
 
 def send_cached_metrics():
