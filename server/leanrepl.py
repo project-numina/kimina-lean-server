@@ -101,9 +101,9 @@ class LeanREPL:
         Send code to verify in one pass.
         """
         if infotree_type is None:
-            command = {"cmd": code, "gc": true}
+            command = {"cmd": code, "gc": True}
         else:
-            command = {"cmd": code, "infotree": infotree_type, "gc": true}
+            command = {"cmd": code, "infotree": infotree_type, "gc": True}
         try:
             response = func_timeout(timeout, self._send_command, args=(command,))
         except FunctionTimedOut:
@@ -114,7 +114,7 @@ class LeanREPL:
         """
         Send code to create a new context.
         """
-        command = {"cmd": code, "gc": true}
+        command = {"cmd": code, "gc": True}
         try:
             response = func_timeout(timeout, self._send_command, args=(command,))
         except FunctionTimedOut:
@@ -128,9 +128,9 @@ class LeanREPL:
         Send code to extend a context.
         """
         if infotree_type is None:
-            command = {"cmd": code, "env": context_id, "gc": true}
+            command = {"cmd": code, "env": context_id, "gc": True}
         else:
-            command = {"cmd": code, "env": context_id, "infotree": infotree_type, "gc": true}
+            command = {"cmd": code, "env": context_id, "infotree": infotree_type, "gc": True}
         try:
             response = func_timeout(timeout, self._send_command, args=(command,))
         except FunctionTimedOut:
