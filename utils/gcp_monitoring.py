@@ -62,21 +62,23 @@ def send_cached_metrics():
     current_time = time.time()
 
     if current_time - last_send_time >= SEND_INTERVAL:
+        metrics_to_send = {}
         with cache_lock:
             if metric_cache:
-                for metric_name, metric_value in metric_cache.items():
-                    try:
-                        logger.debug(
-                            f"[GCP Monitoring]Sending cached metric {metric_name}: {metric_value}"
-                        )
-                        send_event_metric(metric_name, metric_value)
-                    except Exception as e:
-                        logger.error(
-                            f"[GCP Monitoring]Error sending cached metric {metric_name}: {e}"
-                        )
-
+                metrics_to_send = dict(metric_cache)
                 metric_cache.clear()
                 last_send_time = current_time
+        
+        for metric_name, metric_value in metrics_to_send.items():
+            try:
+                logger.debug(
+                    f"[GCP Monitoring]Sending cached metric {metric_name}: {metric_value}"
+                )
+                send_event_metric(metric_name, metric_value)
+            except Exception as e:
+                logger.error(
+                    f"[GCP Monitoring]Error sending cached metric {metric_name}: {e}"
+                )
 
 
 def send_event_metric(
