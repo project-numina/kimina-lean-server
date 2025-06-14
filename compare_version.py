@@ -51,13 +51,11 @@ def increment_line_values(d):
 if __name__ == "__main__":
     ds = datasets.load_dataset("AI-MO/lean-result-test-sample-2k", split="train")
 
-    ds = ds.select(range(100))
-
     timeout = 60
     batch_size = 1
     num_proc = os.cpu_count() or 16
 
-    url = "http://127.0.0.1:12335"
+    url = "http://127.0.0.1:12332"
 
     client = Lean4Client(base_url=url, disable_cache=False)
 
