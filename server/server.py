@@ -138,7 +138,9 @@ def validate_api_access(request: Request, authorization: str = Header(None)) -> 
     if token != api_key:
         raise HTTPException(status_code=403, detail="Invalid API Key")
 
+
 require_access_dep = Annotated[None, Depends(validate_api_access)]
+
 
 # ------ Schemas ------
 class Code(BaseModel):
@@ -226,11 +228,13 @@ async def process_one_code_with_repl_fast(
 
         proof_header, proof_body = split_proof_header(proof)
 
-        logger.debug(f"[{custom_id}] Processing code:\n"
-                    f"  - custom_id: {custom_id}\n"
-                    f"  - proof_header: {proof_header}\n"
-                    f"  - proof_body: {proof_body}\n"
-                    f"  - timeout: {timeout}")
+        logger.debug(
+            f"[{custom_id}] Processing code:\n"
+            f"  - custom_id: {custom_id}\n"
+            f"  - proof_header: {proof_header}\n"
+            f"  - proof_body: {proof_body}\n"
+            f"  - timeout: {timeout}"
+        )
 
         # if we can not found the proof header, create a new repl
         if len(proof_header.strip()) == 0 or disable_cache:
@@ -309,36 +313,37 @@ async def process_one_code_with_repl_fast(
                 del repl
             return custom_id, error_msg, response
 
-    # Move out semaphore
-    exceeds_limit = False
-    if settings.REPL_MEMORY_CHECK_INTERVAL is not None and \
-        settings.REPL_MEMORY_LIMIT_GB is not None and \
-        repl.run_command_total % settings.REPL_MEMORY_CHECK_INTERVAL == 0:
-        # Check if the REPL exceeds memory limit after execution
-        exceeds_limit, total_memory = await asyncio.to_thread(
-            repl.exceeds_memory_limit, settings.REPL_MEMORY_LIMIT_GB
-        )
+        exceeds_limit = False
+        if (
+            settings.REPL_MEMORY_CHECK_INTERVAL is not None
+            and settings.REPL_MEMORY_LIMIT_GB is not None
+            and repl.run_command_total % settings.REPL_MEMORY_CHECK_INTERVAL == 0
+        ):
+            # Check if the REPL exceeds memory limit after execution
+            exceeds_limit, total_memory = await asyncio.to_thread(
+                repl.exceeds_memory_limit, settings.REPL_MEMORY_LIMIT_GB
+            )
 
-    if exceeds_limit:
-        logger.warning(
-            f"[{custom_id}] REPL exceeds memory limit after execution, destroying it:\n"
-            f"  - custom_id: {custom_id}\n"
-            f"  - proof_header: {proof_header}\n"
-            f"  - proof_body: {proof_body}\n"
-            f"  - total_memory: {total_memory/1024/1024/1024:.2f}GB\n"
-            f"  - timeout: {timeout}"
-        )
-        if grep_id is None:
-            del repl
+        if exceeds_limit:
+            logger.warning(
+                f"[{custom_id}] REPL exceeds memory limit after execution, destroying it:\n"
+                f"  - custom_id: {custom_id}\n"
+                f"  - proof_header: {proof_header}\n"
+                f"  - proof_body: {proof_body}\n"
+                f"  - total_memory: {total_memory/1024/1024/1024:.2f}GB\n"
+                f"  - timeout: {timeout}"
+            )
+            if grep_id is None:
+                del repl
+            else:
+                logger.warning(f"Removing repl from cache: {grep_id}")
+                await repl_cache.destroy(proof_header, grep_id, repl)
         else:
-            logger.warning(f"[{custom_id}] Removing repl from cache: {grep_id}")
-            await repl_cache.destroy(proof_header, grep_id, repl)
-    else:
-        # release back to the cache if memory is within limits
-        if grep_id is None:
-            await repl_cache.put(proof_header, repl)
-        else:
-            await repl_cache.release(proof_header, grep_id, repl)
+            # release back to the cache if memory is within limits
+            if grep_id is None:
+                await repl_cache.put(proof_header, repl)
+            else:
+                await repl_cache.release(proof_header, grep_id, repl)
 
     await send_proof_verification_successful_metric()
     return custom_id, error_msg, response
