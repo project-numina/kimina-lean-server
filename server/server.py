@@ -9,6 +9,11 @@ from loguru import logger
 from pydantic import BaseModel, Field
 from tqdm import tqdm
 
+from utils.gcp_monitoring import (
+    record_metric,
+    send_cached_metrics,
+    SEND_INTERVAL as SEND_METRIC_INTERVAL_IN_SECONDS,
+)
 from utils.proof_utils import split_proof_header
 from utils.repl_cache import LRUReplCache
 
@@ -50,7 +55,7 @@ async def _repl_creater():
 
         repl_cache.evict_if_needed()
         await asyncio.sleep(10)
-
+                    
 
 async def _repl_cleaner():
     while True:
@@ -68,6 +73,12 @@ async def _stat_printer():
         await repl_cache.print_status(update_interval)
 
 
+async def _metric_sender():
+    while True:
+        await asyncio.sleep(SEND_METRIC_INTERVAL_IN_SECONDS)
+        await send_cached_metrics()
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """App lifespan context manager"""
@@ -81,6 +92,9 @@ async def lifespan(app: FastAPI):
         asyncio.create_task(_stat_printer()),
     ]
 
+    if settings.GCP_PROJECT_ID:
+        relp_cache_tasks.append(asyncio.create_task(_metric_sender()))
+
     # Prefill repl_cache, The pre-filled amount should not be greater than settings.MAX_REPLS.
     # repl_cache.create_queue.extend(["import Mathlib"] * int(settings.MAX_REPLS / 2))
     # TODO: Make it an initialization parameter.
@@ -91,6 +105,9 @@ async def lifespan(app: FastAPI):
     try:
         yield
     finally:
+        if settings.GCP_PROJECT_ID:
+            await send_cached_metrics()
+        
         # Cancel cache manager task
         for task in relp_cache_tasks:
             task.cancel()
@@ -183,6 +200,14 @@ async def verify(
     return {"results": results}
 
 
+async def send_proof_verification_failed_metric():
+    await record_metric("proof_verification_failed", 1)
+
+
+async def send_proof_verification_successful_metric():
+    await record_metric("proof_verification_successful", 1)
+
+
 async def process_one_code_with_repl_fast(
     code: Code,
     timeout: int,
@@ -220,6 +245,7 @@ async def process_one_code_with_repl_fast(
                 )
             except LeanCrashError as e:
                 error_msg = str(e)
+                await send_proof_verification_failed_metric()
                 logger.error(
                     f"[{custom_id}] Error raised in one_pass_verify with 1-shot repl:\n"
                     f"  - Error: {error_msg}\n"
@@ -247,6 +273,7 @@ async def process_one_code_with_repl_fast(
                 )
             except LeanCrashError as e:
                 error_msg = str(e)
+                await send_proof_verification_failed_metric()
                 logger.error(
                     f"[{custom_id}] Error raised while creating repl env with header:\n"
                     f"  - Header: {proof_header}\n"
@@ -269,6 +296,7 @@ async def process_one_code_with_repl_fast(
             )
         except LeanCrashError as e:
             error_msg = str(e)
+            await send_proof_verification_failed_metric()
             logger.error(
                 f"[{custom_id}] Error raised while extending repl env with proof:\n"
                 f"  - Error: {error_msg}\n"
@@ -292,13 +320,18 @@ async def process_one_code_with_repl_fast(
             and repl.run_command_total % settings.REPL_MEMORY_CHECK_INTERVAL == 0
         ):
             # Check if the REPL exceeds memory limit after execution
-            exceeds_limit = await asyncio.to_thread(
+            exceeds_limit, total_memory = await asyncio.to_thread(
                 repl.exceeds_memory_limit, settings.REPL_MEMORY_LIMIT_GB
             )
 
         if exceeds_limit:
             logger.warning(
-                f"REPL exceeds memory limit after execution, destroying it. proof_header: {proof_header}"
+                f"[{custom_id}] REPL exceeds memory limit after execution, destroying it:\n"
+                f"  - custom_id: {custom_id}\n"
+                f"  - proof_header: {proof_header}\n"
+                f"  - proof_body: {proof_body}\n"
+                f"  - total_memory: {total_memory/1024/1024/1024:.2f}GB\n"
+                f"  - timeout: {timeout}"
             )
             if grep_id is None:
                 del repl
@@ -312,7 +345,8 @@ async def process_one_code_with_repl_fast(
             else:
                 await repl_cache.release(proof_header, grep_id, repl)
 
-        return custom_id, error_msg, response
+    await send_proof_verification_successful_metric()
+    return custom_id, error_msg, response
 
 
 @app.post("/one_pass_verify_batch")
