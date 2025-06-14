@@ -114,7 +114,7 @@ class LeanREPL:
         """
         Send code to create a new context.
         """
-        command = {"cmd": code, "gc": True}
+        command = {"cmd": code}
         try:
             response = func_timeout(timeout, self._send_command, args=(command,))
         except FunctionTimedOut:
