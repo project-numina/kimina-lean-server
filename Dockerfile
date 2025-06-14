@@ -18,9 +18,9 @@ RUN curl https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -
 ENV PATH=/root/.elan/bin:$PATH
 
 # Install REPL
-RUN git clone https://github.com/leanprover-community/repl.git /root/repl
+RUN git clone https://github.com/FrederickPu/repl.git /root/repl
 WORKDIR /root/repl
-RUN git checkout ${LEAN_VERSION} && lake build
+RUN git checkout lean415compat && lake build
 
 # Install Mathlib
 RUN git clone https://github.com/leanprover-community/mathlib4.git /root/mathlib4
