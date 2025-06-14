@@ -24,8 +24,6 @@ repl_cache = LRUReplCache(max_size=settings.MAX_REPLS)
 
 async def _repl_creater():
     while True:
-        await asyncio.sleep(10)
-        
         if len(repl_cache.create_queue) > 0:
             repl_to_create = Counter(repl_cache.create_queue)
             repl_cache.create_queue = []
@@ -52,6 +50,7 @@ async def _repl_creater():
                     await repl_cache.put(header, repl)
 
         repl_cache.evict_if_needed()
+        await asyncio.sleep(10)
                     
 
 async def _repl_cleaner():
@@ -252,31 +251,30 @@ async def process_one_code_with_repl_fast(
                 del repl
             return custom_id, error_msg, response
 
-    # Move out semaphore
-    exceeds_limit = False
-    if settings.REPL_MEMORY_CHECK_INTERVAL is not None and \
-        settings.REPL_MEMORY_LIMIT_GB is not None and \
-        repl.run_command_total % settings.REPL_MEMORY_CHECK_INTERVAL == 0:
-        # Check if the REPL exceeds memory limit after execution
-        exceeds_limit = await asyncio.to_thread(
-            repl.exceeds_memory_limit, settings.REPL_MEMORY_LIMIT_GB
-        )
+        exceeds_limit = False
+        if settings.REPL_MEMORY_CHECK_INTERVAL is not None and \
+            settings.REPL_MEMORY_LIMIT_GB is not None and \
+            repl.run_command_total % settings.REPL_MEMORY_CHECK_INTERVAL == 0:
+            # Check if the REPL exceeds memory limit after execution
+            exceeds_limit = await asyncio.to_thread(
+                repl.exceeds_memory_limit, settings.REPL_MEMORY_LIMIT_GB
+            )
 
-    if exceeds_limit:
-        logger.warning(f"REPL exceeds memory limit after execution, destroying it. proof_header: {proof_header}")
-        if grep_id is None:
-            del repl
+        if exceeds_limit:
+            logger.warning(f"REPL exceeds memory limit after execution, destroying it. proof_header: {proof_header}")
+            if grep_id is None:
+                del repl
+            else:
+                logger.warning(f"Removing repl from cache: {grep_id}")
+                await repl_cache.destroy(proof_header, grep_id, repl)
         else:
-            logger.warning(f"Removing repl from cache: {grep_id}")
-            await repl_cache.destroy(proof_header, grep_id, repl)
-    else:
-        # release back to the cache if memory is within limits
-        if grep_id is None:
-            await repl_cache.put(proof_header, repl)
-        else:
-            await repl_cache.release(proof_header, grep_id, repl)
+            # release back to the cache if memory is within limits
+            if grep_id is None:
+                await repl_cache.put(proof_header, repl)
+            else:
+                await repl_cache.release(proof_header, grep_id, repl)
 
-    return custom_id, error_msg, response
+        return custom_id, error_msg, response
 
 
 @app.post("/one_pass_verify_batch")

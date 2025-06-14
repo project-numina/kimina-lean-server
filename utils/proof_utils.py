@@ -6,27 +6,38 @@ import pandas
 def split_proof_header(proof: str) -> tuple[str, str]:
     """
     Splits `proof` into:
-    - header: the consecutive `import ...` lines at the beginning of the proof
+    - header: the consecutive `import ...` lines at the beginning of the proof,
+              with "import Mathlib." lines removed and "import Mathlib" added if necessary.
     - context: rest of the proof
 
     Args:
         proof (str): The proof code to split
 
     Returns:
-        tuple[str, str]: The header and context of the proof
+        tuple[str, str]: The modified header and context of the proof
     """
     proof = proof.strip()
     lines = proof.splitlines()
-    body_start = 0
+    header_lines = []
+    body_start_index = 0
+    mathlib_imported = False
 
     for i, line in enumerate(lines):
         if line.startswith("import"):
-            body_start = i + 1
+            if line.startswith("import Mathlib."):
+                mathlib_imported = True
+            else:
+                header_lines.append(line)
+            body_start_index = i + 1
         else:
             break
 
-    header = "\n".join(lines[:body_start]).strip()
-    body = "\n".join(lines[body_start:])
+    # Add "import Mathlib" at the beginning if any "import Mathlib." was found
+    if mathlib_imported:
+        header_lines.insert(0, "import Mathlib")
+
+    header = "\n".join(header_lines).strip()
+    body = "\n".join(lines[body_start_index:]).strip()
 
     return header, body
 
