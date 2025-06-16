@@ -16,3 +16,4 @@ types-setuptools
 types-tqdm
 psutil
 google-cloud-monitoring
+google-cloud-logging
