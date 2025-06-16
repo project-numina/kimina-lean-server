@@ -23,7 +23,10 @@ async def log_struct(data: dict, severity: str = "INFO") -> None:
         return
     loop = asyncio.get_event_loop()
     try:
-        await loop.run_in_executor(None, cloud_logger.log_struct, data, severity)
+        await loop.run_in_executor(
+            None,
+            lambda: cloud_logger.log_struct(data, severity=severity),
+        )
     except Exception as e:
         logger.error(f"[GCP Logging] Failed to send log: {e}")
 
