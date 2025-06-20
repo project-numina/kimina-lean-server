@@ -1,9 +1,8 @@
-# Kimina Lean Server
+# Lean Server
 
 This project serves the [Lean REPL](https://github.com/leanprover-community/repl) using FastAPI.
 It supports massive parallelization to verify Lean 4 proofs at scale.
 
-📄 Technical report: [Technical Report](./Technical_Report.pdf)
 
 ## ✨ Features
 
@@ -16,8 +15,8 @@ It supports massive parallelization to verify Lean 4 proofs at scale.
 Clone this repository and change directory:
 
 ```sh
-git clone git@github.com:project-numina/kimina-lean-server.git
-cd kimina-lean-server
+git clone <repository-url>
+cd lean-server
 ```
 
 ### Containerized - Docker
@@ -218,13 +217,13 @@ You are free to use, modify, and distribute this software with proper attributio
 
 ## 📑 Citation
 ```
-@misc{santos2025kiminaleanservertechnical,
-      title={Kimina Lean Server: Technical Report}, 
-      author={Marco Dos Santos and Haiming Wang and Hugues de Saxcé and Ran Wang and Mantas Baksys and Mert Unsal and Junqi Liu and Zhengying Liu and Jia Li},
+@misc{anonymous2025leanservertechnical,
+      title={Lean Server: Technical Report},
+      author={Anonymous},
       year={2025},
       eprint={2504.21230},
       archivePrefix={arXiv},
       primaryClass={cs.LO},
-      url={https://arxiv.org/abs/2504.21230}, 
+      url={https://arxiv.org/abs/2504.21230},
 }
 ```

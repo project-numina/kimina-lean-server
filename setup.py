@@ -14,16 +14,16 @@ with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 
 setup(
-    name="kimina-lean-server",
+    name="lean-server",
     version="1.0.1",
     packages=find_packages(),
     install_requires=parse_requirements("requirements.txt"),
     description="",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    author="Kimi Team - Project Numina",
+    author="Anonymous",
     author_email="",
-    url="projectnumina.ai",
+    url="https://example.com",
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",
