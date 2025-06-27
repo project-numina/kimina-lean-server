@@ -2,6 +2,8 @@ import re
 from typing import List
 import pandas
 
+def split_into_minibatches(arr, size=7):
+    return [arr[i:i+size] for i in range(0, len(arr), size)]
 
 def split_proof_header(proof: str) -> tuple[str, str]:
     """

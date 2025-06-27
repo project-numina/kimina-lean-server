@@ -35,6 +35,26 @@ class TestLeanServer:
         response = test_client.post("/verify", json=data, headers=self.headers)
         assert response.status_code == 200
         assert all(r["error"] is None for r in response.json()["results"]) is True
+    
+    def test_verify_minibatch(self, test_client):
+        """verifying batch simple proof."""
+        data = {
+            "codes": [
+                {
+                    "custom_id": str(uuid.uuid4()),
+                    "proof": """import Mathlib\n\ndef f := 2\nexample : f = 2 := rfl""",
+                }
+                for _ in range(10)
+            ],
+            "timeout": self.timeout,
+            "mode": "parrallel",
+            "buckets": 5,
+            "minibatch_size": 5
+        }
+
+        response = test_client.post("/verify_with_minibatch", json=data, headers=self.headers)
+        assert response.status_code == 200
+        assert all(r["error"] is None for r in response.json()["results"]) is True
 
     def test_verify_warning(self, test_client):
         """Test a proof with warnings."""
