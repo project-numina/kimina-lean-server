@@ -2,6 +2,7 @@ import asyncio
 from collections import Counter
 from concurrent.futures import ThreadPoolExecutor
 from contextlib import asynccontextmanager
+import json
 from typing import Annotated
 
 from fastapi import Depends, FastAPI, Header, HTTPException, Request
@@ -228,12 +229,14 @@ async def process_one_code_with_repl_fast(
 
         proof_header, proof_body = split_proof_header(proof)
 
+        log_message = {
+            'custom_id': custom_id,
+            'proof_header': proof_header,
+            'proof_body': proof_body,
+            'timeout': timeout,
+        }
         logger.debug(
-            f"[{custom_id}] Processing code:\n"
-            f"  - custom_id: {custom_id}\n"
-            f"  - proof_header: {proof_header}\n"
-            f"  - proof_body: {proof_body}\n"
-            f"  - timeout: {timeout}"
+            f"[{custom_id}] Processing code: {json.dumps(log_message)}"
         )
 
         # if we can not found the proof header, create a new repl
@@ -246,14 +249,9 @@ async def process_one_code_with_repl_fast(
             except LeanCrashError as e:
                 error_msg = str(e)
                 await send_proof_verification_failed_metric()
+                log_message["error"] = error_msg
                 logger.error(
-                    f"[{custom_id}] Error raised in one_pass_verify with 1-shot repl:\n"
-                    f"  - Error: {error_msg}\n"
-                    f"  - Proof: {proof}\n"
-                    f"  - custom_id: {custom_id}\n"
-                    f"  - proof_header: {proof_header}\n"
-                    f"  - proof_body: {proof_body}\n"
-                    f"  - timeout: {timeout}"
+                    f"[{custom_id}] Error raised in one_pass_verify with 1-shot repl: {json.dumps(log_message)}"
                 )
             finally:
                 del lean_repl
@@ -274,14 +272,9 @@ async def process_one_code_with_repl_fast(
             except LeanCrashError as e:
                 error_msg = str(e)
                 await send_proof_verification_failed_metric()
+                log_message["error"] = error_msg
                 logger.error(
-                    f"[{custom_id}] Error raised while creating repl env with header:\n"
-                    f"  - Header: {proof_header}\n"
-                    f"  - Error: {error_msg}\n"
-                    f"  - custom_id: {custom_id}\n"
-                    f"  - proof_header: {proof_header}\n"
-                    f"  - proof_body: {proof_body}\n"
-                    f"  - timeout: {timeout}"
+                    f"[{custom_id}] Error raised in one_pass_verify with 1-shot repl: {json.dumps(log_message)}"
                 )
                 del repl
                 return custom_id, error_msg, response
@@ -297,14 +290,9 @@ async def process_one_code_with_repl_fast(
         except LeanCrashError as e:
             error_msg = str(e)
             await send_proof_verification_failed_metric()
+            log_message["error"] = error_msg
             logger.error(
-                f"[{custom_id}] Error raised while extending repl env with proof:\n"
-                f"  - Error: {error_msg}\n"
-                f"  - Proof body: {proof_body}\n"
-                f"  - custom_id: {custom_id}\n"
-                f"  - proof_header: {proof_header}\n"
-                f"  - proof_body: {proof_body}\n"
-                f"  - timeout: {timeout}"
+                f"[{custom_id}] Error raised while extending repl env with proof: {json.dumps(log_message)}"
             )
             if grep_id is not None:
                 logger.error(f"[{custom_id}] Removing repl from cache: {grep_id}")
@@ -326,13 +314,9 @@ async def process_one_code_with_repl_fast(
 
         if exceeds_limit:
             logger.warning(
-                f"[{custom_id}] REPL exceeds memory limit after execution, destroying it:\n"
-                f"  - custom_id: {custom_id}\n"
-                f"  - proof_header: {proof_header}\n"
-                f"  - proof_body: {proof_body}\n"
-                f"  - total_memory: {total_memory/1024/1024/1024:.2f}GB\n"
-                f"  - timeout: {timeout}"
+                f"REPL exceeds memory limit after execution, destroying it. last verified proof: {json.dumps(log_message)}"
             )
+
             if grep_id is None:
                 del repl
             else:
