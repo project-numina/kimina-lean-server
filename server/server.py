@@ -15,6 +15,7 @@ from utils.gcp_monitoring import (
     send_cached_metrics,
     SEND_INTERVAL as SEND_METRIC_INTERVAL_IN_SECONDS,
 )
+from utils.gcp_logging import log_verify_event
 from utils.proof_utils import split_proof_header
 from utils.repl_cache import LRUReplCache
 
@@ -172,6 +173,8 @@ async def verify(
     access: require_access_dep,
 ):
     """verify the proof code."""
+    if settings.GCP_PROJECT_ID:
+        await log_verify_event(body.model_dump())
     codes = body.codes
     timeout = body.timeout
     infotree_type = body.infotree_type
@@ -198,6 +201,8 @@ async def verify(
             }
         )
 
+    if settings.GCP_PROJECT_ID:
+        await log_verify_event(body.model_dump(), {"results": results})
     return {"results": results}
 
 
