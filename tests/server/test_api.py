@@ -1,3 +1,4 @@
+import json
 import os
 import textwrap
 import time
@@ -7,6 +8,27 @@ import psutil
 
 from server.leanrepl import LeanREPL
 from utils.proof_utils import has_error_response, parse_client_response
+
+
+def assert_eq_mod_time(expected, actual):
+    """
+    Assert that two objects are equal, ignoring the 'time' key in the actual object.
+    """
+    expected = prune(expected, {"time"})
+    actual = prune(actual, {"time"})
+    assert (
+        expected == actual
+    ), f"Expected {json.dumps(expected, indent=2)}, got {json.dumps(actual, indent=2)}"
+
+
+def prune(obj, ignore_keys):
+    if isinstance(obj, dict):
+        return {
+            k: prune(v, ignore_keys) for k, v in obj.items() if k not in ignore_keys
+        }
+    if isinstance(obj, list):
+        return [prune(i, ignore_keys) for i in obj]
+    return obj
 
 
 class TestLeanServer:
@@ -144,6 +166,23 @@ class TestLeanServer:
         result = parse_client_response(response["results"][0])
         assert result["is_valid_with_sorry"]
         assert not result["is_valid_no_sorry"]
+
+    def test_input_output(self, test_client):
+        with open("tests/server/input/proof1.lean", "r") as f:
+            proof_code = f.read()
+
+        data = {
+            "codes": [{"proof": proof_code, "custom_id": "0"}],
+            "timeout": self.timeout,
+        }
+
+        response = test_client.post("/verify", json=data, headers=self.headers)
+        assert response.status_code == 200
+        response = response.json()
+
+        with open("tests/server/output/proof1.json", "r", encoding="utf-8") as f:
+            expected_response = json.load(f)
+        assert_eq_mod_time(expected_response, response)
 
     def test_repl_close_graceful_termination(self):
         """Test that calling close() on a LeanREPL instance terminates the process gracefully."""

@@ -10,6 +10,5 @@ logs/
 .coverage
 *.egg-info/
 .DS_Store
-.vscode/
 .env
 *.csv
