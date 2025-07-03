@@ -18,7 +18,7 @@ def test_single_mathlib_import_with_trailing_spaces():
 theorem one_plus_one : 1 + 1 = 2 := by rfl"""
 
     expected_header = "import Mathlib"
-    expected_context = "\ntheorem one_plus_one : 1 + 1 = 2 := by rfl"
+    expected_context = "theorem one_plus_one : 1 + 1 = 2 := by rfl"
 
     header, context = split_proof_header(proof)
     assert header == expected_header
@@ -33,7 +33,7 @@ theorem one_plus_one : 1 + 1 = 2 := by
   sorry"""
 
     expected_header = "import Mathlib\nimport Aesop"
-    expected_context = """\ntheorem one_plus_one : 1 + 1 = 2 := by
+    expected_context = """theorem one_plus_one : 1 + 1 = 2 := by
   sorry"""
 
     header, context = split_proof_header(proof)
@@ -68,7 +68,7 @@ theorem one_plus_one : 1 + 1 = 2 := by
   sorry"""
 
     expected_header = "import Mathlib"
-    expected_context = """\nimport Aesop\n\ntheorem one_plus_one : 1 + 1 = 2 := by
+    expected_context = """import Aesop\n\ntheorem one_plus_one : 1 + 1 = 2 := by
   sorry"""
 
     header, context = split_proof_header(proof)
