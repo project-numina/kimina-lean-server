@@ -1,3 +1,4 @@
+import glob
 import json
 import os
 import textwrap
@@ -5,6 +6,7 @@ import time
 import uuid
 
 import psutil
+import pytest
 
 from server.leanrepl import LeanREPL
 from utils.proof_utils import has_error_response, parse_client_response
@@ -14,8 +16,8 @@ def assert_eq_mod_time(expected, actual):
     """
     Assert that two objects are equal, ignoring the 'time' key in the actual object.
     """
-    expected = prune(expected, {"time"})
-    actual = prune(actual, {"time"})
+    expected = prune(expected, {"time", "env"})
+    actual = prune(actual, {"time", "env"})
     assert (
         expected == actual
     ), f"Expected {json.dumps(expected, indent=2)}, got {json.dumps(actual, indent=2)}"
@@ -29,6 +31,24 @@ def prune(obj, ignore_keys):
     if isinstance(obj, list):
         return [prune(i, ignore_keys) for i in obj]
     return obj
+
+
+INPUT_DIR = os.path.join("tests", "server", "input")
+OUTPUT_DIR = os.path.join("tests", "server", "output")
+
+
+def _collect_test_cases():
+    inputs = sorted(glob.glob(os.path.join(INPUT_DIR, "*.lean")))
+    cases = []
+    for inp in inputs:
+        name = os.path.splitext(os.path.basename(inp))[0]
+        expected = os.path.join(OUTPUT_DIR, f"{name}.json")
+        if os.path.exists(expected):
+            cases.append(pytest.param(inp, expected, id=name))
+    return cases
+
+
+TEST_CASES = _collect_test_cases()
 
 
 class TestLeanServer:
@@ -167,8 +187,9 @@ class TestLeanServer:
         assert result["is_valid_with_sorry"]
         assert not result["is_valid_no_sorry"]
 
-    def test_input_output(self, test_client):
-        with open("tests/server/input/proof1.lean", "r") as f:
+    @pytest.mark.parametrize("input_file, expected_file", TEST_CASES)
+    def test_input_output(self, test_client, input_file, expected_file):
+        with open(input_file, "r") as f:
             proof_code = f.read()
 
         data = {
@@ -180,7 +201,7 @@ class TestLeanServer:
         assert response.status_code == 200
         response = response.json()
 
-        with open("tests/server/output/proof1.json", "r", encoding="utf-8") as f:
+        with open(expected_file, "r", encoding="utf-8") as f:
             expected_response = json.load(f)
         assert_eq_mod_time(expected_response, response)
 
