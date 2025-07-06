@@ -17,6 +17,8 @@ class Settings(BaseSettings):
     REPL_MEMORY_CHECK_INTERVAL: int | None = Field(None)
     HEALTHCHECK_CPU_USAGE_THRESHOLD: int | None = Field(None)
     HEALTHCHECK_MEMORY_USAGE_THRESHOLD: int | None = Field(None)
+    GCP_PROJECT_ID: str | None = Field(None)
+    METRIC_UPDATE_INTERVAL: int = Field(60)
 
     model_config = SettingsConfigDict(
         env_file=".env", env_file_encoding="utf-8", env_prefix="LEANSERVER_"
@@ -77,6 +79,7 @@ class Settings(BaseSettings):
         if v == "":
             return None
         return v
+
 
 try:
     settings = Settings()
