@@ -171,11 +171,13 @@ response:
 | `LEANSERVER_HEALTHCHECK_MEMORY_USAGE_THRESHOLD` | **None** | Memory usage threshold for healthcheck |
 | `LEANSERVER_REPL_MEMORY_LIMIT_GB` | **None** | Memory limit for REPLs |
 | `LEANSERVER_REPL_MEMORY_CHECK_INTERVAL` | **None** | Number of consecutive commands that run on REPL before memory check |
+| `LEANSERVER_HARD_ENFORCE_MEMORY_LIMIT` | **False** | Add per REPL memory limits directly when spawning the lake env repl process (may only work for Linux) |
 
 
 Note:
 -  `LEANSERVER_REPL_MEMORY_LIMIT_GB` needs to be used together with `LEANSERVER_REPL_MEMORY_CHECK_INTERVAL`
 -  In some bloated systems, memory detection can be slow, which impacts performance. However, this isn't an issue in streamlined systems.
+- `LEANSERVER_HARD_ENFORCE_MEMORY_LIMIT` can help avoid certain OOM issues (see Issue #25)
 
 
 ## 🚀 Performance Benchmarks

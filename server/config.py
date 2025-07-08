@@ -14,6 +14,7 @@ class Settings(BaseSettings):
     MAX_REPLS: int = Field(os.cpu_count() or 1)
     MAX_CONCURRENT_REQUESTS: int = Field(os.cpu_count() or 1)
     REPL_MEMORY_LIMIT_GB: int | None = Field(None)
+    HARD_ENFORCE_MEMORY_LIMIT: bool = Field(False)
     REPL_MEMORY_CHECK_INTERVAL: int | None = Field(None)
     HEALTHCHECK_CPU_USAGE_THRESHOLD: int | None = Field(None)
     HEALTHCHECK_MEMORY_USAGE_THRESHOLD: int | None = Field(None)
@@ -76,6 +77,13 @@ class Settings(BaseSettings):
     def validate_repl_memory_check_interval(cls, v):
         if v == "":
             return None
+        return v
+
+    @field_validator("HARD_ENFORCE_MEMORY_LIMIT", mode="before")
+    @classmethod
+    def validate_hard_enforce_memory_limit(cls, v):
+        if v == "":
+            return False
         return v
 
 try:
