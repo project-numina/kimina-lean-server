@@ -6,6 +6,7 @@ import tempfile
 import threading
 import time
 import psutil
+import resource
 
 from func_timeout import FunctionTimedOut, func_timeout  # type: ignore
 from loguru import logger
@@ -138,6 +139,14 @@ class LeanREPL:
         return response
 
     def start_process(self):
+        def preexec_fn():
+            if settings.HARD_ENFORCE_MEMORY_LIMIT:
+                soft_limit = settings.REPL_MEMORY_LIMIT_GB * 1024 * 1024 * 1024
+                hard_limit = soft_limit
+                resource.setrlimit(resource.RLIMIT_AS, (soft_limit, hard_limit))
+
+            os.setsid()
+
         self.process = subprocess.Popen(
             ["lake", "env", path_to_repl],
             stdin=subprocess.PIPE,
@@ -147,7 +156,7 @@ class LeanREPL:
             bufsize=1,  # Line-buffered
             cwd=path_to_mathlib,  # Set the working directory to 'mathlib4'
             env=os.environ,  # Inherit environment variables
-            preexec_fn=os.setsid,
+            preexec_fn=preexec_fn,
         )
 
     def get_error_content(self):
