@@ -143,6 +143,7 @@ class Lean4Client(object):
                     headers=headers,
                     json=json_data,  # Directly send the JSON data
                 ) as response:
+                    response.raise_for_status()
                     # Get the response body asynchronously and parse it as JSON
                     res = await response.json()
 
