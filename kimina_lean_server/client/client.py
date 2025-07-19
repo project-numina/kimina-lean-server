@@ -44,7 +44,8 @@ class Lean4Client(object):
         self.api_key = api_key
         self.disable_cache = disable_cache
 
-        self._test_connection()
+        # TODO rm since cannot run in async env
+        # self._test_connection()
 
     def verify(self, codes, timeout, infotree_type=None):
         """Synchronous wrapper for verifying proof codes.
