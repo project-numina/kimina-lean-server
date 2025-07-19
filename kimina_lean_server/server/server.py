@@ -10,8 +10,8 @@ from loguru import logger
 from pydantic import BaseModel, Field
 from tqdm import tqdm
 
-from utils.proof_utils import split_proof_header
-from utils.repl_cache import LRUReplCache
+from ..utils.proof_utils import split_proof_header
+from ..utils.repl_cache import LRUReplCache
 
 from .config import settings
 from .healthcheck import router
