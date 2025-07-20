@@ -39,10 +39,10 @@ jobs:
         run: docker push "${{ steps.set-image-name.outputs.image_name }}"
 
       - name: Create new instance template
-        #   IMAGE="gcr.io/${{ secrets.GCP_PROJECT_ID }}/${{ steps.set-image-name.outputs.image_name }}:${{ github.sha }}"
+        #   IMAGE="gcr.io/${{ secrets.GCP_PROJECT_ID }}/${{ steps.set-image-name.outputs.image_name }}"
         run: |
           TEMPLATE="kimina-tpl-${{ github.sha }}"
-          IMAGE="${{ steps.set-image-name.outputs.image_name }}:${{ github.sha }}"
+          IMAGE="${{ steps.set-image-name.outputs.image_name }}"
           REGION="${{ vars.DOCKER_REPO_REGION }}"
           gcloud compute instance-templates create-with-container $TEMPLATE \
             --container-image=$IMAGE \
@@ -52,7 +52,7 @@ jobs:
             --machine-type=n2-standard-16 \
             --region=$REGION \
             --boot-disk-size=50GB --boot-disk-type=pd-ssd \
-            --tags=http-server,https-server,allow-firewall-check
+            --tags=http-server,https-server,lb-health-check
 
     #   - name: Roll out rolling‑update to MIG
     #     run: |
