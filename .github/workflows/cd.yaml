@@ -47,7 +47,7 @@ jobs:
           gcloud compute instance-templates create-with-container $TEMPLATE \
             --container-image=$IMAGE \
             --container-restart-policy=on-failure \
-            --labels=instance-group=ig-1 \
+            --labels=instance_group_name=ig-1 \
             --container-stdin \
             --container-tty \
             --machine-type=n2-standard-16 \

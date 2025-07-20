@@ -1,5 +1,5 @@
+import json
 import shutil
-import sys
 from contextlib import asynccontextmanager
 from importlib.metadata import PackageNotFoundError, version
 from typing import Any, AsyncGenerator
@@ -88,26 +88,52 @@ def create_app(settings: Settings) -> FastAPI:
     return app
 
 
+def setup_logging(settings: Settings) -> None:
+    logger.remove()
+
+    if settings.ENVIRONMENT.lower() == "production":
+
+        def gcp_formatter(record: Any) -> None:
+            # These fields are RECOMMENDED by Google Cloud Logging
+            log_entry = {
+                "severity": record["level"].name,
+                "message": record["message"],
+                "time": record["time"].isoformat(),
+                # Optional: Add more structured data as needed
+                "logging.googleapis.com/sourceLocation": {
+                    "file": record["file"].name,
+                    "line": record["line"],
+                    "function": record["function"],
+                },
+            }
+            # The entire log entry must be a single JSON string
+            # on one line for Google Cloud Logging to parse it correctly.
+            print(json.dumps(log_entry))
+
+        logger.add(
+            gcp_formatter,
+            level=settings.LOG_LEVEL,
+            format="{message}",  # The format is now handled by the custom function
+        )
+    else:
+        # Your existing RichHandler for local development
+        terminal_width, _ = shutil.get_terminal_size()
+        logger.add(
+            RichHandler(
+                console=Console(width=terminal_width), show_time=True, markup=True
+            ),
+            colorize=True,
+            level=settings.LOG_LEVEL,
+            format="{message}",
+            backtrace=True,
+            diagnose=True,
+        )
+
+
 settings = Settings()
 
 terminal_width, _ = shutil.get_terminal_size()
 
 logger.remove()
-if settings.ENVIRONMENT.lower() == "production":
-    logger.add(
-        sys.stdout,
-        level=settings.LOG_LEVEL,
-        format="{message}",
-        serialize=True,
-    )
-else:
-    logger.add(
-        RichHandler(console=Console(width=terminal_width), show_time=True, markup=True),
-        colorize=True,
-        level=settings.LOG_LEVEL,
-        format="{message}",
-        backtrace=True,
-        diagnose=True,
-    )
-
+setup_logging(settings)
 app = create_app(settings)
