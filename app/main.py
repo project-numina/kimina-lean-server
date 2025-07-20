@@ -134,6 +134,5 @@ settings = Settings()
 
 terminal_width, _ = shutil.get_terminal_size()
 
-logger.remove()
 setup_logging(settings)
 app = create_app(settings)

@@ -7,6 +7,8 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
+    HOST: str = Field(default="0.0.0.0")
+    PORT: int = Field(default=12332)
     BASE: str = Field(default_factory=os.getcwd)
     repl_bin_path: str = ""
     path_to_mathlib: str | None = None
