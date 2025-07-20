@@ -1,3 +1,5 @@
+exclude: '^(client|server_old|utils|tsts_old)/'
+
 default_install_hook_types:
   - pre-commit
   - commit-msg
