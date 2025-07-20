@@ -42,7 +42,7 @@ jobs:
         #   IMAGE="gcr.io/${{ secrets.GCP_PROJECT_ID }}/${{ steps.set-image-name.outputs.image_name }}:${{ github.sha }}"
         run: |
           TEMPLATE="kimina-tpl-${{ github.sha }}"
-          IMAGE="gcr.io/${{ vars.PROJECT_ID }}/${{ steps.set-image-name.outputs.image_name }}:${{ github.sha }}"
+          IMAGE="${{ steps.set-image-name.outputs.image_name }}:${{ github.sha }}"
           REGION="${{ vars.DOCKER_REPO_REGION }}"
           gcloud compute instance-templates create-with-container $TEMPLATE \
             --container-image=$IMAGE \
