@@ -52,7 +52,7 @@ jobs:
             --machine-type=n2-standard-16 \
             --region=$REGION \
             --boot-disk-size=50GB --boot-disk-type=pd-ssd \
-            --tags=http-server,https-server,load-balancer
+            --tags=http-server,https-server,allow-health-check
 
     #   - name: Roll out rolling‑update to MIG
     #     run: |
