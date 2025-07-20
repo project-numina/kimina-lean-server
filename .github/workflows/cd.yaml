@@ -14,6 +14,15 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Set image name
+        id: set-image-name
+        run: echo "image_name=${{ vars.DOCKER_REPO_REGION }}-docker.pkg.dev/${{ vars.PROJECT_ID }}/${{ vars.DOCKER_REPO_NAME }}/kimina-lean-server:$(git rev-parse --short HEAD)" >> "$GITHUB_OUTPUT"
+
+      - name: Build Docker image
+        run: |
+          docker build . -t "${{ steps.set-image-name.outputs.image_name }}"
+        # --build-arg truc=${{ vars.TRUC}} 
+
       - name: "GCP auth"
         id: "auth"
         uses: "google-github-actions/auth@v2"
@@ -25,15 +34,6 @@ jobs:
         uses: "google-github-actions/setup-gcloud@v2"
       - name: Configure Docker
         run: gcloud auth configure-docker ${{ vars.DOCKER_REPO_REGION }}-docker.pkg.dev
-
-      - name: Set image name
-        id: set-image-name
-        run: echo "image_name=${{ vars.DOCKER_REPO_REGION }}-docker.pkg.dev/${{ vars.PROJECT_ID }}/${{ vars.DOCKER_REPO_NAME }}/kimina-lean-server:$(git rev-parse --short HEAD)" >> "$GITHUB_OUTPUT"
-
-      - name: Build Docker image
-        run: |
-          docker build . -t "${{ steps.set-image-name.outputs.image_name }}"
-        # --build-arg truc=${{ vars.TRUC}} 
 
       - name: Push Docker image
         run: docker push "${{ steps.set-image-name.outputs.image_name }}"
