@@ -61,7 +61,6 @@ jobs:
           REGION="${{ vars.DOCKER_REPO_REGION }}"
           gcloud compute instance-groups managed rolling-action start-update ig-1 \
             --version=template=$TEMPLATE \
-            --max-surge=1 \
             --max-unavailable=0 \
             --region=$REGION
 
