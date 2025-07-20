@@ -18,7 +18,7 @@ from app.routers.health import router as health_router
 from app.settings import Settings
 
 try:
-    __version__ = version("fast-repl")
+    __version__ = version("kimina-lean-server")
 except PackageNotFoundError:
     __version__ = "0.0.0"  # fallback for local dev
 
@@ -93,8 +93,8 @@ def setup_logging(settings: Settings) -> None:
 
     if settings.ENVIRONMENT.lower() == "production":
 
-        def gcp_formatter(record: Any) -> None:
-            # These fields are RECOMMENDED by Google Cloud Logging
+        def gcp_formatter(message: Any) -> None:
+            record = message.record
             log_entry = {
                 "severity": record["level"].name,
                 "message": record["message"],
@@ -113,7 +113,7 @@ def setup_logging(settings: Settings) -> None:
         logger.add(
             gcp_formatter,
             level=settings.LOG_LEVEL,
-            format="{message}",  # The format is now handled by the custom function
+            format="{message}",
         )
     else:
         # Your existing RichHandler for local development
