@@ -29,24 +29,34 @@ from app.settings import settings
 from app.utils import is_blank
 
 log_lock = asyncio.Lock()
-console = Console(log_time_format="[%m/%d/%y %H:%M:%S]", force_terminal=True)
+if settings.ENVIRONMENT.lower() != "production":
+    console = Console(log_time_format="[%m/%d/%y %H:%M:%S]", force_terminal=True)
+else:
+    # In production, we don't need the rich console object.
+    console = None
 
 
 async def log_snippet(uuid: UUID, snippet_id: str, code: str) -> None:
-    header = (
-        f"\\[{uuid.hex[:8]}] Running snippet [bold magenta]{snippet_id}[/bold magenta]:"
-    )
-    syntax = Syntax(
-        code or "<empty>",
-        "lean",
-        theme="solarized-dark",
-        line_numbers=False,
-        word_wrap=True,
-    )
+    if settings.ENVIRONMENT.lower() == "production":
+        header = f"[{uuid.hex[:8]}] Running snippet {snippet_id}:"
+        async with log_lock:
+            logger.info(header)
+            # Log the code as part of the message or in a separate log entry
+            logger.info(f"Code snippet:\n{code or '<empty>'}")
+    else:
+        header = f"\\[{uuid.hex[:8]}] Running snippet [bold magenta]{snippet_id}[/bold magenta]:"
+        syntax = Syntax(
+            code or "<empty>",
+            "lean",
+            theme="solarized-dark",
+            line_numbers=False,
+            word_wrap=True,
+        )
 
-    async with log_lock:
-        logger.info(header)
-        console.log(syntax)
+        async with log_lock:
+            logger.info(header)
+            if console:
+                console.log(syntax)
 
 
 class Repl:
