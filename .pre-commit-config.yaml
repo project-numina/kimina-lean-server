@@ -15,11 +15,13 @@ repos:
     rev: v1.1.402
     hooks:
       - id: pyright
+        stages: [pre-commit]
         args: [--project=pyrightconfig.json]
   - repo: https://github.com/pre-commit/mirrors-mypy
     rev: v1.5.1
     hooks:
       - id: mypy
+        stages: [pre-commit]
         args: ["--config-file=pyproject.toml"]
         additional_dependencies:
         - "pydantic[mypy]>=2.11.7"
