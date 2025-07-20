@@ -1,6 +1,6 @@
 import os
 import re
-from typing import cast
+from typing import Literal, cast
 
 from pydantic import Field, field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -18,6 +18,7 @@ class Settings(BaseSettings):
         default_factory=lambda: {"import Mathlib\nimport Aesop": 1}
     )
     MAX_WAIT: int = 60
+    ENVIRONMENT: Literal["production", "development"] = "production"
 
     DATABASE_USER: str = "root"
     DATABASE_PASSWORD: str = "root"

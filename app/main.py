@@ -1,4 +1,5 @@
 import shutil
+import sys
 from contextlib import asynccontextmanager
 from importlib.metadata import PackageNotFoundError, version
 from typing import Any, AsyncGenerator
@@ -92,13 +93,21 @@ settings = Settings()
 terminal_width, _ = shutil.get_terminal_size()
 
 logger.remove()
-logger.add(
-    RichHandler(console=Console(width=terminal_width), show_time=True, markup=True),
-    colorize=True,
-    level=settings.LOG_LEVEL,
-    format="{message}",
-    backtrace=True,
-    diagnose=True,
-)
+if settings.ENVIRONMENT.lower() == "production":
+    logger.add(
+        sys.stdout,
+        level=settings.LOG_LEVEL,
+        format="{message}",
+        serialize=True,
+    )
+else:
+    logger.add(
+        RichHandler(console=Console(width=terminal_width), show_time=True, markup=True),
+        colorize=True,
+        level=settings.LOG_LEVEL,
+        format="{message}",
+        backtrace=True,
+        diagnose=True,
+    )
 
 app = create_app(settings)

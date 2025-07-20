@@ -54,13 +54,13 @@ jobs:
             --boot-disk-size=50GB --boot-disk-type=pd-ssd \
             --tags=http-server,https-server,lb-health-check
 
-    #   - name: Roll out rolling‑update to MIG
-    #     run: |
-    #       gcloud compute instance-groups managed rolling-action start-update ${{ vars.MIG_NAME }} \
-    #         --version=template=$TEMPLATE \
-    #         --max-surge=1 \
-    #         --max-unavailable=0 \
-    #         --region=${{ vars.DOCKER_REPO_REGION }}
+      - name: Roll out rolling‑update to MIG
+        run: |
+          gcloud compute instance-groups managed rolling-action start-update ig-1 \
+            --version=template=$TEMPLATE \
+            --max-surge=1 \
+            --max-unavailable=0 \
+            --region=${{ vars.DOCKER_REPO_REGION }}
 
     #   - name: Deploy Docker image
     #     id: deploy
