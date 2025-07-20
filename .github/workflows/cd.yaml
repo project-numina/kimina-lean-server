@@ -47,6 +47,7 @@ jobs:
           gcloud compute instance-templates create-with-container $TEMPLATE \
             --container-image=$IMAGE \
             --container-restart-policy=on-failure \
+            --labels=instance-group=ig-1 \
             --container-stdin \
             --container-tty \
             --machine-type=n2-standard-16 \
@@ -56,11 +57,13 @@ jobs:
 
       - name: Roll out rolling‑update to MIG
         run: |
+          TEMPLATE="kimina-tpl-${{ github.sha }}"
+          REGION="${{ vars.DOCKER_REPO_REGION }}"
           gcloud compute instance-groups managed rolling-action start-update ig-1 \
             --version=template=$TEMPLATE \
             --max-surge=1 \
             --max-unavailable=0 \
-            --region=${{ vars.DOCKER_REPO_REGION }}
+            --region=$REGION
 
     #   - name: Deploy Docker image
     #     id: deploy
