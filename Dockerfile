@@ -67,4 +67,5 @@ RUN prisma generate
 
 EXPOSE 80
 
-CMD ["sh", "-c", "prisma migrate deploy && uvicorn --host 0.0.0.0 --port 80 app.main:app"]
+# TODO: add back prisma migrate deploy later
+CMD ["sh", "-c", "uvicorn --host 0.0.0.0 --port 80 app.main:app"]
