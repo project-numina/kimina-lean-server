@@ -46,7 +46,7 @@ RUN git checkout ${LEAN_VERSION} && \
     lake exe cache get && \
     lake build
 
-WORKDIR /root/fast-repl
+WORKDIR /root/kimina-lean-server
 
 # Install Astral UV
 RUN curl -LsSf https://astral.sh/uv/install.sh | sh
