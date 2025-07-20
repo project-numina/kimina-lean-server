@@ -6,16 +6,16 @@ ENV APP_VERSION=${APP_VERSION}
 LABEL version="${APP_VERSION}"
 
 # Environment settings
-ENV BASE=/root \
+ENV LEANSERVER_BASE=/root \
     # REPL_BIN_PATH=/root/repl/.lake/build/bin/repl \
     # PATH_TO_MATHLIB=/root/mathlib4 \
-    LOG_LEVEL=INFO \
-    MAX_REPLS=4 \
-    MAX_USES=10 \
-    MAX_MEM=8G \
-    INIT_REPLS={"import Mathlib\nimport Aesop":1} \
-    LEAN_VERSION=v4.15.0 \
-    DATABASE_URL= 
+    LEANSERVER_LOG_LEVEL=INFO \
+    LEANSERVER_MAX_REPLS=4 \
+    LEANSERVER_MAX_USES=10 \
+    LEANSERVER_MAX_MEM=8G \
+    LEANSERVER_INIT_REPLS={"import Mathlib\nimport Aesop":1} \
+    LEANSERVER_LEAN_VERSION=v4.15.0 \
+    LEANSERVER_DATABASE_URL= 
 
 
 # Update the package list and install dependencies
