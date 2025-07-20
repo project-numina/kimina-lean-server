@@ -1,27 +1,55 @@
 services:
-  kimina-lean-server:
-    build:
-      context: .
-      dockerfile: Dockerfile
-      args:
-        LEAN_VERSION: v4.15.0
-    image: projectnumina/kimina-lean-server:1.0.2
-    container_name: kimina-lean-server
-    restart: unless-stopped
-    ports:
-      - "80:${LEANSERVER_PORT:-12332}"
+  postgres:
+    image: postgres:17-alpine
+    container_name: postgres
     volumes:
-      - ./logs:/app/logs
-    env_file:
-      - .env
+      - ./.data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=${DATABASE_USER}
+      - POSTGRES_PASSWORD=${DATABASE_PASSWORD}
+      - POSTGRES_DB=${DATABASE_NAME}
+    ports:
+      - "${DATABASE_PORT:-5432}:5432"
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:12332/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 5s
-    # deploy:
-    #   resources:
-    #     limits:
-    #       cpus: "4"
-    #       memory: 16G
+      test: ["CMD-SHELL", "pg_isready -U ${DATABASE_USER} -d ${DATABASE_NAME}"]
+      interval: 10s
+      retries: 5
+
+  # api:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile
+  #     args:
+  #       VERSION: v4.15.0
+  #       APP_VERSION: ${APP_VERSION}
+  #   image: fast-repl:0.1.0
+  #   ports:
+  #     - 8000:8000
+  #   environment:
+  #     - MAX_REPLS=${MAX_REPLS}
+  #     - MAX_USES=${MAX_USES}
+  #     - MAX_MEM=${MAX_MEM}
+  #     - LOG_LEVEL=${LOG_LEVEL}
+  #     - LEAN_VERSION=${LEAN_VERSION}
+  #     - API_KEY=${API_KEY}
+  #     - INIT_REPLS={}
+  #     - DATABASE_HOST=${DATABASE_HOST}
+  #     - DATABASE_URL=${DATABASE_URL}
+  #   healthcheck:
+  #     test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+  #     interval: 10s
+  #     retries: 5
+  #   depends_on:
+  #     postgres:
+  #       condition: service_healthy
+  #   command: >
+  #     sh -c "prisma migrate deploy &&
+  #            uvicorn app.main:app --host 0.0.0.0"
+
+  # test:
+  #   image: curlimages/curl
+  #   profiles: ["test"]
+  #   depends_on:
+  #     api:
+  #       condition: service_healthy
+  #   entrypoint: ["curl","-f","http://api:8000/health"]

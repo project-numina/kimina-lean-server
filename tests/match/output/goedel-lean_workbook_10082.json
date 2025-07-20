@@ -1,0 +1,25 @@
+{
+    "results": [
+        {
+            "custom_id": "lean_workbook_10082",
+            "error": null,
+            "response": {
+                "messages": [
+                    {
+                        "severity": "warning",
+                        "pos": {
+                            "line": 6,
+                            "column": 39
+                        },
+                        "endPos": {
+                            "line": 6,
+                            "column": 41
+                        },
+                        "data": "unused variable `h₁`\nnote: this linter can be disabled with `set_option linter.unusedVariables false`"
+                    }
+                ],
+                "time": 2.1356303691864014
+            }
+        }
+    ]
+}

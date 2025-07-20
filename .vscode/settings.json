@@ -1,0 +1,15 @@
+{
+  "[python]": {
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+      "source.organizeImports": "always",
+      "source.fixAll": "always"
+    },
+    "editor.defaultFormatter": "ms-python.black-formatter"
+  },
+  "python.testing.pytestEnabled": true,
+  "python.testing.pytestArgs": ["."],
+  "mypy-type-checker.args": [
+    "\"mypy-type-checker.args\" = \"--config-file=${workspaceFolder}/pyproject.toml\""
+  ]
+}

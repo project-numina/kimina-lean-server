@@ -1,0 +1,61 @@
+{
+    "results": [
+        {
+            "custom_id": "lean_workbook_10198",
+            "error": null,
+            "response": {
+                "messages": [
+                    {
+                        "severity": "warning",
+                        "pos": {
+                            "line": 20,
+                            "column": 6
+                        },
+                        "endPos": {
+                            "line": 20,
+                            "column": 16
+                        },
+                        "data": "`le_div_iff` has been deprecated: use `le_div_iff₀` instead"
+                    },
+                    {
+                        "severity": "warning",
+                        "pos": {
+                            "line": 6,
+                            "column": 80
+                        },
+                        "endPos": {
+                            "line": 6,
+                            "column": 83
+                        },
+                        "data": "unused variable `hxy`\nnote: this linter can be disabled with `set_option linter.unusedVariables false`"
+                    },
+                    {
+                        "severity": "warning",
+                        "pos": {
+                            "line": 6,
+                            "column": 94
+                        },
+                        "endPos": {
+                            "line": 6,
+                            "column": 97
+                        },
+                        "data": "unused variable `hyz`\nnote: this linter can be disabled with `set_option linter.unusedVariables false`"
+                    },
+                    {
+                        "severity": "warning",
+                        "pos": {
+                            "line": 6,
+                            "column": 108
+                        },
+                        "endPos": {
+                            "line": 6,
+                            "column": 111
+                        },
+                        "data": "unused variable `hxz`\nnote: this linter can be disabled with `set_option linter.unusedVariables false`"
+                    }
+                ],
+                "time": 2.856764554977417
+            }
+        }
+    ]
+}

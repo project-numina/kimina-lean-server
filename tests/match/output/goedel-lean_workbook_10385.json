@@ -1,0 +1,133 @@
+{
+    "results": [
+        {
+            "custom_id": "lean_workbook_10385",
+            "error": null,
+            "response": {
+                "messages": [
+                    {
+                        "severity": "warning",
+                        "pos": {
+                            "line": 31,
+                            "column": 6
+                        },
+                        "endPos": {
+                            "line": 31,
+                            "column": 14
+                        },
+                        "data": "this tactic is never executed\nnote: this linter can be disabled with `set_option linter.unreachableTactic false`"
+                    },
+                    {
+                        "severity": "warning",
+                        "pos": {
+                            "line": 33,
+                            "column": 6
+                        },
+                        "endPos": {
+                            "line": 33,
+                            "column": 35
+                        },
+                        "data": "this tactic is never executed\nnote: this linter can be disabled with `set_option linter.unreachableTactic false`"
+                    },
+                    {
+                        "severity": "warning",
+                        "pos": {
+                            "line": 35,
+                            "column": 6
+                        },
+                        "endPos": {
+                            "line": 35,
+                            "column": 13
+                        },
+                        "data": "this tactic is never executed\nnote: this linter can be disabled with `set_option linter.unreachableTactic false`"
+                    },
+                    {
+                        "severity": "warning",
+                        "pos": {
+                            "line": 37,
+                            "column": 6
+                        },
+                        "endPos": {
+                            "line": 37,
+                            "column": 14
+                        },
+                        "data": "this tactic is never executed\nnote: this linter can be disabled with `set_option linter.unreachableTactic false`"
+                    },
+                    {
+                        "severity": "warning",
+                        "pos": {
+                            "line": 39,
+                            "column": 6
+                        },
+                        "endPos": {
+                            "line": 39,
+                            "column": 35
+                        },
+                        "data": "this tactic is never executed\nnote: this linter can be disabled with `set_option linter.unreachableTactic false`"
+                    },
+                    {
+                        "severity": "warning",
+                        "pos": {
+                            "line": 31,
+                            "column": 6
+                        },
+                        "endPos": {
+                            "line": 31,
+                            "column": 14
+                        },
+                        "data": "'norm_num' tactic does nothing\nnote: this linter can be disabled with `set_option linter.unusedTactic false`"
+                    },
+                    {
+                        "severity": "warning",
+                        "pos": {
+                            "line": 33,
+                            "column": 6
+                        },
+                        "endPos": {
+                            "line": 33,
+                            "column": 35
+                        },
+                        "data": "'simp [Real.sqrt_eq_iff_sq_eq]' tactic does nothing\nnote: this linter can be disabled with `set_option linter.unusedTactic false`"
+                    },
+                    {
+                        "severity": "warning",
+                        "pos": {
+                            "line": 35,
+                            "column": 6
+                        },
+                        "endPos": {
+                            "line": 35,
+                            "column": 13
+                        },
+                        "data": "'ring_nf' tactic does nothing\nnote: this linter can be disabled with `set_option linter.unusedTactic false`"
+                    },
+                    {
+                        "severity": "warning",
+                        "pos": {
+                            "line": 37,
+                            "column": 6
+                        },
+                        "endPos": {
+                            "line": 37,
+                            "column": 14
+                        },
+                        "data": "'norm_num' tactic does nothing\nnote: this linter can be disabled with `set_option linter.unusedTactic false`"
+                    },
+                    {
+                        "severity": "warning",
+                        "pos": {
+                            "line": 39,
+                            "column": 6
+                        },
+                        "endPos": {
+                            "line": 39,
+                            "column": 35
+                        },
+                        "data": "'linarith [Real.sqrt_nonneg 3]' tactic does nothing\nnote: this linter can be disabled with `set_option linter.unusedTactic false`"
+                    }
+                ],
+                "time": 0.07585692405700684
+            }
+        }
+    ]
+}

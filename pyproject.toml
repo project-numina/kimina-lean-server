@@ -1,0 +1,67 @@
+[project] # todo: add the fact that one needs to run uv run pip install -e .
+name = "kimina-lean-server"
+version = "0.1.0"
+description = "Server to check Lean proofs."
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "fastapi>=0.115.13",
+    "loguru>=0.7.3",
+    "psutil>=7.0.0",
+    "pydantic[mypy]>=2.11.7",
+    "pydantic-settings>=2.10.0",
+    "python-dotenv>=1.1.0",
+    "rich>=14.0.0",
+    "tqdm>=4.67.1",
+    "uvicorn>=0.34.3",
+    "mypy>=1.16.1",
+    "pytest-xdist>=3.8.0",
+    "prisma>=0.15.0",
+    "pip>=25.1.1",
+]
+
+[tool.uv]
+package = true
+dev-dependencies = [
+    "httpx>=0.28.1",
+    "pytest-cov>=6.2.1",
+    "pytest>=8.4.1",
+    "datasets>=2.18.0",
+    "mypy>=1.16.1",
+    "pre-commit>=4.2.0",
+    "pytest-asyncio>=1.0.0",
+    "pyright>=1.1.402",
+    "pydantic[mypy]>=2.11.7",
+    "pydantic-settings>=2.10.0",
+    "pytest-icdiff>=0.9",
+    "asgi-lifespan>=2.1.0",
+]
+
+[tool.pytest.ini_options]
+addopts = "--asyncio-mode=auto --maxfail=1 --cov=app -m 'not perfs and not match' -vs -x --ignore=./tsts_old"
+norecursedirs = ["tests_old"]
+log_cli_level = "INFO"
+log_cli = true
+markers = [
+    "perfs: performance tests that are not run by default",
+    "match: tests which ensure backward-compatibility with kimina-lean-server"
+]
+
+[tool.mypy]
+plugins = ['pydantic.mypy']
+strict = true
+files = ["prisma", "app", "tests"]
+ignore_missing_imports = true
+allow_untyped_decorators=true
+disable_error_code = [
+    "unused-ignore", 
+]
+
+# Build package so tests can import app
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+
+[tool.hatch.build.targets.wheel]
+packages = ["app"]

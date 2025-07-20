@@ -1,0 +1,289 @@
+{
+    "results": [
+        {
+            "custom_id": "lean_workbook_10355",
+            "error": null,
+            "response": {
+                "messages": [
+                    {
+                        "severity": "warning",
+                        "pos": {
+                            "line": 6,
+                            "column": 39
+                        },
+                        "endPos": {
+                            "line": 6,
+                            "column": 40
+                        },
+                        "data": "unused variable `h`\nnote: this linter can be disabled with `set_option linter.unusedVariables false`"
+                    },
+                    {
+                        "severity": "warning",
+                        "pos": {
+                            "line": 15,
+                            "column": 4
+                        },
+                        "endPos": {
+                            "line": 15,
+                            "column": 37
+                        },
+                        "data": "this tactic is never executed\nnote: this linter can be disabled with `set_option linter.unreachableTactic false`"
+                    },
+                    {
+                        "severity": "warning",
+                        "pos": {
+                            "line": 17,
+                            "column": 4
+                        },
+                        "endPos": {
+                            "line": 17,
+                            "column": 37
+                        },
+                        "data": "this tactic is never executed\nnote: this linter can be disabled with `set_option linter.unreachableTactic false`"
+                    },
+                    {
+                        "severity": "warning",
+                        "pos": {
+                            "line": 19,
+                            "column": 4
+                        },
+                        "endPos": {
+                            "line": 19,
+                            "column": 37
+                        },
+                        "data": "this tactic is never executed\nnote: this linter can be disabled with `set_option linter.unreachableTactic false`"
+                    },
+                    {
+                        "severity": "warning",
+                        "pos": {
+                            "line": 21,
+                            "column": 4
+                        },
+                        "endPos": {
+                            "line": 21,
+                            "column": 37
+                        },
+                        "data": "this tactic is never executed\nnote: this linter can be disabled with `set_option linter.unreachableTactic false`"
+                    },
+                    {
+                        "severity": "warning",
+                        "pos": {
+                            "line": 23,
+                            "column": 4
+                        },
+                        "endPos": {
+                            "line": 23,
+                            "column": 37
+                        },
+                        "data": "this tactic is never executed\nnote: this linter can be disabled with `set_option linter.unreachableTactic false`"
+                    },
+                    {
+                        "severity": "warning",
+                        "pos": {
+                            "line": 25,
+                            "column": 4
+                        },
+                        "endPos": {
+                            "line": 25,
+                            "column": 37
+                        },
+                        "data": "this tactic is never executed\nnote: this linter can be disabled with `set_option linter.unreachableTactic false`"
+                    },
+                    {
+                        "severity": "warning",
+                        "pos": {
+                            "line": 27,
+                            "column": 4
+                        },
+                        "endPos": {
+                            "line": 27,
+                            "column": 37
+                        },
+                        "data": "this tactic is never executed\nnote: this linter can be disabled with `set_option linter.unreachableTactic false`"
+                    },
+                    {
+                        "severity": "warning",
+                        "pos": {
+                            "line": 29,
+                            "column": 4
+                        },
+                        "endPos": {
+                            "line": 29,
+                            "column": 37
+                        },
+                        "data": "this tactic is never executed\nnote: this linter can be disabled with `set_option linter.unreachableTactic false`"
+                    },
+                    {
+                        "severity": "warning",
+                        "pos": {
+                            "line": 31,
+                            "column": 4
+                        },
+                        "endPos": {
+                            "line": 31,
+                            "column": 37
+                        },
+                        "data": "this tactic is never executed\nnote: this linter can be disabled with `set_option linter.unreachableTactic false`"
+                    },
+                    {
+                        "severity": "warning",
+                        "pos": {
+                            "line": 33,
+                            "column": 4
+                        },
+                        "endPos": {
+                            "line": 33,
+                            "column": 37
+                        },
+                        "data": "this tactic is never executed\nnote: this linter can be disabled with `set_option linter.unreachableTactic false`"
+                    },
+                    {
+                        "severity": "warning",
+                        "pos": {
+                            "line": 35,
+                            "column": 4
+                        },
+                        "endPos": {
+                            "line": 35,
+                            "column": 37
+                        },
+                        "data": "this tactic is never executed\nnote: this linter can be disabled with `set_option linter.unreachableTactic false`"
+                    },
+                    {
+                        "severity": "warning",
+                        "pos": {
+                            "line": 15,
+                            "column": 4
+                        },
+                        "endPos": {
+                            "line": 15,
+                            "column": 37
+                        },
+                        "data": "'nlinarith [sq_nonneg (u - 2 * v)]' tactic does nothing\nnote: this linter can be disabled with `set_option linter.unusedTactic false`"
+                    },
+                    {
+                        "severity": "warning",
+                        "pos": {
+                            "line": 17,
+                            "column": 4
+                        },
+                        "endPos": {
+                            "line": 17,
+                            "column": 37
+                        },
+                        "data": "'nlinarith [sq_nonneg (u + 2 * v)]' tactic does nothing\nnote: this linter can be disabled with `set_option linter.unusedTactic false`"
+                    },
+                    {
+                        "severity": "warning",
+                        "pos": {
+                            "line": 19,
+                            "column": 4
+                        },
+                        "endPos": {
+                            "line": 19,
+                            "column": 37
+                        },
+                        "data": "'nlinarith [sq_nonneg (u - 2 * v)]' tactic does nothing\nnote: this linter can be disabled with `set_option linter.unusedTactic false`"
+                    },
+                    {
+                        "severity": "warning",
+                        "pos": {
+                            "line": 21,
+                            "column": 4
+                        },
+                        "endPos": {
+                            "line": 21,
+                            "column": 37
+                        },
+                        "data": "'nlinarith [sq_nonneg (u + 2 * v)]' tactic does nothing\nnote: this linter can be disabled with `set_option linter.unusedTactic false`"
+                    },
+                    {
+                        "severity": "warning",
+                        "pos": {
+                            "line": 23,
+                            "column": 4
+                        },
+                        "endPos": {
+                            "line": 23,
+                            "column": 37
+                        },
+                        "data": "'nlinarith [sq_nonneg (u - 2 * v)]' tactic does nothing\nnote: this linter can be disabled with `set_option linter.unusedTactic false`"
+                    },
+                    {
+                        "severity": "warning",
+                        "pos": {
+                            "line": 25,
+                            "column": 4
+                        },
+                        "endPos": {
+                            "line": 25,
+                            "column": 37
+                        },
+                        "data": "'nlinarith [sq_nonneg (u + 2 * v)]' tactic does nothing\nnote: this linter can be disabled with `set_option linter.unusedTactic false`"
+                    },
+                    {
+                        "severity": "warning",
+                        "pos": {
+                            "line": 27,
+                            "column": 4
+                        },
+                        "endPos": {
+                            "line": 27,
+                            "column": 37
+                        },
+                        "data": "'nlinarith [sq_nonneg (u - 2 * v)]' tactic does nothing\nnote: this linter can be disabled with `set_option linter.unusedTactic false`"
+                    },
+                    {
+                        "severity": "warning",
+                        "pos": {
+                            "line": 29,
+                            "column": 4
+                        },
+                        "endPos": {
+                            "line": 29,
+                            "column": 37
+                        },
+                        "data": "'nlinarith [sq_nonneg (u + 2 * v)]' tactic does nothing\nnote: this linter can be disabled with `set_option linter.unusedTactic false`"
+                    },
+                    {
+                        "severity": "warning",
+                        "pos": {
+                            "line": 31,
+                            "column": 4
+                        },
+                        "endPos": {
+                            "line": 31,
+                            "column": 37
+                        },
+                        "data": "'nlinarith [sq_nonneg (u - 2 * v)]' tactic does nothing\nnote: this linter can be disabled with `set_option linter.unusedTactic false`"
+                    },
+                    {
+                        "severity": "warning",
+                        "pos": {
+                            "line": 33,
+                            "column": 4
+                        },
+                        "endPos": {
+                            "line": 33,
+                            "column": 37
+                        },
+                        "data": "'nlinarith [sq_nonneg (u + 2 * v)]' tactic does nothing\nnote: this linter can be disabled with `set_option linter.unusedTactic false`"
+                    },
+                    {
+                        "severity": "warning",
+                        "pos": {
+                            "line": 35,
+                            "column": 4
+                        },
+                        "endPos": {
+                            "line": 35,
+                            "column": 37
+                        },
+                        "data": "'nlinarith [sq_nonneg (u - 2 * v)]' tactic does nothing\nnote: this linter can be disabled with `set_option linter.unusedTactic false`"
+                    }
+                ],
+                "time": 0.40897583961486816
+            }
+        }
+    ]
+}

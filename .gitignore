@@ -1,15 +1,18 @@
+# Jupyter notebooks
 .ipynb_checkpoints/
+
+# Python-related
 __pycache__/
 .pytest_cache
+.coverage*
 .venv
+
+# Lean dependencies
 mathlib4/
-mathlib4_problem/
 repl/
-log/
-logs/
-.coverage
-*.egg-info/
-.DS_Store
-.vscode/
+
+# Environment variables
 .env
-*.csv
+
+# PostgreSQL data
+.data/

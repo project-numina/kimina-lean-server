@@ -1,0 +1,61 @@
+{
+    "results": [
+        {
+            "custom_id": "lean_workbook_10185",
+            "error": null,
+            "response": {
+                "messages": [
+                    {
+                        "severity": "warning",
+                        "pos": {
+                            "line": 24,
+                            "column": 10
+                        },
+                        "endPos": {
+                            "line": 24,
+                            "column": 18
+                        },
+                        "data": "this tactic is never executed\nnote: this linter can be disabled with `set_option linter.unreachableTactic false`"
+                    },
+                    {
+                        "severity": "warning",
+                        "pos": {
+                            "line": 26,
+                            "column": 10
+                        },
+                        "endPos": {
+                            "line": 26,
+                            "column": 18
+                        },
+                        "data": "this tactic is never executed\nnote: this linter can be disabled with `set_option linter.unreachableTactic false`"
+                    },
+                    {
+                        "severity": "warning",
+                        "pos": {
+                            "line": 24,
+                            "column": 10
+                        },
+                        "endPos": {
+                            "line": 24,
+                            "column": 18
+                        },
+                        "data": "'norm_num' tactic does nothing\nnote: this linter can be disabled with `set_option linter.unusedTactic false`"
+                    },
+                    {
+                        "severity": "warning",
+                        "pos": {
+                            "line": 26,
+                            "column": 10
+                        },
+                        "endPos": {
+                            "line": 26,
+                            "column": 18
+                        },
+                        "data": "'linarith' tactic does nothing\nnote: this linter can be disabled with `set_option linter.unusedTactic false`"
+                    }
+                ],
+                "time": 0.5202531814575195
+            }
+        }
+    ]
+}

@@ -1,0 +1,73 @@
+{
+    "results": [
+        {
+            "custom_id": "lean_workbook_10026",
+            "error": null,
+            "response": {
+                "messages": [
+                    {
+                        "severity": "warning",
+                        "pos": {
+                            "line": 6,
+                            "column": 56
+                        },
+                        "endPos": {
+                            "line": 6,
+                            "column": 58
+                        },
+                        "data": "unused variable `h2`\nnote: this linter can be disabled with `set_option linter.unusedVariables false`"
+                    },
+                    {
+                        "severity": "warning",
+                        "pos": {
+                            "line": 26,
+                            "column": 6
+                        },
+                        "endPos": {
+                            "line": 26,
+                            "column": 87
+                        },
+                        "data": "this tactic is never executed\nnote: this linter can be disabled with `set_option linter.unreachableTactic false`"
+                    },
+                    {
+                        "severity": "warning",
+                        "pos": {
+                            "line": 27,
+                            "column": 6
+                        },
+                        "endPos": {
+                            "line": 27,
+                            "column": 35
+                        },
+                        "data": "this tactic is never executed\nnote: this linter can be disabled with `set_option linter.unreachableTactic false`"
+                    },
+                    {
+                        "severity": "warning",
+                        "pos": {
+                            "line": 26,
+                            "column": 6
+                        },
+                        "endPos": {
+                            "line": 26,
+                            "column": 87
+                        },
+                        "data": "'simp_all only [add_left_inj, add_right_inj, mul_one, mul_zero, mul_neg, mul_comm]' tactic does nothing\nnote: this linter can be disabled with `set_option linter.unusedTactic false`"
+                    },
+                    {
+                        "severity": "warning",
+                        "pos": {
+                            "line": 27,
+                            "column": 6
+                        },
+                        "endPos": {
+                            "line": 27,
+                            "column": 35
+                        },
+                        "data": "'nlinarith [sq_nonneg (a - b)]' tactic does nothing\nnote: this linter can be disabled with `set_option linter.unusedTactic false`"
+                    }
+                ],
+                "time": 0.37787938117980957
+            }
+        }
+    ]
+}

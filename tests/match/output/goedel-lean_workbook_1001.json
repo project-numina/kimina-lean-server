@@ -1,0 +1,61 @@
+{
+    "results": [
+        {
+            "custom_id": "lean_workbook_1001",
+            "error": null,
+            "response": {
+                "messages": [
+                    {
+                        "severity": "warning",
+                        "pos": {
+                            "line": 18,
+                            "column": 6
+                        },
+                        "endPos": {
+                            "line": 18,
+                            "column": 25
+                        },
+                        "data": "this tactic is never executed\nnote: this linter can be disabled with `set_option linter.unreachableTactic false`"
+                    },
+                    {
+                        "severity": "warning",
+                        "pos": {
+                            "line": 20,
+                            "column": 6
+                        },
+                        "endPos": {
+                            "line": 20,
+                            "column": 10
+                        },
+                        "data": "this tactic is never executed\nnote: this linter can be disabled with `set_option linter.unreachableTactic false`"
+                    },
+                    {
+                        "severity": "warning",
+                        "pos": {
+                            "line": 18,
+                            "column": 6
+                        },
+                        "endPos": {
+                            "line": 18,
+                            "column": 25
+                        },
+                        "data": "'simp [Complex.I_sq]' tactic does nothing\nnote: this linter can be disabled with `set_option linter.unusedTactic false`"
+                    },
+                    {
+                        "severity": "warning",
+                        "pos": {
+                            "line": 20,
+                            "column": 6
+                        },
+                        "endPos": {
+                            "line": 20,
+                            "column": 10
+                        },
+                        "data": "'ring' tactic does nothing\nnote: this linter can be disabled with `set_option linter.unusedTactic false`"
+                    }
+                ],
+                "time": 0.3401503562927246
+            }
+        }
+    ]
+}

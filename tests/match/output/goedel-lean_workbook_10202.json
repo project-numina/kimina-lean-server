@@ -1,0 +1,517 @@
+{
+    "results": [
+        {
+            "custom_id": "lean_workbook_10202",
+            "error": null,
+            "response": {
+                "messages": [
+                    {
+                        "severity": "warning",
+                        "pos": {
+                            "line": 18,
+                            "column": 6
+                        },
+                        "endPos": {
+                            "line": 18,
+                            "column": 9
+                        },
+                        "data": "this tactic is never executed\nnote: this linter can be disabled with `set_option linter.unreachableTactic false`"
+                    },
+                    {
+                        "severity": "warning",
+                        "pos": {
+                            "line": 19,
+                            "column": 6
+                        },
+                        "endPos": {
+                            "line": 19,
+                            "column": 9
+                        },
+                        "data": "this tactic is never executed\nnote: this linter can be disabled with `set_option linter.unreachableTactic false`"
+                    },
+                    {
+                        "severity": "warning",
+                        "pos": {
+                            "line": 20,
+                            "column": 6
+                        },
+                        "endPos": {
+                            "line": 20,
+                            "column": 9
+                        },
+                        "data": "this tactic is never executed\nnote: this linter can be disabled with `set_option linter.unreachableTactic false`"
+                    },
+                    {
+                        "severity": "warning",
+                        "pos": {
+                            "line": 21,
+                            "column": 6
+                        },
+                        "endPos": {
+                            "line": 21,
+                            "column": 9
+                        },
+                        "data": "this tactic is never executed\nnote: this linter can be disabled with `set_option linter.unreachableTactic false`"
+                    },
+                    {
+                        "severity": "warning",
+                        "pos": {
+                            "line": 22,
+                            "column": 6
+                        },
+                        "endPos": {
+                            "line": 22,
+                            "column": 9
+                        },
+                        "data": "this tactic is never executed\nnote: this linter can be disabled with `set_option linter.unreachableTactic false`"
+                    },
+                    {
+                        "severity": "warning",
+                        "pos": {
+                            "line": 23,
+                            "column": 6
+                        },
+                        "endPos": {
+                            "line": 23,
+                            "column": 9
+                        },
+                        "data": "this tactic is never executed\nnote: this linter can be disabled with `set_option linter.unreachableTactic false`"
+                    },
+                    {
+                        "severity": "warning",
+                        "pos": {
+                            "line": 24,
+                            "column": 6
+                        },
+                        "endPos": {
+                            "line": 24,
+                            "column": 9
+                        },
+                        "data": "this tactic is never executed\nnote: this linter can be disabled with `set_option linter.unreachableTactic false`"
+                    },
+                    {
+                        "severity": "warning",
+                        "pos": {
+                            "line": 25,
+                            "column": 6
+                        },
+                        "endPos": {
+                            "line": 25,
+                            "column": 9
+                        },
+                        "data": "this tactic is never executed\nnote: this linter can be disabled with `set_option linter.unreachableTactic false`"
+                    },
+                    {
+                        "severity": "warning",
+                        "pos": {
+                            "line": 26,
+                            "column": 6
+                        },
+                        "endPos": {
+                            "line": 26,
+                            "column": 9
+                        },
+                        "data": "this tactic is never executed\nnote: this linter can be disabled with `set_option linter.unreachableTactic false`"
+                    },
+                    {
+                        "severity": "warning",
+                        "pos": {
+                            "line": 27,
+                            "column": 6
+                        },
+                        "endPos": {
+                            "line": 27,
+                            "column": 9
+                        },
+                        "data": "this tactic is never executed\nnote: this linter can be disabled with `set_option linter.unreachableTactic false`"
+                    },
+                    {
+                        "severity": "warning",
+                        "pos": {
+                            "line": 28,
+                            "column": 6
+                        },
+                        "endPos": {
+                            "line": 28,
+                            "column": 9
+                        },
+                        "data": "this tactic is never executed\nnote: this linter can be disabled with `set_option linter.unreachableTactic false`"
+                    },
+                    {
+                        "severity": "warning",
+                        "pos": {
+                            "line": 29,
+                            "column": 6
+                        },
+                        "endPos": {
+                            "line": 29,
+                            "column": 9
+                        },
+                        "data": "this tactic is never executed\nnote: this linter can be disabled with `set_option linter.unreachableTactic false`"
+                    },
+                    {
+                        "severity": "warning",
+                        "pos": {
+                            "line": 30,
+                            "column": 6
+                        },
+                        "endPos": {
+                            "line": 30,
+                            "column": 9
+                        },
+                        "data": "this tactic is never executed\nnote: this linter can be disabled with `set_option linter.unreachableTactic false`"
+                    },
+                    {
+                        "severity": "warning",
+                        "pos": {
+                            "line": 31,
+                            "column": 6
+                        },
+                        "endPos": {
+                            "line": 31,
+                            "column": 9
+                        },
+                        "data": "this tactic is never executed\nnote: this linter can be disabled with `set_option linter.unreachableTactic false`"
+                    },
+                    {
+                        "severity": "warning",
+                        "pos": {
+                            "line": 32,
+                            "column": 6
+                        },
+                        "endPos": {
+                            "line": 32,
+                            "column": 9
+                        },
+                        "data": "this tactic is never executed\nnote: this linter can be disabled with `set_option linter.unreachableTactic false`"
+                    },
+                    {
+                        "severity": "warning",
+                        "pos": {
+                            "line": 33,
+                            "column": 6
+                        },
+                        "endPos": {
+                            "line": 33,
+                            "column": 9
+                        },
+                        "data": "this tactic is never executed\nnote: this linter can be disabled with `set_option linter.unreachableTactic false`"
+                    },
+                    {
+                        "severity": "warning",
+                        "pos": {
+                            "line": 34,
+                            "column": 6
+                        },
+                        "endPos": {
+                            "line": 34,
+                            "column": 9
+                        },
+                        "data": "this tactic is never executed\nnote: this linter can be disabled with `set_option linter.unreachableTactic false`"
+                    },
+                    {
+                        "severity": "warning",
+                        "pos": {
+                            "line": 35,
+                            "column": 6
+                        },
+                        "endPos": {
+                            "line": 35,
+                            "column": 9
+                        },
+                        "data": "this tactic is never executed\nnote: this linter can be disabled with `set_option linter.unreachableTactic false`"
+                    },
+                    {
+                        "severity": "warning",
+                        "pos": {
+                            "line": 36,
+                            "column": 6
+                        },
+                        "endPos": {
+                            "line": 36,
+                            "column": 9
+                        },
+                        "data": "this tactic is never executed\nnote: this linter can be disabled with `set_option linter.unreachableTactic false`"
+                    },
+                    {
+                        "severity": "warning",
+                        "pos": {
+                            "line": 37,
+                            "column": 6
+                        },
+                        "endPos": {
+                            "line": 37,
+                            "column": 9
+                        },
+                        "data": "this tactic is never executed\nnote: this linter can be disabled with `set_option linter.unreachableTactic false`"
+                    },
+                    {
+                        "severity": "warning",
+                        "pos": {
+                            "line": 38,
+                            "column": 6
+                        },
+                        "endPos": {
+                            "line": 38,
+                            "column": 9
+                        },
+                        "data": "this tactic is never executed\nnote: this linter can be disabled with `set_option linter.unreachableTactic false`"
+                    },
+                    {
+                        "severity": "warning",
+                        "pos": {
+                            "line": 18,
+                            "column": 6
+                        },
+                        "endPos": {
+                            "line": 18,
+                            "column": 9
+                        },
+                        "data": "'rfl' tactic does nothing\nnote: this linter can be disabled with `set_option linter.unusedTactic false`"
+                    },
+                    {
+                        "severity": "warning",
+                        "pos": {
+                            "line": 19,
+                            "column": 6
+                        },
+                        "endPos": {
+                            "line": 19,
+                            "column": 9
+                        },
+                        "data": "'rfl' tactic does nothing\nnote: this linter can be disabled with `set_option linter.unusedTactic false`"
+                    },
+                    {
+                        "severity": "warning",
+                        "pos": {
+                            "line": 20,
+                            "column": 6
+                        },
+                        "endPos": {
+                            "line": 20,
+                            "column": 9
+                        },
+                        "data": "'rfl' tactic does nothing\nnote: this linter can be disabled with `set_option linter.unusedTactic false`"
+                    },
+                    {
+                        "severity": "warning",
+                        "pos": {
+                            "line": 21,
+                            "column": 6
+                        },
+                        "endPos": {
+                            "line": 21,
+                            "column": 9
+                        },
+                        "data": "'rfl' tactic does nothing\nnote: this linter can be disabled with `set_option linter.unusedTactic false`"
+                    },
+                    {
+                        "severity": "warning",
+                        "pos": {
+                            "line": 22,
+                            "column": 6
+                        },
+                        "endPos": {
+                            "line": 22,
+                            "column": 9
+                        },
+                        "data": "'rfl' tactic does nothing\nnote: this linter can be disabled with `set_option linter.unusedTactic false`"
+                    },
+                    {
+                        "severity": "warning",
+                        "pos": {
+                            "line": 23,
+                            "column": 6
+                        },
+                        "endPos": {
+                            "line": 23,
+                            "column": 9
+                        },
+                        "data": "'rfl' tactic does nothing\nnote: this linter can be disabled with `set_option linter.unusedTactic false`"
+                    },
+                    {
+                        "severity": "warning",
+                        "pos": {
+                            "line": 24,
+                            "column": 6
+                        },
+                        "endPos": {
+                            "line": 24,
+                            "column": 9
+                        },
+                        "data": "'rfl' tactic does nothing\nnote: this linter can be disabled with `set_option linter.unusedTactic false`"
+                    },
+                    {
+                        "severity": "warning",
+                        "pos": {
+                            "line": 25,
+                            "column": 6
+                        },
+                        "endPos": {
+                            "line": 25,
+                            "column": 9
+                        },
+                        "data": "'rfl' tactic does nothing\nnote: this linter can be disabled with `set_option linter.unusedTactic false`"
+                    },
+                    {
+                        "severity": "warning",
+                        "pos": {
+                            "line": 26,
+                            "column": 6
+                        },
+                        "endPos": {
+                            "line": 26,
+                            "column": 9
+                        },
+                        "data": "'rfl' tactic does nothing\nnote: this linter can be disabled with `set_option linter.unusedTactic false`"
+                    },
+                    {
+                        "severity": "warning",
+                        "pos": {
+                            "line": 27,
+                            "column": 6
+                        },
+                        "endPos": {
+                            "line": 27,
+                            "column": 9
+                        },
+                        "data": "'rfl' tactic does nothing\nnote: this linter can be disabled with `set_option linter.unusedTactic false`"
+                    },
+                    {
+                        "severity": "warning",
+                        "pos": {
+                            "line": 28,
+                            "column": 6
+                        },
+                        "endPos": {
+                            "line": 28,
+                            "column": 9
+                        },
+                        "data": "'rfl' tactic does nothing\nnote: this linter can be disabled with `set_option linter.unusedTactic false`"
+                    },
+                    {
+                        "severity": "warning",
+                        "pos": {
+                            "line": 29,
+                            "column": 6
+                        },
+                        "endPos": {
+                            "line": 29,
+                            "column": 9
+                        },
+                        "data": "'rfl' tactic does nothing\nnote: this linter can be disabled with `set_option linter.unusedTactic false`"
+                    },
+                    {
+                        "severity": "warning",
+                        "pos": {
+                            "line": 30,
+                            "column": 6
+                        },
+                        "endPos": {
+                            "line": 30,
+                            "column": 9
+                        },
+                        "data": "'rfl' tactic does nothing\nnote: this linter can be disabled with `set_option linter.unusedTactic false`"
+                    },
+                    {
+                        "severity": "warning",
+                        "pos": {
+                            "line": 31,
+                            "column": 6
+                        },
+                        "endPos": {
+                            "line": 31,
+                            "column": 9
+                        },
+                        "data": "'rfl' tactic does nothing\nnote: this linter can be disabled with `set_option linter.unusedTactic false`"
+                    },
+                    {
+                        "severity": "warning",
+                        "pos": {
+                            "line": 32,
+                            "column": 6
+                        },
+                        "endPos": {
+                            "line": 32,
+                            "column": 9
+                        },
+                        "data": "'rfl' tactic does nothing\nnote: this linter can be disabled with `set_option linter.unusedTactic false`"
+                    },
+                    {
+                        "severity": "warning",
+                        "pos": {
+                            "line": 33,
+                            "column": 6
+                        },
+                        "endPos": {
+                            "line": 33,
+                            "column": 9
+                        },
+                        "data": "'rfl' tactic does nothing\nnote: this linter can be disabled with `set_option linter.unusedTactic false`"
+                    },
+                    {
+                        "severity": "warning",
+                        "pos": {
+                            "line": 34,
+                            "column": 6
+                        },
+                        "endPos": {
+                            "line": 34,
+                            "column": 9
+                        },
+                        "data": "'rfl' tactic does nothing\nnote: this linter can be disabled with `set_option linter.unusedTactic false`"
+                    },
+                    {
+                        "severity": "warning",
+                        "pos": {
+                            "line": 35,
+                            "column": 6
+                        },
+                        "endPos": {
+                            "line": 35,
+                            "column": 9
+                        },
+                        "data": "'rfl' tactic does nothing\nnote: this linter can be disabled with `set_option linter.unusedTactic false`"
+                    },
+                    {
+                        "severity": "warning",
+                        "pos": {
+                            "line": 36,
+                            "column": 6
+                        },
+                        "endPos": {
+                            "line": 36,
+                            "column": 9
+                        },
+                        "data": "'rfl' tactic does nothing\nnote: this linter can be disabled with `set_option linter.unusedTactic false`"
+                    },
+                    {
+                        "severity": "warning",
+                        "pos": {
+                            "line": 37,
+                            "column": 6
+                        },
+                        "endPos": {
+                            "line": 37,
+                            "column": 9
+                        },
+                        "data": "'rfl' tactic does nothing\nnote: this linter can be disabled with `set_option linter.unusedTactic false`"
+                    },
+                    {
+                        "severity": "warning",
+                        "pos": {
+                            "line": 38,
+                            "column": 6
+                        },
+                        "endPos": {
+                            "line": 38,
+                            "column": 9
+                        },
+                        "data": "'rfl' tactic does nothing\nnote: this linter can be disabled with `set_option linter.unusedTactic false`"
+                    }
+                ],
+                "time": 0.05146384239196777
+            }
+        }
+    ]
+}

@@ -1,0 +1,85 @@
+{
+    "results": [
+        {
+            "custom_id": "lean_workbook_102",
+            "error": null,
+            "response": {
+                "messages": [
+                    {
+                        "severity": "warning",
+                        "pos": {
+                            "line": 19,
+                            "column": 35
+                        },
+                        "endPos": {
+                            "line": 19,
+                            "column": 47
+                        },
+                        "data": "`add_left_neg` has been deprecated: use `neg_add_cancel` instead"
+                    },
+                    {
+                        "severity": "warning",
+                        "pos": {
+                            "line": 19,
+                            "column": 49
+                        },
+                        "endPos": {
+                            "line": 19,
+                            "column": 62
+                        },
+                        "data": "`add_right_neg` has been deprecated: use `add_neg_cancel` instead"
+                    },
+                    {
+                        "severity": "warning",
+                        "pos": {
+                            "line": 7,
+                            "column": 3
+                        },
+                        "endPos": {
+                            "line": 7,
+                            "column": 5
+                        },
+                        "data": "unused variable `h₀`\nnote: this linter can be disabled with `set_option linter.unusedVariables false`"
+                    },
+                    {
+                        "severity": "warning",
+                        "pos": {
+                            "line": 8,
+                            "column": 3
+                        },
+                        "endPos": {
+                            "line": 8,
+                            "column": 5
+                        },
+                        "data": "unused variable `h₁`\nnote: this linter can be disabled with `set_option linter.unusedVariables false`"
+                    },
+                    {
+                        "severity": "warning",
+                        "pos": {
+                            "line": 22,
+                            "column": 6
+                        },
+                        "endPos": {
+                            "line": 22,
+                            "column": 14
+                        },
+                        "data": "this tactic is never executed\nnote: this linter can be disabled with `set_option linter.unreachableTactic false`"
+                    },
+                    {
+                        "severity": "warning",
+                        "pos": {
+                            "line": 22,
+                            "column": 6
+                        },
+                        "endPos": {
+                            "line": 22,
+                            "column": 14
+                        },
+                        "data": "'linarith' tactic does nothing\nnote: this linter can be disabled with `set_option linter.unusedTactic false`"
+                    }
+                ],
+                "time": 0.2001330852508545
+            }
+        }
+    ]
+}
