@@ -43,15 +43,16 @@ jobs:
         run: |
           TEMPLATE="kimina-tpl-${{ github.sha }}"
           IMAGE="gcr.io/${{ vars.PROJECT_ID }}/${{ steps.set-image-name.outputs.image_name }}:${{ github.sha }}"
+          REGION="${{ vars.DOCKER_REPO_REGION }}"
           gcloud compute instance-templates create-with-container $TEMPLATE \
             --container-image=$IMAGE \
             --container-restart-policy=on-failure \
             --container-stdin \
             --container-tty \
             --machine-type=n2-standard-16 \
-            --region=${{ vars.DOCKER_REPO_REGION }} \
+            --region=$REGION \
             --boot-disk-size=50GB --boot-disk-type=pd-ssd \
-            --tags=http-server,https-server
+            --tags=http-server,https-server,load-balancer
 
     #   - name: Roll out rolling‑update to MIG
     #     run: |
