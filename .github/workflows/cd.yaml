@@ -45,7 +45,7 @@ jobs:
           IMAGE="gcr.io/${{ vars.PROJECT_ID }}/${{ steps.set-image-name.outputs.image_name }}:${{ github.sha }}"
           gcloud compute instance-templates create-with-container $TEMPLATE \
             --container-image=$IMAGE \
-            --container-restart=on-failure \
+            --container-restart-policy=on-failure \
             --container-stdin \
             --container-tty \
             --machine-type=n2-standard-16 \
