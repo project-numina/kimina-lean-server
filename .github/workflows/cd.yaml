@@ -38,11 +38,34 @@ jobs:
       - name: Push Docker image
         run: docker push "${{ steps.set-image-name.outputs.image_name }}"
 
+      - name: Create new instance template
+        #   IMAGE="gcr.io/${{ secrets.GCP_PROJECT_ID }}/${{ steps.set-image-name.outputs.image_name }}:${{ github.sha }}"
+        run: |
+          TEMPLATE="kimina-tpl-${{ github.sha }}"
+          IMAGE="gcr.io/${{ vars.PROJECT_ID }}/${{ steps.set-image-name.outputs.image_name }}:${{ github.sha }}"
+          gcloud compute instance-templates create-with-container $TEMPLATE \
+            --container-image=$IMAGE \
+            --container-restart=on-failure \
+            --container-stdin \
+            --container-tty \
+            --machine-type=n2-standard-16 \
+            --region=${{ vars.DOCKER_REPO_REGION }}
+            --boot-disk-size=50GB --boot-disk-type=pd-ssd
+            --tags=http-server,https-server
+
+    #   - name: Roll out rolling‑update to MIG
+    #     run: |
+    #       gcloud compute instance-groups managed rolling-action start-update ${{ vars.MIG_NAME }} \
+    #         --version=template=$TEMPLATE \
+    #         --max-surge=1 \
+    #         --max-unavailable=0 \
+    #         --region=${{ vars.DOCKER_REPO_REGION }}
+
     #   - name: Deploy Docker image
     #     id: deploy
     #     uses: "google-github-actions/deploy-cloudrun@v2"
     #     with:
     #       image: "${{ steps.set-image-name.outputs.image_name }}"
-    #       region: europe-west1
-    #       service: chainlit-cloud
-    #       flags: --port=3000
+    #       region: "${{ vars.DOCKER_REPO_REGION }}"
+    #       service: kimina-lean-server
+    #     #   flags: --port=3000
