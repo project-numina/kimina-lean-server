@@ -28,21 +28,21 @@ RUN apt-get update && apt-get install -y ca-certificates \
   && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Install Elan + set default Lean version
-RUN curl https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -sSf | sh -s -- --default-toolchain ${LEAN_VERSION} -y
+RUN curl https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -sSf | sh -s -- --default-toolchain ${LEANSERVER_LEAN_VERSION} -y
 ENV PATH=/root/.elan/bin:$PATH
 
 # Install Lean (first use)
 RUN lean --version
 
 # Install REPL
-RUN git clone --branch ${LEAN_VERSION} --single-branch --depth 1 https://github.com/leanprover-community/repl.git /root/repl
+RUN git clone --branch ${LEANSERVER_LEAN_VERSION} --single-branch --depth 1 https://github.com/leanprover-community/repl.git /root/repl
 WORKDIR /root/repl
-RUN git checkout ${LEAN_VERSION} && lake build
+RUN git checkout ${LEANSERVER_LEAN_VERSION} && lake build
 
 # Install Mathlib
-RUN git clone --branch ${LEAN_VERSION} --single-branch --depth 1 https://github.com/leanprover-community/mathlib4.git /root/mathlib4
+RUN git clone --branch ${LEANSERVER_LEAN_VERSION} --single-branch --depth 1 https://github.com/leanprover-community/mathlib4.git /root/mathlib4
 WORKDIR /root/mathlib4
-RUN git checkout ${LEAN_VERSION} && \
+RUN git checkout ${LEANSERVER_LEAN_VERSION} && \
     lake exe cache get && \
     lake build
 
