@@ -1,0 +1,45 @@
+name: CD
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: "read"
+      id-token: "write" # To authenticate to GCP
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: "GCP auth"
+        id: "auth"
+        uses: "google-github-actions/auth@v2"
+        with:
+          workload_identity_provider: "${{ vars.WORKLOAD_IDENTITY_PROVIDER_LOCATION }}"
+          service_account: "${{ vars.SERVICE_ACCOUNT }}@${{ vars.PROJECT_ID }}.iam.gserviceaccount.com"
+
+      - name: Configure Docker
+        run: gcloud auth configure-docker ${{ vars.DOCKER_REPO_REGION }}-docker.pkg.dev
+
+      - name: Set image name
+        id: set-image-name
+        run: echo "image_name=${{ vars.DOCKER_REPO_REGION }}-docker.pkg.dev/${{ vars.PROJECT_ID }}/${{ vars.DOCKER_REPO_NAME }}/kimina-lean-server:$(git rev-parse --short HEAD)" >> "$GITHUB_OUTPUT"
+
+      - name: Build Docker image
+        run: |
+          docker build . -t "${{ steps.set-image-name.outputs.image_name }}"
+        # --build-arg truc=${{ vars.TRUC}} 
+
+      - name: Push Docker image
+        run: docker push "${{ steps.set-image-name.outputs.image_name }}"
+
+    #   - name: Deploy Docker image
+    #     id: deploy
+    #     uses: "google-github-actions/deploy-cloudrun@v2"
+    #     with:
+    #       image: "${{ steps.set-image-name.outputs.image_name }}"
+    #       region: europe-west1
+    #       service: chainlit-cloud
+    #       flags: --port=3000

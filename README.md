@@ -11,6 +11,10 @@ It supports massive parallelization to verify Lean 4 proofs at scale.
 - FastAPI-based async server with configurable concurrency
 - REPL pooling and context caching for performance
 
+## To contribute
+
+Install precommit hooks.
+
 ## 📦 Setup
 
 Clone this repository and change directory:
