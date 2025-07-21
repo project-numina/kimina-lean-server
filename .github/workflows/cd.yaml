@@ -39,7 +39,6 @@ jobs:
         run: docker push "${{ steps.set-image-name.outputs.image_name }}"
 
       - name: Create new instance template
-        #   IMAGE="gcr.io/${{ secrets.GCP_PROJECT_ID }}/${{ steps.set-image-name.outputs.image_name }}"
         run: |
           TEMPLATE="kimina-tpl-${{ github.sha }}"
           IMAGE="${{ steps.set-image-name.outputs.image_name }}"
@@ -64,11 +63,14 @@ jobs:
             --max-unavailable=0 \
             --region=$REGION
 
-    #   - name: Deploy Docker image
-    #     id: deploy
-    #     uses: "google-github-actions/deploy-cloudrun@v2"
-    #     with:
-    #       image: "${{ steps.set-image-name.outputs.image_name }}"
-    #       region: "${{ vars.DOCKER_REPO_REGION }}"
-    #       service: kimina-lean-server
-    #     #   flags: --port=3000
+      - name: Clean up old instance‑templates
+        run: |
+          # list all kimina‑tpl‑* templates, newest first, skip the first 5, delete the rest
+          old=$(gcloud compute instance-templates list \
+            --filter="name~^kimina-tpl-" \
+            --sort-by="~creationTimestamp" \
+            --format="value(name)" \
+            | tail -n +6)
+          if [ -n "$old" ]; then
+            gcloud compute instance-templates delete $old -q
+          fi

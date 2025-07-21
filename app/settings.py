@@ -1,9 +1,15 @@
 import os
 import re
-from typing import Literal, cast
+from enum import Enum
+from typing import cast
 
 from pydantic import Field, field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+
+class Environment(str, Enum):
+    production = "production"
+    development = "development"
 
 
 class Settings(BaseSettings):
@@ -20,14 +26,14 @@ class Settings(BaseSettings):
         default_factory=lambda: {"import Mathlib\nimport Aesop": 1}
     )
     MAX_WAIT: int = 60
-    ENVIRONMENT: Literal["production", "development"] = "production"
+    ENVIRONMENT: Environment = Environment.production
 
     DATABASE_USER: str = "root"
     DATABASE_PASSWORD: str = "root"
-    DATABASE_NAME: str = "fastrepl"
+    DATABASE_NAME: str = "leanserver"
     DATABASE_HOST: str = "localhost"
     DATABASE_PORT: int = 5432
-    DATABASE_URL: str = "postgresql://root:root@localhost:5432/fastrepl"
+    DATABASE_URL: str | None = None
 
     LEAN_VERSION: str = "v4.15.0"
     API_KEY: str | None = None

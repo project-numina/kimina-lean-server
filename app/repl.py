@@ -25,11 +25,11 @@ from app.schemas import (
     Infotree,
     Snippet,
 )
-from app.settings import settings
+from app.settings import Environment, settings
 from app.utils import is_blank
 
 log_lock = asyncio.Lock()
-if settings.ENVIRONMENT.lower() != "production":
+if settings.ENVIRONMENT != Environment.production:
     console = Console(log_time_format="[%m/%d/%y %H:%M:%S]", force_terminal=True)
 else:
     # In production, we don't need the rich console object.
@@ -37,7 +37,7 @@ else:
 
 
 async def log_snippet(uuid: UUID, snippet_id: str, code: str) -> None:
-    if settings.ENVIRONMENT.lower() == "production":
+    if settings.ENVIRONMENT == Environment.production:
         header = f"[{uuid.hex[:8]}] Running snippet {snippet_id}:"
         async with log_lock:
             logger.info(header)

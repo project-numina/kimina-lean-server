@@ -15,7 +15,7 @@ from app.manager import Manager
 from app.routers.backward import router as backward_router
 from app.routers.check import router as check_router
 from app.routers.health import router as health_router
-from app.settings import Settings
+from app.settings import Environment, Settings
 
 try:
     __version__ = version("kimina-lean-server")
@@ -39,6 +39,7 @@ def create_app(settings: Settings) -> FastAPI:
     @asynccontextmanager
     async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
         if settings.DATABASE_URL:
+            print(settings.DATABASE_URL)
             try:
                 await db.connect()
                 logger.info("DB connected: %s", db.connected)
@@ -91,7 +92,7 @@ def create_app(settings: Settings) -> FastAPI:
 def setup_logging(settings: Settings) -> None:
     logger.remove()
 
-    if settings.ENVIRONMENT.lower() == "production":
+    if settings.ENVIRONMENT == Environment.production:
 
         def gcp_formatter(message: Any) -> None:
             record = message.record
