@@ -9,10 +9,6 @@ from datetime import datetime
 from uuid import UUID, uuid4
 
 import psutil
-from loguru import logger
-from rich.console import Console
-from rich.syntax import Syntax
-
 from app.db import db
 from app.errors import LeanError, ReplError
 from app.models import ReplStatus
@@ -27,6 +23,9 @@ from app.schemas import (
 )
 from app.settings import Environment, settings
 from app.utils import is_blank
+from loguru import logger
+from rich.console import Console
+from rich.syntax import Syntax
 
 log_lock = asyncio.Lock()
 if settings.ENVIRONMENT != Environment.production:

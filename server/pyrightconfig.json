@@ -3,5 +3,7 @@
   "include": ["app"],
   "exclude": ["tests"], // Used by CLI
   "ignore": ["tests"], // Used by Pylance in VS Code
-  "reportMissingImports": true
+  "reportMissingImports": true,
+  "venvPath": ".",
+  "venv": ".venv"
 }
