@@ -4,9 +4,6 @@ from typing import List
 import pandas
 
 
-def get_error_msg(response): ...
-
-
 def parse_messages(messages):
     parsed_messages = []
     for msg in messages:
