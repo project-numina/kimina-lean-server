@@ -1,8 +1,8 @@
 import asyncio
+import json
 from collections import Counter
 from concurrent.futures import ThreadPoolExecutor
 from contextlib import asynccontextmanager
-import json
 from typing import Annotated
 
 from fastapi import Depends, FastAPI, Header, HTTPException, Request
@@ -10,8 +10,7 @@ from loguru import logger
 from pydantic import BaseModel, Field
 from tqdm import tqdm
 
-from utils.proof_utils import split_proof_header
-from utils.repl_cache import LRUReplCache
+from app.split import split_snippet
 
 from .config import settings
 from .healthcheck import router
@@ -202,17 +201,15 @@ async def process_one_code_with_repl_fast(
             logger.warning(f"[{custom_id}] No code provided")
             return custom_id, "No code provided", response
 
-        proof_header, proof_body = split_proof_header(proof)
+        proof_header, proof_body = split_snippet(proof)
 
         log_message = {
-            'custom_id': custom_id,
-            'proof_header': proof_header,
-            'proof_body': proof_body,
-            'timeout': timeout,
+            "custom_id": custom_id,
+            "proof_header": proof_header,
+            "proof_body": proof_body,
+            "timeout": timeout,
         }
-        logger.debug(
-            f"[{custom_id}] Processing code: {json.dumps(log_message)}"
-        )
+        logger.debug(f"[{custom_id}] Processing code: {json.dumps(log_message)}")
 
         # if we can not found the proof header, create a new repl
         if len(proof_header.strip()) == 0 or disable_cache:

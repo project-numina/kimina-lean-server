@@ -40,6 +40,7 @@ async def run_checks(
             logger.exception("Failed to get REPL: %s", e)
             raise HTTPException(500, str(e)) from e
 
+        # if reuse is false we should not run the header separate from body
         try:
             prep = await manager.prep(repl, snippet.id, timeout, debug)
             if prep and prep.error:

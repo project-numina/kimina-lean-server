@@ -5,40 +5,34 @@ def split_snippet(code: str) -> Tuple[str, str]:
     """
     Splits a code snippet into a header (imports) and body.
 
-    - Header: all lines at the top that are 'import ...' or blank before the first non-import.
-      If any import is 'import Mathlib', include a single 'import Mathlib' at the top of the header.
+    - Header: all lines at the top that are 'import ...' or blank before the first non-import line.
+      If any import starts with 'import Mathlib', include a single 'import Mathlib' at the top of the header.
       Other imports follow in their original order, without duplicates.
     - Body: the rest of the code starting from the first non-import/non-blank line.
     """
     lines = code.splitlines()
-    header_lines: list[str] = []
-    body_lines: list[str] = []
-    found_body = False
 
-    # Separate header candidate lines and body
-    for line in lines:
-        if not found_body and (
-            line.strip().startswith("import ") or line.strip() == ""
-        ):
-            header_lines.append(line)
-        else:
-            found_body = True
-            body_lines.append(line)
+    # Separate header from body
+    i = 0
+    while i < len(lines) and (
+        lines[i].strip() == "" or lines[i].strip().startswith("import ")
+    ):
+        i += 1
+    header_lines = [x.strip() for x in lines[:i]]
+    body = "\n".join(lines[i:])
 
     # Process imports in header
+    import_lines = [line for line in header_lines if line.startswith("import ")]
     imports: list[str] = []
     seen: set[str] = set()
     has_mathlib = False
-    for line in header_lines:
-        stripped = line.strip()
-        if not stripped.startswith("import "):
-            continue
-        if stripped.startswith("import Mathlib"):
+    for line in import_lines:
+        if line.startswith("import Mathlib"):
             has_mathlib = True
         else:
-            if stripped not in seen:
-                imports.append(stripped)
-                seen.add(stripped)
+            if line not in seen:
+                seen.add(line)
+                imports.append(line)
 
     # Build final header
     result_header: list[str] = []
@@ -47,5 +41,4 @@ def split_snippet(code: str) -> Tuple[str, str]:
     result_header.extend(imports)
 
     header = "\n".join(result_header)
-    body = "\n".join(body_lines)
     return header, body
