@@ -23,12 +23,16 @@ COPY loadDynlib.py /root/loadDynlib.py
 WORKDIR /root/repl
 RUN git checkout lean415compat && python ../loadDynlib.py && lake build
 
-# Install Mathlib
-RUN git clone https://github.com/leanprover-community/mathlib4.git /root/mathlib4
-WORKDIR /root/mathlib4
-RUN git checkout ${LEAN_VERSION} && \
+# Install LeanGeo
+# TODO :: change to use git clone once LeanGeo repo is public
+COPY LeanGeo /root/LeanGeo
+# RUN git clone https://github.com/leanprover-community/mathlib4.git /root/mathlib4
+WORKDIR /root/LeanGeo
+RUN lake run cvc5/downloadRelease && \
+    lake script run check && \
     lake exe cache get && \
-    lake build
+    lake build && \
+    lake build LeanGeo
 
 WORKDIR /root
 
