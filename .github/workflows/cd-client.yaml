@@ -3,8 +3,6 @@ name: Publish kimina client
 on:
   workflow_dispatch:
   push:
-    tags:
-      - 'client-v*'
 
 jobs:
   publish:
