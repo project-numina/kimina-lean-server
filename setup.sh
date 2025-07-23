@@ -16,10 +16,11 @@ popd
 # Install REPL
 echo "Installing REPL..."
 if [ ! -d "repl" ]; then
-    git clone https://github.com/leanprover-community/repl.git 
+    git clone https://github.com/FrederickPu/repl.git
 fi
 pushd repl
-git checkout ${LEAN_VERSION}
+git checkout lean415compat
+python ../loadDynlib.py
 lake build
 popd
 
@@ -31,11 +32,10 @@ modify_lake_manifest() {
 
 # Install Mathlib
 echo "Installing Mathlib..."
-if [ ! -d "mathlib4" ]; then
-    git clone https://github.com/leanprover-community/mathlib4.git
-fi
-pushd mathlib4
+if [ ! -d "LeanGeo" ]; then
+    git clone https://github.com/project-numina/LeanGeo.git
+pushd LeanGeo
 git checkout ${LEAN_VERSION}
-lake exe cache get && lake build
+lake exe cache get && lake build && lake build LeanGeo
 modify_lake_manifest "$(pwd)"
 popd

@@ -19,8 +19,9 @@ ENV PATH=/root/.elan/bin:$PATH
 
 # Install REPL
 RUN git clone https://github.com/FrederickPu/repl.git /root/repl
+COPY loadDynlib.py /root/loadDynlib.py
 WORKDIR /root/repl
-RUN git checkout lean415compat && lake build
+RUN git checkout lean415compat && python ../loadDynlib.py && lake build
 
 # Install Mathlib
 RUN git clone https://github.com/leanprover-community/mathlib4.git /root/mathlib4

@@ -18,8 +18,7 @@ from .config import settings
 base = settings.WORKSPACE
 
 path_to_repl = f"{base}/repl/.lake/build/bin/repl"
-path_to_mathlib = f"{base}/mathlib4"
-
+path_to_leangeo = f"{base}/LeanGeo"
 
 # error for lean crashes
 class LeanCrashError(Exception):
@@ -154,7 +153,7 @@ class LeanREPL:
             stderr=self.error_file,
             text=True,
             bufsize=1,  # Line-buffered
-            cwd=path_to_mathlib,  # Set the working directory to 'mathlib4'
+            cwd=path_to_leangeo,  # Set the working directory to 'mathlib4'
             env=os.environ,  # Inherit environment variables
             preexec_fn=preexec_fn,
         )
