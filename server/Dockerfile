@@ -5,17 +5,17 @@ ARG APP_VERSION
 ENV APP_VERSION=${APP_VERSION}
 LABEL version="${APP_VERSION}"
 
-# Environment settings
-ENV LEANSERVER_BASE=/root \
+# Environment settings -- to update
+ENV LEAN_SERVER_BASE=/root \
     # REPL_BIN_PATH=/root/repl/.lake/build/bin/repl \
     # PATH_TO_MATHLIB=/root/mathlib4 \
-    LEANSERVER_LOG_LEVEL=INFO \
-    LEANSERVER_MAX_REPLS=4 \
-    LEANSERVER_MAX_USES=10 \
-    LEANSERVER_MAX_MEM=8G \
-    LEANSERVER_INIT_REPLS='{"import Mathlib\nimport Aesop":1}' \
-    LEANSERVER_LEAN_VERSION=v4.15.0 \
-    LEANSERVER_DATABASE_URL= 
+    LEAN_SERVER_LOG_LEVEL=INFO \
+    LEAN_SERVER_MAX_REPLS=4 \
+    LEAN_SERVER_MAX_REPL_USES=10 \
+    LEAN_SERVER_MAX_MEM=8G \
+    LEAN_SERVER_INIT_REPLS='{"import Mathlib\nimport Aesop":1}' \
+    LEAN_SERVER_LEAN_VERSION=v4.15.0 \
+    LEAN_SERVER_DATABASE_URL= 
 
 
 # Update the package list and install dependencies
@@ -67,5 +67,5 @@ RUN prisma generate
 
 EXPOSE 80
 
-# TODO: add back prisma migrate deploy later
+# TODO: add back prisma migrate deploy later + use entry point
 CMD ["sh", "-c", "uvicorn --host 0.0.0.0 --port 80 app.main:app"]

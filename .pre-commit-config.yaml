@@ -1,4 +1,4 @@
-exclude: '^(client|utils|server/server_old|server/tsts_old)/'
+exclude: '^(client|utils|server/server_old|tsts_old)/'
 
 default_install_hook_types:
   - pre-commit
@@ -17,14 +17,13 @@ repos:
     hooks:
       - id: pyright
         stages: [pre-commit]
-        # files: '^server/.*\.py$'
-        args: [--project=server/pyrightconfig.json]
+        args: [--project=pyrightconfig.json]
   - repo: https://github.com/pre-commit/mirrors-mypy
     rev: v1.5.1
     hooks:
       - id: mypy
         stages: [pre-commit]
-        args: ["--config-file=server/pyproject.toml"]
+        args: ["--config-file=pyproject.toml"]
         additional_dependencies:
         - "pydantic[mypy]>=2.11.7"
         - "pydantic-settings>=2.10.0"

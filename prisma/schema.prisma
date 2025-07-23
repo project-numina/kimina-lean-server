@@ -1,0 +1,50 @@
+generator client {
+    provider             = "prisma-client-py"
+    recursive_type_depth = 5
+}
+
+datasource db {
+    provider = "postgresql"
+    url      = env("LEAN_SERVER_DATABASE_URL")
+}
+
+enum ReplStatus {
+    RUNNING
+    STOPPED
+}
+
+model Repl {
+    uuid          String     @id @default(uuid()) @db.Uuid
+    created_at    DateTime   @default(now())
+    max_repl_uses Int
+    max_repl_mem  Int
+    header        String
+    status        ReplStatus @default(RUNNING)
+    proofs        Proof[]
+
+    @@index([status])
+    @@index([status, created_at(sort: Desc)])
+}
+
+model Proof {
+    uuid        String  @id @default(uuid()) @db.Uuid // add created at
+    id          String
+    code        String
+    diagnostics Json?   @db.JsonB // Extract cpu and mem
+    response    Json?   @db.JsonB // TODO: Add success boolean + last theorem in snippet (indexed on that) + messages of type errors
+    time        Float
+    error       String?
+    repl_uuid   String  @db.Uuid
+    repl        Repl    @relation(fields: [repl_uuid], references: [uuid])
+
+    @@unique([id])
+    @@index([repl_uuid])
+}
+
+model ApiKey {
+    id         String   @id //@default(dbgenerated("gen_random_uuid()"))
+    created_at DateTime @default(now())
+    key        String   @unique
+
+    @@index([key])
+}
