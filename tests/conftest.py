@@ -33,7 +33,13 @@ def client(request: FixtureRequest) -> TestClient:
 
 @pytest.fixture(
     params=[
-        {"MAX_REPLS": 5, "MAX_USES": 10, "INIT_REPLS": {}, "DATABASE_URL": None},
+        {
+            "max_repls": 5,
+            "max_repl_uses": 10,
+            "init_repls": {},
+            "database_url": None,
+            "environment": Environment.prod,
+        },
     ]
 )
 def root_client(request: FixtureRequest) -> TestClient:
