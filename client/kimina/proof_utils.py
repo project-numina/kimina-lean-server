@@ -59,7 +59,7 @@ def parse_error_message(message: str) -> list[FinalMessage]:
 def parse_lean_response(response: CommandResponse | Error) -> dict[int, FinalMessage]:
     messages: list[FinalMessage] = []
     if "messages" in response:
-        messages = parse_messages(response.get("messages", []))
+        messages = parse_messages(response.get("messages", []) or [])
     elif "message" in response:
         messages = parse_error_message(response.get("message", ""))
 

@@ -7,6 +7,7 @@ __pycache__/
 .mypy_cache/
 .coverage*
 .venv
+dist/
 
 # Lean dependencies
 mathlib4/

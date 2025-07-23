@@ -114,7 +114,7 @@ cd kimina-lean-server
 
 ### Containerized - Docker
 
-You can build the Docker image with (add `--build-arg LEAN_VERSION=v4.18.0` if you don't want the default `v4.15.0` Lean version):
+You can build the Docker image with (add `--build-arg LEAN_SERVER_VERSION=v4.21.0` if you don't want the default `v4.15.0` Lean version):
 
 ```sh
 cp .env.template .env

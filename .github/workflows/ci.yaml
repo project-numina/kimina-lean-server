@@ -30,6 +30,7 @@ jobs:
 
       - name: Generate prisma types
         run: uv run prisma generate
+
       - name: Run pre-commit
         run: uv run pre-commit run --all-files
 
@@ -41,8 +42,9 @@ jobs:
             ~/.elan
             repl
             mathlib4
-          key: ${{ runner.os }}-lean-${{ env.LEAN_VERSION }}
+          key: ${{ runner.os }}-lean-${{ env.LEAN_SERVER_VERSION }}
           restore-keys: ${{ runner.os }}-lean-
+
       - name: Run Lean setup
         if: steps.lean-cache.outputs.cache-hit != 'true'
         run: bash setup.sh
@@ -50,8 +52,10 @@ jobs:
       - name: Add lake binary to PATH
         run: |
           echo "$HOME/.elan/bin" >> $GITHUB_PATH
+
       - name: Verify lake
         run: which lake
+
       - name: Run tests
         run: uv run pytest
 
