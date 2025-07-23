@@ -100,7 +100,9 @@ class Diagnostics(TypedDict, total=False):
 
 # TODO: use basemodel pydantic instead
 class CommandResponse(TypedDict):
-    env: int
+    env: NotRequired[
+        int
+    ]  # Have to make it not required now due to "gc" option already used on previous server
     messages: NotRequired[list[Message] | None]
     sorries: NotRequired[list[Sorry] | None]
     tactics: NotRequired[list[Tactic] | None]
@@ -227,3 +229,16 @@ class BackwardResponse(TypedDict):
 
 class VerifyResponse(BaseModel):
     results: list[BackwardResponse]
+
+    def __repr__(self) -> str:
+        data = self.model_dump(exclude_none=True)
+        json_str = json.dumps(data, indent=2)
+
+        colored = pygments.highlight(  # type: ignore
+            json_str,
+            JsonLexer(),  # type: ignore
+            Terminal256Formatter(style="monokai", full=False),  # type: ignore
+        ).rstrip()
+
+        indented = textwrap.indent(colored, "  ")  # type: ignore
+        return f"{self.__class__.__name__}(\n{indented}\n)"
