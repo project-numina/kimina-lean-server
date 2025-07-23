@@ -23,6 +23,7 @@ dependencies = [
     "httpx>=0.28.1",
     "requests>=2.31.0",
     "google-cloud-logging>=3.12.1",
+    "prisma>=0.15.0",
 ]
 
 [project.urls]

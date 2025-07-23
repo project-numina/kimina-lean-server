@@ -16,7 +16,7 @@ class Kimina:
 
     def __init__(
         self,
-        api_url: str = "http://localhost:8000",
+        api_url: str = "https://lean.projectnumina.ai",
         api_key: Optional[str] = None,
         reuse: bool = True,
     ):
@@ -62,7 +62,7 @@ class Lean4Client(Kimina):
 
     def __init__(
         self,
-        base_url: str = "http://localhost:8000",
+        base_url: str = "https://lean.projectnumina.ai",
         api_key: str | None = None,
         disable_cache: bool = False,
     ):
