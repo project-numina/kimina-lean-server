@@ -48,22 +48,22 @@ async def test_create_close_multiple() -> None:
         assert not psutil.pid_exists(pid)
 
 
-@pytest.mark.asyncio
-@pytest.mark.skip
-async def test_del_calls_close(repl: Repl) -> None:
-    await repl.start()
+# @pytest.mark.asyncio
+# @pytest.mark.skip
+# async def test_del_calls_close(repl: Repl) -> None:
+#     await repl.start()
 
-    assert repl.proc is not None
-    pid = repl.proc.pid
+#     assert repl.proc is not None
+#     pid = repl.proc.pid
 
-    # Verify the process is running
-    assert psutil.pid_exists(pid)
+#     # Verify the process is running
+#     assert psutil.pid_exists(pid)
 
-    # Delete the repl instance
-    del repl
+#     # Delete the repl instance
+#     del repl
 
-    # Give it 1 second to terminate
-    await asyncio.sleep(10)
+#     # Give it 1 second to terminate
+#     await asyncio.sleep(10)
 
-    # Verify the process has terminated
-    assert not psutil.pid_exists(pid), "Process did not terminate after __del__"
+#     # Verify the process has terminated
+#     assert not psutil.pid_exists(pid), "Process did not terminate after __del__"
