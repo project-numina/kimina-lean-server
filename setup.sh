@@ -1,50 +1,40 @@
 #!/usr/bin/env bash
 set -euxo pipefail
 
-set -a
-[ -f .env ] && source .env
-set +a
+# Allow passing LEAN_VERSION via env (ARG → ENV in Dockerfile)
+LEAN_VERSION="${LEAN_VERSION:-v4.15.0}"
+REPL_BRANCH="${REPL_BRANCH:-$LEAN_VERSION}"
+MATHLIB_BRANCH="${MATHLIB_BRANCH:-$LEAN_VERSION}"
 
-# TODO: Make setup.sh part of dockerfile
-if [ -z "${LEAN_VERSION:-}" ]; then
-  echo "Notice: LEAN_VERSION not set in .env; defaulting to v4.15.0"
-  LEAN_VERSION="v4.15.0"
-fi
+command -v curl >/dev/null 2>&1 || { echo >&2 "curl is required"; exit 1; }
+command -v git  >/dev/null 2>&1 || { echo >&2 "git is required";  exit 1; }
 
-ELAN_HOME="$HOME/.elan" # Change this if you want to install elan in a different location, you will need also to add $ELAN_HOME to your PATH
+echo "Installing Elan"
+curl https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -sSf \
+  | sh -s -- --default-toolchain "${LEAN_VERSION}" -y
+source "$HOME/.elan/env"
 
-command -v curl > /dev/null 2>&1 || { echo "Error: curl is not installed." >&2; exit 1; }
+echo "Installing Lean ${LEAN_VERSION}"
+lean --version
 
-# Install Lean
-echo "Installing lean ${LEAN_VERSION}"
-pushd ~
-curl https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -sSf | sh -s -- --default-toolchain ${LEAN_VERSION} -y
-source $ELAN_HOME/env
-popd
-
-# Install REPL
-echo "Installing REPL..."
-if [ ! -d "repl" ]; then
-    git clone --branch ${LEAN_VERSION} --single-branch --depth 1 https://github.com/leanprover-community/repl.git 
-fi
-pushd repl
-git checkout ${LEAN_VERSION}
-lake build
-popd
-
-modify_lake_manifest() {
-    local manifest_file="$1/lake-manifest.json"
-    jq '.packages |= map(.type = "path" | del(.url) | .dir = ".lake/packages/" + .name)' \
-        "$manifest_file" > "$manifest_file.tmp" && mv "$manifest_file.tmp" "$manifest_file"
+install_repo() {
+  local name="$1" url="$2" branch="$3" upd_manifest="$4"
+  echo "Installing ${name}@${branch}..."
+  if [ ! -d "$name" ]; then
+    git clone --branch "${branch}" --single-branch --depth 1 "$url" "$name"
+  fi
+  pushd "$name"
+    git checkout "${branch}"
+    if [ "$name" = "mathlib4" ]; then
+      lake exe cache get
+    fi
+    lake build
+    if [ "$upd_manifest" = "true" ]; then
+      jq '.packages |= map(.type="path"|del(.url)|.dir=".lake/packages/"+.name)' \
+         lake-manifest.json > lake-manifest.json.tmp && mv lake-manifest.json.tmp lake-manifest.json
+    fi
+  popd
 }
 
-# Install Mathlib
-echo "Installing Mathlib..."
-if [ ! -d "mathlib4" ]; then
-    git clone --branch ${LEAN_VERSION} --single-branch --depth 1 https://github.com/leanprover-community/mathlib4.git
-fi
-pushd mathlib4
-git checkout ${LEAN_VERSION}
-lake exe cache get && lake build
-modify_lake_manifest "$(pwd)"
-popd
+install_repo repl https://github.com/leanprover-community/repl.git "$REPL_BRANCH" false
+install_repo mathlib4 https://github.com/leanprover-community/mathlib4.git "$MATHLIB_BRANCH" true

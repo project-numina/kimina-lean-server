@@ -1,4 +1,4 @@
-name: Publish kimina client
+name: Publish to PyPI
 
 on:
   workflow_dispatch:

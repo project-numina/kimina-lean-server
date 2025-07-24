@@ -1,16 +1,12 @@
+# Compose file to run server in production mode without having to `docker run`.
+# If .env specifies a LEAN_SERVER_DATABASE_URL, make sure it's up with schema deployed.
 services:
-  postgres:
-    image: postgres:17-alpine
-    container_name: postgres
-    volumes:
-      - ./.data:/var/lib/postgresql/data
-    environment:
-      - POSTGRES_USER=root
-      - POSTGRES_PASSWORD=root
-      - POSTGRES_DB=leanserver
+  server:
+    image: projectnumina/kimina-lean-server:2.0.0
+    build:
+      context: .
+    env_file:
+      - .env
     ports:
-      - "5432:5432"
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U root -d leanserver"]
-      interval: 10s
-      retries: 5
+      - "80:${LEAN_SERVER_PORT}"
+    restart: unless-stopped

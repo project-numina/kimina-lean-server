@@ -1,125 +1,58 @@
 # Kimina Lean Server
 
+This project serves the [Lean REPL](https://github.com/leanprover-community/repl) using FastAPI. 
+It supports parallelization to check Lean 4 proofs at scale.
+
+📄 Technical report: [Technical Report](./Technical_Report.pdf)
+
+A Python SDK simplifies interaction with the server's API.
+
+## Table of Contents
+
+- [Server](#server)
+- [Client](#client)
+- [Contributing](#contributing)
+- [License](#license)
+- [Citation][#citation]
+
 This repository contains the source code for:
 - the Kimina Lean server
 - a Python client to interact with it
 
 ## Server
 
-Run the server: either with `docker compose up` (pulls from projectnumina by default, adjust compose.yaml to build from sources).
-
-Or directly on host - make sure you have Astral's uv installed:
+From source (make sure you have Astral's uv installed):
 ```sh
+cp .env.template .env # Optional
+bash setup.sh
 uv run python -m server
 ```
 
+> [!NOTE]
+> Make sure `mathlib4` and `repl` exist in the workspace directory before launching the server from source.
 
-## Client
 
-From Pypi:
-```
-pip install kimina
-```
-
-## Contributing
-
-To contribute, ensure you have Astral's uv installed. 
-Then run:
+Or with `docker compose up` (pulls from Docker Hub).  
+Equivalent run command is:
 ```sh
-uv run pre-commit install
+docker run -d \
+  --name server \
+  --restart unless-stopped \
+  --env-file .env \
+  -p 80:${LEAN_SERVER_PORT} \
+  projectnumina/kimina-lean-server:2.0.0
 ```
 
-Pre-commit hooks are pyright and mypy. 
-
-On commit, the hooks:
-- run `pyright` and `mypy`
-- enforce [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/). 
-
-An additional hook runs basic tests on push.
-
-or in details:
-```sh
-uv sync
-source .venv/bin/activate
-pre-commit install
-```
-
-```
-bash setup.sh
-```
-
-Run tests with:
-```
-pytest
-pytest -m perfs
-pytest -m match
-```
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-OLD README
-
-# Kimina Lean Server
-
-This project serves the [Lean REPL](https://github.com/leanprover-community/repl) using FastAPI.
-It supports massive parallelization to verify Lean 4 proofs at scale.
-
-📄 Technical report: [Technical Report](./Technical_Report.pdf)
-
-## ✨ Features
-
-- High-throughput Lean4 proof verification
-- FastAPI-based async server with configurable concurrency
-- REPL pooling and context caching for performance
-
-## To contribute
-
-Install precommit hooks:
-```sh
-uv export
-pip install -r requirements-dev.txt
-pre-commit install
-```
-
-## 📦 Setup
-
-Clone this repository and change directory:
+To shut down the container / view logs:
 
 ```sh
-git clone git@github.com:project-numina/kimina-lean-server.git
-cd kimina-lean-server
+docker compose down
+docker compose logs -f
 ```
 
-### Containerized - Docker
-
-You can build the Docker image with (add `--build-arg LEAN_SERVER_VERSION=v4.21.0` if you don't want the default `v4.15.0` Lean version):
-
+Build your own image with specific Lean version with:
 ```sh
-cp .env.template .env
-docker compose up -d
+docker build --build-arg=LEAN_SERVER_LEAN_VERSION=v4.21.0 .
 ```
 
 Test it works with a request:
@@ -139,53 +72,88 @@ curl --request POST \
 }' | jq
 ```
 
-To shut down the container / view logs:
+Or use the client below.
 
+## Client
+
+From [PyPI](https://test.pypi.org/project/kimina/):
 ```sh
-docker compose down
-docker compose logs -f
+pip install kimina
 ```
 
-### Direct installation
-
-First, install elan — the Lean version manager: [reference](https://github.com/leanprover/elan).
-
-After installing elan, make sure that `elan --version` works correctly.
-(`lake --version` should also work after elan is properly installed.)
-
-Install dependencies:
-
-```sh
-pip install -e .
+Example use:
+```python
+from kimina import Kimina
+client = Kimina() # Defaults to "http://localhost:8000", no API key
+client.check("#check Nat")
 ```
 
-Set Up the Lean Environment:
+Or from source with `pip install -e .`
 
+## Contributing
+
+Contributions are welcome, just open an issue or submit a pull request.
+
+To contribute, ensure you have Astral's [uv](https://docs.astral.sh/uv/) installed and:
+
+```sh
+uv run pre-commit install
+```
+
+On commit, the hooks:
+- run `pyright` and `mypy`
+- enforce [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/). 
+
+An additional hook runs basic tests on push.
+
+> [!TIP]
+> Use `--no-verify` to skip hooks on commit / push (but the CI runs them).
+
+
+Install [Lean 4](https://github.com/leanprover/lean4) and build the [repl](https://github.com/leanprover-community/repl) and [mathlib4](https://github.com/leanprover-community/mathlib4):
 ```sh
 bash setup.sh
 ```
 
-This script installs Lean 4 and builds `mathlib4` and `repl` in the current working directory.
-
-Start the FastAPI server:
-
-```sh
-cp .env.template .env
-python -m server
-```
-
-Once running, the server exposes a FastAPI application for LeanREPL interaction.
-
-> [!NOTE]
-> Make sure `mathlib4` and `repl` exist in the workspace directory before launching the server.
-
-The server is up! You can test the endpoint with the same cURL request as in the containerized section.
-
-If you change the code, validate your changes by running tests with:
-
+Run tests with:
 ```sh
 pytest
+
+# Performance tests on first rows of Goedel (ensures less than 10s average check time per proof)
+pytest -m perfs
+
+# Tests on 100 first Goedel rows to validate API backward-compatibility
+pytest -m match
 ```
+
+To release the client:
+- bump the version in `pyproject.toml`
+- run the "Publish to PyPI" action on Github
+
+To release the server:
+- bump the version in `compose-prod.yaml`
+- run the "Deploy to Google Cloud" action on Github
+- run the "Publish to Docker" action on Github (doesn't exist yet)
+
+## License
+
+This project is licensed under the MIT License.
+You are free to use, modify, and distribute this software with proper attribution. See the [LICENSE](./LICENSE) file for full details.
+
+## Citation
+```
+@misc{santos2025kiminaleanservertechnical,
+      title={Kimina Lean Server: Technical Report}, 
+      author={Marco Dos Santos and Haiming Wang and Hugues de Saxcé and Ran Wang and Mantas Baksys and Mert Unsal and Junqi Liu and Zhengying Liu and Jia Li},
+      year={2025},
+      eprint={2504.21230},
+      archivePrefix={arXiv},
+      primaryClass={cs.LO},
+      url={https://arxiv.org/abs/2504.21230}, 
+}
+```
+
+
 
 ### Example: Batch Verifying Lean Proofs
 
@@ -301,25 +269,3 @@ Server logs may show the following failure when a REPL gets acquired prior to be
 - Dataset: First 100 samples from [`Goedel-LM/Lean-workbook-proofs`](https://huggingface.co/datasets/Goedel-LM/Lean-workbook-proofs)
 - Params: `timeout = 60s`, `batch = 1`, `num_proc = 10` (number of CPU cores)
 - Server: `LEANSERVER_MAX_REPLS = 10` and `LEANSERVER_MAX_CONCURRENT_REQUESTS = 10`
-
-## 🙌 Contributing
-
-Contributions are welcome! Please open an issue or submit a pull request.
-
-## 📝 License
-
-This project is licensed under the MIT License.
-You are free to use, modify, and distribute this software with proper attribution. See the [LICENSE](./LICENSE) file for full details.
-
-## 📑 Citation
-```
-@misc{santos2025kiminaleanservertechnical,
-      title={Kimina Lean Server: Technical Report}, 
-      author={Marco Dos Santos and Haiming Wang and Hugues de Saxcé and Ran Wang and Mantas Baksys and Mert Unsal and Junqi Liu and Zhengying Liu and Jia Li},
-      year={2025},
-      eprint={2504.21230},
-      archivePrefix={arXiv},
-      primaryClass={cs.LO},
-      url={https://arxiv.org/abs/2504.21230}, 
-}
-```

@@ -1,7 +1,10 @@
-name: CD
+name: Deploy to Google Cloud
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - main
 
 jobs:
   deploy:
