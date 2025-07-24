@@ -99,6 +99,7 @@ It supports massive parallelization to verify Lean 4 proofs at scale.
 
 Install precommit hooks:
 ```sh
+uv export
 pip install -r requirements-dev.txt
 pre-commit install
 ```
