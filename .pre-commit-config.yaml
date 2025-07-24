@@ -1,4 +1,4 @@
-exclude: '^(client|utils|server/server_old|tsts_old)/'
+exclude: '^(client|server/server_old|tsts_old)/'
 
 default_install_hook_types:
   - pre-commit
