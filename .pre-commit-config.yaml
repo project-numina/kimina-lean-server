@@ -31,7 +31,7 @@ repos:
     hooks:
       - id: pytest-push
         name: pytest (pre-push)
-        entry: uv run pytest -n auto -x --maxfail=1 --disable-warnings --no-cov
+        entry: uv run pytest -x --maxfail=1 --disable-warnings --no-cov
         language: system
         stages: [pre-push]
         pass_filenames: false
