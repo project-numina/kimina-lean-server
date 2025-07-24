@@ -25,6 +25,7 @@ dependencies = [
     "google-cloud-logging>=3.12.1",
     "prisma>=0.15.0",
     "tenacity>=9.1.2",
+    "pytest-sugar>=1.0.0",
 ]
 
 [project.urls]
