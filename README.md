@@ -3,7 +3,7 @@
 This project serves the [Lean REPL](https://github.com/leanprover-community/repl) using FastAPI. 
 It supports parallelization to check Lean 4 proofs at scale.
 
-📄 Technical report: [Technical Report](./Technical_Report.pdf)
+[Technical Report](./Technical_Report.pdf)
 
 A Python SDK simplifies interaction with the server's API.
 
@@ -153,92 +153,30 @@ You are free to use, modify, and distribute this software with proper attributio
 }
 ```
 
-
-
-### Example: Batch Verifying Lean Proofs
-
-You can verify a large number of Lean proofs in parallel using the following example:
-
-```python
-import nest_asyncio
-from client import Lean4Client
-
-# Enable nested asyncio for Jupyter notebooks
-nest_asyncio.apply()
-
-client = Lean4Client(base_url="http://localhost:8000")
-mock_proof = """import Mathlib
-import Aesop
-
-set_option maxHeartbeats 0
-
-open BigOperators Real Nat Topology Rat
-
-theorem lean_workbook_10009 (a b c: ℝ) (ha : a ≥ 0 ∧ b ≥ 0 ∧ c ≥ 0 ∧ a + b + c = 1): a^3 + b^3 + c^3 + (15 * a * b * c)/4 ≥ 1/4 := by
-
-nlinarith [sq_nonneg (a - b), sq_nonneg (b - c), sq_nonneg (c - a),
-sq_nonneg (a + b + c)]"""
-
-response = client.verify([
-    {"proof": mock_proof, "custom_id": "1"},
-    {"proof": mock_proof, "custom_id": "2"}
-], timeout=30)
-
-```
-
-response:
-
-```json
-{
-    "results":
-    [
-        {
-            "custom_id": "1",
-            "error": null,
-            "response": {
-                "messages": [
-                    {
-                        "severity": "error",
-                        "pos": {"line": 8, "column": 0},
-                        "endPos": {"line": 9, "column": 22},
-                        "data": "linarith failed to find a contradiction\ncase a\na b c : ℝ\nha : a ≥ 0 ∧ b ≥ 0 ∧ c ≥ 0 ∧ a + b + c = 1\na✝ : 1 / 4 > a ^ 3 + b ^ 3 + c ^ 3 + 15 * a * b * c / 4\n⊢ False\nfailed"
-                    }
-                ],
-                "env": 1,
-                "time": 1.0048656463623047
-            }
-        },
-        {
-            "custom_id": "2",
-            "..."
-        }
-    ]
-}
-```
+| `LEAN_SERVER_LOG_DIR`                 | `./logs`      | Directory where logs are stored                        |
 
 ## ⚙️ Environment Variables
 
-| Variable                             | Default       | Description                                            |
-| ------------------------------------ | ------------- | ------------------------------------------------------ |
+| Variable                              | Default       | Description                                            |
+| ------------------------------------- | ------------- | ------------------------------------------------------ |
 | `LEAN_SERVER_HOST`                    | `0.0.0.0`     | Host address to bind the server                        |
-| `LEAN_SERVER_PORT`                    | `12332`       | Port number for the server                             |
-| `LEAN_SERVER_API_KEY`                 | `None`        | Optional API key for authentication                    |
-| `LEAN_SERVER_LOG_DIR`                 | `./logs`      | Directory where logs are stored                        |
+| `LEAN_SERVER_PORT`                    | `8000`        | Port number for the server                             |
 | `LEAN_SERVER_LOG_LEVEL`               | `INFO`        | Logging level (`DEBUG`, `INFO`, `ERROR`, etc.)         |
-| `LEAN_SERVER_WORKSPACE`               | $(pwd)        | Root directory containing `mathlib` and `repl`         |
-| `LEAN_SERVER_MAX_REPLS`               | **CPU count** | Maximum number of Lean REPL instances                  |
-| `LEAN_SERVER_MAX_CONCURRENT_REQUESTS` | **CPU count** | Maximum number of concurrent requests in the Lean REPL |
-| `LEAN_SERVER_HEALTHCHECK_CPU_USAGE_THRESHOLD` | **None** | CPU usage threshold for healthcheck |
-| `LEAN_SERVER_HEALTHCHECK_MEMORY_USAGE_THRESHOLD` | **None** | Memory usage threshold for healthcheck |
-| `LEAN_SERVER_REPL_MEMORY_LIMIT_GB` | **None** | Memory limit for REPLs |
-| `LEAN_SERVER_REPL_MEMORY_CHECK_INTERVAL` | **None** | Number of consecutive commands that run on REPL before memory check |
-| `LEAN_SERVER_HARD_ENFORCE_MEMORY_LIMIT` | **False** | Add per REPL memory limits directly when spawning the lake env repl process (may only work for Linux) |
+| `LEAN_SERVER_ENVIRONMENT`             | `dev`         | Environment `dev` or `prod`                            |
+| `LEAN_SERVER_LEAN_VERSION`            | `v4.15.0`     | Lean version                                           |
+| `LEAN_SERVER_MAX_REPLS`               | CPU count - 1 | Maximum number of REPLs                                |
+| `LEAN_SERVER_MAX_REPL_USES`           | `-1`          | Maximum number of uses per REPL (-1 is no limit)       |
+| `LEAN_SERVER_MAX_REPL_MEM`            | `8G`          | Maximum memory limit for each REPL                     |
+| `LEAN_SERVER_MAX_WAIT`                | `60`          | Maximum wait time to get a REPL (in seconds)           |
+| `LEAN_SERVER_INIT_REPLS`              | `{}`          | Map of header to REPL count to use on initialization   |
+| `LEAN_SERVER_API_KEY`                 | `None`        | Optional API key for authentication                    |
+| `LEAN_SERVER_REPL_PATH`               | `repl/.lake/build/bin/repl`        | Path to the REPL directory relative to the workspace    |
+| `LEAN_SERVER_PROJECT_DIR`               | `mathlib4`   | Path to project directory containing library          |
+<!-- | `LEAN_SERVER_HEALTHCHECK_CPU_USAGE_THRESHOLD` | **None** | CPU usage threshold for healthcheck |
+| `LEAN_SERVER_HEALTHCHECK_MEMORY_USAGE_THRESHOLD` | **None** | Memory usage threshold for healthcheck | -->
+| `LEAN_SERVER_DATABASE_URL`            |                | URL for the database (if using one)                   |
 
-
-Note:
--  `LEAN_SERVER_REPL_MEMORY_LIMIT_GB` needs to be used together with `LEANSERVER_REPL_MEMORY_CHECK_INTERVAL`
--  In some bloated systems, memory detection can be slow, which impacts performance. However, this isn't an issue in streamlined systems.
-- `LEANSERVER_HARD_ENFORCE_MEMORY_LIMIT` can help avoid certain OOM issues (see Issue #25)
+`LEAN_SERVER_MAX_REPL_MEM` can help avoid certain OOM issues (see Issue #25)
 
 
 ## 🚀 Performance Benchmarks
