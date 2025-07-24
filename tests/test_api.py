@@ -7,7 +7,7 @@ from kimina import CheckRequest, CheckResponse
 from loguru import logger
 from starlette import status
 
-from server.settings import settings
+from server.settings import settings, Environment
 
 from .utils import assert_json_equal
 
@@ -462,3 +462,29 @@ async def test_infotree(client: TestClient) -> None:
     }
 
     assert_json_equal(resp.json(), expected, ignore_keys=["time", "env"])
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "root_client",
+    [
+        {
+            "environment": Environment.prod,
+            "max_repls": 1,
+            "max_repl_uses": 1,
+            "database_url": None,
+            "api_key": "secret",
+        },
+    ],
+    indirect=True,
+)
+async def test_auth_required(root_client: TestClient) -> None:
+    resp = root_client.get("/health")
+    assert resp.status_code == status.HTTP_401_UNAUTHORIZED
+
+    resp = root_client.get(
+        "/health",
+        headers={"Authorization": "Bearer secret"},
+    )
+    assert resp.status_code == status.HTTP_200_OK
+
