@@ -5,8 +5,8 @@ services:
       dockerfile: Dockerfile
       args:
         LEAN_VERSION: v4.15.0
-    image: projectnumina/kimina-lean-server:1.0.2
-    container_name: kimina-lean-server
+    image: projectnumina/kimina-leangeo-server:1.0.0
+    container_name: kimina-leangeo-server
     restart: unless-stopped
     ports:
       - "80:${LEANSERVER_PORT:-12332}"
