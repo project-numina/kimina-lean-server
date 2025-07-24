@@ -23,7 +23,7 @@ class Kimina:
 
     def __init__(
         self,
-        api_url: str = "https://lean.projectnumina.ai",
+        api_url: str = "http://localhost:8000",
         api_key: str | None = None,
         reuse: bool = True,
     ):
@@ -81,7 +81,7 @@ class Kimina:
 
 class Lean4Client(Kimina):
     """
-    DEPRECATED: use `Kimina` instead.
+    DEPRECATED: use `Kimina` client instead.
     """
 
     def __init__(
@@ -90,7 +90,7 @@ class Lean4Client(Kimina):
         api_key: str | None = None,
         disable_cache: bool = False,
     ):
-        logger.warning("Lean4Client is deprecated; please use Kimina instead")
+        logger.warning("Lean4Client() is deprecated; please use Kimina() instead")
         if api_key is None:
             api_key = os.getenv("LEAN_SERVER_API_KEY") or os.getenv(
                 "LEANSERVER_API_KEY"

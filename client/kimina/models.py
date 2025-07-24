@@ -10,8 +10,10 @@ from pygments.lexers import JsonLexer  # type: ignore
 
 
 class Infotree(str, Enum):
+    full = "full"
+    tactics = "tactics"
     original = "original"
-    synthetic = "synthetic"
+    substantive = "substantive"
 
 
 # TODO: Separate schemas in schemas dir with separate files.
@@ -159,7 +161,7 @@ class BaseRequest(BaseModel):
     )
     infotree: Infotree | None = Field(
         None,
-        description="Level of detail for the info tree: 'original' | 'synthetic'",
+        description="Level of detail for the info tree.",
     )
 
 
