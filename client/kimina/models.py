@@ -103,7 +103,7 @@ class Diagnostics(TypedDict, total=False):
 # TODO: use basemodel pydantic instead
 class CommandResponse(TypedDict):
     env: NotRequired[
-        int
+        int | None
     ]  # Have to make it not required now due to "gc" option already used on previous server
     messages: NotRequired[list[Message] | None]
     sorries: NotRequired[list[Sorry] | None]
