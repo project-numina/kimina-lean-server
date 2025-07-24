@@ -1,6 +1,6 @@
 [project]
 name = "kimina"
-version = "0.5.0"
+version = "0.1.0"
 authors = [
   { name="Kimi Team - Project Numina", email="contact@projectnumina.com" },
 ]

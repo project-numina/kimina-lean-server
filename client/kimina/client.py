@@ -124,12 +124,15 @@ class Lean4Client(Kimina):
 
     def verify(
         self,
-        codes: list[Code],
-        timeout: int,
+        codes: list[Code] | str,
+        timeout: int = 30,
         infotree_type: Infotree | None = None,
     ) -> VerifyResponse:
+        if isinstance(codes, str):
+            codes = [Code(custom_id=uuid4().hex, code=codes, proof=None)]
+        codes_payload = [code.model_dump(exclude_none=True) for code in codes]
         payload = {
-            "codes": codes,
+            "codes": codes_payload,
             "timeout": timeout,
             "infotree_type": infotree_type,
             "disable_cache": not self.reuse,

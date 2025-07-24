@@ -1,13 +1,13 @@
 import textwrap
 import threading
 from contextlib import asynccontextmanager
-from importlib.metadata import PackageNotFoundError, version
 from typing import Any, AsyncGenerator, Awaitable, Callable
 
 from fastapi import FastAPI, Request, Response
 from loguru import logger
 from pydantic.json_schema import GenerateJsonSchema
 
+from .__version__ import __version__
 from .db import db
 from .logger import setup_logging
 from .manager import Manager
@@ -15,11 +15,6 @@ from .routers.backward import router as backward_router
 from .routers.check import router as check_router
 from .routers.health import router as health_router
 from .settings import Environment, Settings
-
-try:
-    __version__ = version("kimina")
-except PackageNotFoundError:
-    __version__ = "0.0.0"  # fallback for local dev
 
 
 def no_sort(self: GenerateJsonSchema, value: Any, parent_key: Any = None) -> Any:
@@ -66,7 +61,7 @@ def create_app(settings: Settings) -> FastAPI:
                         "  --header 'Content-Type: application/json' \\\n"
                         "  --data '{"
                         '"snippet":{"id":"1234","code":"#check Nat"}'
-                        "}' | jq\\\n",
+                        "}' | jq\n",
                         "  ",
                     )
                 ),
