@@ -2,7 +2,7 @@ name: Publish kimina client
 
 on:
   workflow_dispatch:
-  push:
+  release:
 
 jobs:
   publish:
