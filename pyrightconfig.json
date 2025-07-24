@@ -1,0 +1,9 @@
+{
+  "typeCheckingMode": "strict",
+  "include": ["server", "client"],
+  "exclude": ["tests", "tsts_old"], // Used by CLI
+  "ignore": ["tests", "tsts_old"], // Used by Pylance in VS Code
+  "reportMissingImports": true,
+  "venvPath": ".",
+  "venv": ".venv"
+}

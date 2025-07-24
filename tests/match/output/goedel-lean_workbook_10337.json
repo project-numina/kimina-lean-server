@@ -1,0 +1,37 @@
+{
+    "results": [
+        {
+            "custom_id": "lean_workbook_10337",
+            "error": null,
+            "response": {
+                "messages": [
+                    {
+                        "severity": "warning",
+                        "pos": {
+                            "line": 28,
+                            "column": 6
+                        },
+                        "endPos": {
+                            "line": 28,
+                            "column": 11
+                        },
+                        "data": "this tactic is never executed\nnote: this linter can be disabled with `set_option linter.unreachableTactic false`"
+                    },
+                    {
+                        "severity": "warning",
+                        "pos": {
+                            "line": 28,
+                            "column": 6
+                        },
+                        "endPos": {
+                            "line": 28,
+                            "column": 11
+                        },
+                        "data": "'omega' tactic does nothing\nnote: this linter can be disabled with `set_option linter.unusedTactic false`"
+                    }
+                ],
+                "time": 0.8620634078979492
+            }
+        }
+    ]
+}

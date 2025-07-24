@@ -1,45 +1,57 @@
-FROM python:3.11-slim 
+FROM python:3.13-slim
 
-ARG LEAN_VERSION=v4.15.0
-ENV LEAN_VERSION=${LEAN_VERSION}
-ENV DEBIAN_FRONTEND=noninteractive
+ARG APP_VERSION
+ARG LEAN_SERVER_LEAN_VERSION=v4.15.0
+ARG REPL_VERSION=${LEAN_SERVER_LEAN_VERSION}
+ARG MATHLIB_VERSION=${LEAN_SERVER_LEAN_VERSION}
 
-# Update the package list and install dependencies
+LABEL version="${APP_VERSION}"
+
+# Override with docker compose / docker run -e
+ENV APP_VERSION=${APP_VERSION} \
+    LEAN_SERVER_LEAN_VERSION=${LEAN_SERVER_LEAN_VERSION} \
+    REPL_VERSION=${REPL_VERSION} \
+    MATHLIB_VERSION=${MATHLIB_VERSION} \
+    LEAN_SERVER_HOST=0.0.0.0 \
+    LEAN_SERVER_PORT=8000 \
+    # LEAN_SERVER_API_KEY is provided at runtime via docker-compose (.env) or -e
+    LEAN_SERVER_LOG_LEVEL=INFO \
+    LEAN_SERVER_ENVIRONMENT=prod \
+    LEAN_SERVER_LEAN_VERSION=${LEAN_SERVER_LEAN_VERSION} \
+    LEAN_SERVER_REPL_PATH=/repl/.lake/build/bin/repl \
+    LEAN_SERVER_PROJECT_DIR=/mathlib4 \
+    LEAN_SERVER_MAX_REPLS= \
+    LEAN_SERVER_MAX_REPL_USES=-1 \
+    LEAN_SERVER_MAX_REPL_MEM=8G \
+    LEAN_SERVER_MAX_WAIT=60 \
+    LEAN_SERVER_INIT_REPLS={} \
+    LEAN_SERVER_DATABASE_URL=
+
 RUN apt-get update && apt-get install -y \
-    curl \
-    git \
-    build-essential \
-    unzip \
-    jq \
+      ca-certificates curl git build-essential unzip jq \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Install Lean
-RUN curl https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -sSf | sh -s -- --default-toolchain ${LEAN_VERSION} -y
-ENV PATH=/root/.elan/bin:$PATH
+COPY setup.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/setup.sh \
+ && /usr/local/bin/setup.sh
 
-# Install REPL
-RUN git clone https://github.com/FrederickPu/repl.git /root/repl
-WORKDIR /root/repl
-RUN git checkout lean415compat && lake build
+ENV PATH=/root/.elan/bin:/root/.local/bin:$PATH
 
-# Install Mathlib
-RUN git clone https://github.com/leanprover-community/mathlib4.git /root/mathlib4
-WORKDIR /root/mathlib4
-RUN git checkout ${LEAN_VERSION} && \
-    lake exe cache get && \
-    lake build
+WORKDIR /root/kimina-lean-server
 
-WORKDIR /root
+RUN curl -LsSf https://astral.sh/uv/install.sh | sh
 
-COPY requirements.txt .
-RUN pip3 install --no-cache-dir --upgrade pip
-RUN pip3 install --no-cache-dir -r requirements.txt
+COPY server server
+COPY client client
+COPY prisma prisma
+COPY pyproject.toml uv.lock README-client.md ./
 
-COPY server/ ./server
-COPY utils/ ./utils
+RUN uv export --extra server --no-dev --no-emit-project > requirements.txt \
+ && pip install --no-cache-dir -r requirements.txt \
+ && pip install --no-cache-dir -e . \
+ && prisma generate
 
-RUN mkdir -p /root/logs
+EXPOSE ${LEAN_SERVER_PORT}
 
-RUN echo "Lean version: ${LEAN_VERSION}" > /root/version_info.txt
 
 CMD ["python", "-m", "server"]

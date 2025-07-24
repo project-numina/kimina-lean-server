@@ -1,0 +1,81 @@
+[project]
+name = "kimina"
+version = "0.1.1"
+authors = [
+  { name="Kimi Team - Project Numina", email="contact@projectnumina.com" },
+]
+description = "Client SDK to interact with Kimina Lean server."
+readme = "README-client.md"
+requires-python = ">=3.9"
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "Operating System :: OS Independent",
+  "License :: OSI Approved :: MIT License"
+]
+license = "MIT"
+license-files = ["LICEN[CS]E*"]
+dependencies = [
+    "loguru>=0.7.3",
+    "pydantic-settings>=2.10.0",
+    "python-dotenv>=1.1.0",
+    "rich>=14.0.0",
+    "pip>=25.1.1",
+    "httpx>=0.28.1",
+    "requests>=2.31.0",
+    "tenacity>=9.1.2",
+    "aiohttp>=3.12.14",
+]
+
+[project.urls]
+Homepage = "https://github.com/project-numina/kimina-lean-server"
+Issues = "https://github.com/project-numina/kimina-lean-server/issues"
+
+[project.optional-dependencies]
+server = [ "fastapi>=0.115.13", "uvicorn>=0.34.3", "prisma>=0.15.0", "psutil>=7.0.0", "google-cloud-logging>=3.12.1", "prisma>=0.15.0",]
+
+[tool.uv]
+dev-dependencies = [
+    "httpx>=0.28.1",
+    "pytest-cov>=6.2.1",
+    "pytest>=8.4.1",
+    "datasets>=4.0.0",
+    "mypy>=1.16.1",
+    "pytest-sugar>=1.0.0",
+    "pytest-xdist>=3.8.0",
+    "pytest-asyncio>=1.0.0",
+    "pyright>=1.1.402",
+    "pre-commit>=4.2.0",
+    "pydantic-settings>=2.10.0",
+    "pytest-icdiff>=0.9",
+    "asgi-lifespan>=2.1.0",
+]
+
+[tool.pytest.ini_options]
+addopts = "--asyncio-mode=auto --maxfail=1 --cov=server -m 'not perfs and not match' -x --ignore=./tsts_old"
+norecursedirs = ["tsts_old"]
+log_cli_level = "INFO"
+markers = [
+    "perfs: performance tests that are not run by default",
+    "match: tests which ensure backward-compatibility with kimina-lean-server"
+]
+
+[tool.mypy]
+plugins = ['pydantic.mypy']
+strict = true
+files = ["server", "tests", "client"]
+exclude = ["prisma", "tsts_old/**"]
+ignore_missing_imports = true
+allow_untyped_decorators=true
+disable_error_code = [
+    "unused-ignore", 
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["client/kimina"]
+
+[tool.hatch.build.targets.sdist]
+include = ["client/kimina/**"]

@@ -1,0 +1,38 @@
+exclude: '^(client|server/server_old|tsts_old)/'
+
+default_install_hook_types:
+  - pre-commit
+  - commit-msg
+  - pre-push
+
+repos:
+  - repo: https://github.com/compilerla/conventional-pre-commit
+    rev: v4.2.0
+    hooks:
+      - id: conventional-pre-commit
+        stages: [commit-msg]
+        args: [--strict]
+  - repo: https://github.com/fsouza/mirrors-pyright
+    rev: v1.1.402
+    hooks:
+      - id: pyright
+        stages: [pre-commit]
+        args: [--project=pyrightconfig.json]
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.5.1
+    hooks:
+      - id: mypy
+        stages: [pre-commit]
+        args: ["--config-file=pyproject.toml"]
+        additional_dependencies:
+        - "pydantic[mypy]>=2.11.7"
+        - "pydantic-settings>=2.10.0"
+  - repo: local
+    hooks:
+      - id: pytest-push
+        name: pytest (pre-push)
+        entry: uv run pytest -x --maxfail=1 --disable-warnings --no-cov
+        language: system
+        stages: [pre-push]
+        pass_filenames: false
+        always_run: true

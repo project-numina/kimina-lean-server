@@ -1,0 +1,25 @@
+{
+    "results": [
+        {
+            "custom_id": "lean_workbook_10295",
+            "error": null,
+            "response": {
+                "messages": [
+                    {
+                        "severity": "warning",
+                        "pos": {
+                            "line": 20,
+                            "column": 8
+                        },
+                        "endPos": {
+                            "line": 20,
+                            "column": 22
+                        },
+                        "data": "`div_le_div_iff` has been deprecated: use `div_le_div_iff₀` instead"
+                    }
+                ],
+                "time": 8.154723167419434
+            }
+        }
+    ]
+}

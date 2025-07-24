@@ -1,0 +1,97 @@
+{
+    "results": [
+        {
+            "custom_id": "lean_workbook_10222",
+            "error": null,
+            "response": {
+                "messages": [
+                    {
+                        "severity": "info",
+                        "pos": {
+                            "line": 38,
+                            "column": 2
+                        },
+                        "endPos": {
+                            "line": 38,
+                            "column": 6
+                        },
+                        "data": "Try this: ring_nf"
+                    },
+                    {
+                        "severity": "warning",
+                        "pos": {
+                            "line": 44,
+                            "column": 6
+                        },
+                        "endPos": {
+                            "line": 44,
+                            "column": 32
+                        },
+                        "data": "this tactic is never executed\nnote: this linter can be disabled with `set_option linter.unreachableTactic false`"
+                    },
+                    {
+                        "severity": "warning",
+                        "pos": {
+                            "line": 46,
+                            "column": 6
+                        },
+                        "endPos": {
+                            "line": 46,
+                            "column": 10
+                        },
+                        "data": "this tactic is never executed\nnote: this linter can be disabled with `set_option linter.unreachableTactic false`"
+                    },
+                    {
+                        "severity": "warning",
+                        "pos": {
+                            "line": 40,
+                            "column": 2
+                        },
+                        "endPos": {
+                            "line": 40,
+                            "column": 5
+                        },
+                        "data": "Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice\nnote: this linter can be disabled with `set_option linter.unnecessarySeqFocus false`"
+                    },
+                    {
+                        "severity": "warning",
+                        "pos": {
+                            "line": 42,
+                            "column": 2
+                        },
+                        "endPos": {
+                            "line": 42,
+                            "column": 5
+                        },
+                        "data": "Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice\nnote: this linter can be disabled with `set_option linter.unnecessarySeqFocus false`"
+                    },
+                    {
+                        "severity": "warning",
+                        "pos": {
+                            "line": 44,
+                            "column": 6
+                        },
+                        "endPos": {
+                            "line": 44,
+                            "column": 32
+                        },
+                        "data": "'simp only [sin_sq, cos_sq]' tactic does nothing\nnote: this linter can be disabled with `set_option linter.unusedTactic false`"
+                    },
+                    {
+                        "severity": "warning",
+                        "pos": {
+                            "line": 46,
+                            "column": 6
+                        },
+                        "endPos": {
+                            "line": 46,
+                            "column": 10
+                        },
+                        "data": "'ring' tactic does nothing\nnote: this linter can be disabled with `set_option linter.unusedTactic false`"
+                    }
+                ],
+                "time": 0.35268568992614746
+            }
+        }
+    ]
+}

@@ -1,27 +1,13 @@
+# Compose file to run server in production mode without having to `docker run`.
+# If .env specifies a LEAN_SERVER_DATABASE_URL, make sure it's up with schema deployed.
 services:
-  kimina-lean-server:
+  server:
+    image: projectnumina/kimina-lean-server:2.0.0
     build:
       context: .
-      dockerfile: Dockerfile
-      args:
-        LEAN_VERSION: v4.15.0
-    image: projectnumina/kimina-lean-server:1.0.2
-    container_name: kimina-lean-server
-    restart: unless-stopped
-    ports:
-      - "80:${LEANSERVER_PORT:-12332}"
-    volumes:
-      - ./logs:/app/logs
     env_file:
-      - .env
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:12332/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 5s
-    # deploy:
-    #   resources:
-    #     limits:
-    #       cpus: "4"
-    #       memory: 16G
+      - path: .env
+        required: false
+    ports:
+      - "80:${LEAN_SERVER_PORT:-8000}"
+    restart: unless-stopped

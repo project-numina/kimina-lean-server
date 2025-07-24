@@ -1,0 +1,37 @@
+{
+    "results": [
+        {
+            "custom_id": "lean_workbook_1006",
+            "error": null,
+            "response": {
+                "messages": [
+                    {
+                        "severity": "warning",
+                        "pos": {
+                            "line": 22,
+                            "column": 6
+                        },
+                        "endPos": {
+                            "line": 22,
+                            "column": 12
+                        },
+                        "data": "this tactic is never executed\nnote: this linter can be disabled with `set_option linter.unreachableTactic false`"
+                    },
+                    {
+                        "severity": "warning",
+                        "pos": {
+                            "line": 22,
+                            "column": 6
+                        },
+                        "endPos": {
+                            "line": 22,
+                            "column": 12
+                        },
+                        "data": "'decide' tactic does nothing\nnote: this linter can be disabled with `set_option linter.unusedTactic false`"
+                    }
+                ],
+                "time": 1.1083958148956299
+            }
+        }
+    ]
+}

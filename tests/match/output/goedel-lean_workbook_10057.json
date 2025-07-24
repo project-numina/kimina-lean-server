@@ -1,0 +1,85 @@
+{
+    "results": [
+        {
+            "custom_id": "lean_workbook_10057",
+            "error": null,
+            "response": {
+                "messages": [
+                    {
+                        "severity": "warning",
+                        "pos": {
+                            "line": 6,
+                            "column": 54
+                        },
+                        "endPos": {
+                            "line": 6,
+                            "column": 56
+                        },
+                        "data": "unused variable `hy`\nnote: this linter can be disabled with `set_option linter.unusedVariables false`"
+                    },
+                    {
+                        "severity": "warning",
+                        "pos": {
+                            "line": 6,
+                            "column": 67
+                        },
+                        "endPos": {
+                            "line": 6,
+                            "column": 69
+                        },
+                        "data": "unused variable `hz`\nnote: this linter can be disabled with `set_option linter.unusedVariables false`"
+                    },
+                    {
+                        "severity": "warning",
+                        "pos": {
+                            "line": 17,
+                            "column": 6
+                        },
+                        "endPos": {
+                            "line": 17,
+                            "column": 14
+                        },
+                        "data": "this tactic is never executed\nnote: this linter can be disabled with `set_option linter.unreachableTactic false`"
+                    },
+                    {
+                        "severity": "warning",
+                        "pos": {
+                            "line": 19,
+                            "column": 6
+                        },
+                        "endPos": {
+                            "line": 19,
+                            "column": 15
+                        },
+                        "data": "this tactic is never executed\nnote: this linter can be disabled with `set_option linter.unreachableTactic false`"
+                    },
+                    {
+                        "severity": "warning",
+                        "pos": {
+                            "line": 17,
+                            "column": 6
+                        },
+                        "endPos": {
+                            "line": 17,
+                            "column": 14
+                        },
+                        "data": "'linarith' tactic does nothing\nnote: this linter can be disabled with `set_option linter.unusedTactic false`"
+                    },
+                    {
+                        "severity": "warning",
+                        "pos": {
+                            "line": 19,
+                            "column": 6
+                        },
+                        "endPos": {
+                            "line": 19,
+                            "column": 15
+                        },
+                        "data": "'nlinarith' tactic does nothing\nnote: this linter can be disabled with `set_option linter.unusedTactic false`"
+                    }
+                ],
+                "time": 1.5762913227081299
+            }
+        }
+    ]
+}

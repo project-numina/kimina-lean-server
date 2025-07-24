@@ -1,0 +1,37 @@
+{
+    "results": [
+        {
+            "custom_id": "lean_workbook_10166",
+            "error": null,
+            "response": {
+                "messages": [
+                    {
+                        "severity": "warning",
+                        "pos": {
+                            "line": 6,
+                            "column": 33
+                        },
+                        "endPos": {
+                            "line": 6,
+                            "column": 34
+                        },
+                        "data": "unused variable `c`\nnote: this linter can be disabled with `set_option linter.unusedVariables false`"
+                    },
+                    {
+                        "severity": "warning",
+                        "pos": {
+                            "line": 6,
+                            "column": 35
+                        },
+                        "endPos": {
+                            "line": 6,
+                            "column": 36
+                        },
+                        "data": "unused variable `d`\nnote: this linter can be disabled with `set_option linter.unusedVariables false`"
+                    }
+                ],
+                "time": 0.032593488693237305
+            }
+        }
+    ]
+}

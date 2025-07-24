@@ -1,0 +1,30 @@
+name: Publish to PyPI
+
+on:
+  workflow_dispatch:
+  release:
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version-file: pyproject.toml
+
+      - name: Install build dependencies
+        run: |
+          python -m pip install --upgrade build hatchling
+
+      - name: Build wheel
+        run: |
+          python -m build --wheel --sdist
+
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          password: ${{ secrets.PYPI_API_TOKEN }}
+          repository-url: https://upload.pypi.org/legacy/

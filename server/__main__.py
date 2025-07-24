@@ -1,55 +1,41 @@
-from datetime import datetime
 import logging
-import sys
+from types import FrameType
+from typing import Any
+
 import uvicorn
 from loguru import logger
-from .server import app, settings
 
-time_stamp = datetime.now().strftime("%Y%m%d-%H%M%S")
-
-def register_logging(app=None) -> None:
-    level = settings.LOG_LEVEL
-    path = f"{settings.LOG_DIR}/server_{time_stamp}.log"
-    retention = "1 days"
-
-    logging.root.handlers = [InterceptHandler()]
-    logging.root.setLevel(level)
-
-    # remove every other logger's handlers
-    # and propagate to root logger
-    for name in logging.root.manager.loggerDict.keys():
-        logging.getLogger(name).handlers = []
-        logging.getLogger(name).propagate = True
-
-    # configure loguru
-    logger.configure(
-        handlers=[
-            {"sink": sys.stdout},
-            {"sink": path, "rotation": "00:00", "retention": retention},
-        ]
-    )
+from .main import app
+from .settings import Environment, settings
 
 
 class InterceptHandler(logging.Handler):
-    def emit(self, record: logging.LogRecord) -> None:
+    def emit(self, record: Any) -> None:
         try:
-            level = logger.level(record.levelname).name
+            lvl = logger.level(record.levelname).name
         except ValueError:
-            level = record.levelno
+            lvl = record.levelno
+        frame: FrameType | None = logging.currentframe()
+        depth = 2
+        while frame and frame.f_code.co_filename == logging.__file__:
+            frame = frame.f_back
+            depth += 1
 
-        # Simplify the depth calculation. You may need to adjust this value.
-        depth = 6  # This is an example value; you may need to adjust it based on your actual logging calls
+        logger.opt(depth=depth, exception=record.exc_info).log(lvl, record.getMessage())
 
-        logger.opt(depth=depth, exception=record.exc_info).log(
-            level, record.getMessage()
-        )
 
-register_logging(app)
+if __name__ == "__main__":
+    logging.basicConfig(handlers=[InterceptHandler()], level=0, force=True)
 
-uvicorn.run(
-    app,
-    host=settings.HOST,
-    port=settings.PORT,
-    backlog=100000,
-    log_config=None,
-)
+    for name in ("uvicorn", "uvicorn.error", "uvicorn.access"):
+        logging.getLogger(name).handlers = []
+        logging.getLogger(name).propagate = True
+
+    uvicorn.run(
+        app,
+        host=settings.host,
+        port=settings.port,
+        backlog=4096,  # On Google Cloud VMs: `cat /proc/sys/net/core/somaxconn` = 4096
+        use_colors=settings.environment != Environment.prod,
+        log_config=None,
+    )

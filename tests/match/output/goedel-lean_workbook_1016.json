@@ -1,0 +1,49 @@
+{
+    "results": [
+        {
+            "custom_id": "lean_workbook_1016",
+            "error": null,
+            "response": {
+                "messages": [
+                    {
+                        "severity": "warning",
+                        "pos": {
+                            "line": 6,
+                            "column": 40
+                        },
+                        "endPos": {
+                            "line": 6,
+                            "column": 42
+                        },
+                        "data": "unused variable `ha`\nnote: this linter can be disabled with `set_option linter.unusedVariables false`"
+                    },
+                    {
+                        "severity": "warning",
+                        "pos": {
+                            "line": 6,
+                            "column": 53
+                        },
+                        "endPos": {
+                            "line": 6,
+                            "column": 55
+                        },
+                        "data": "unused variable `hb`\nnote: this linter can be disabled with `set_option linter.unusedVariables false`"
+                    },
+                    {
+                        "severity": "warning",
+                        "pos": {
+                            "line": 6,
+                            "column": 66
+                        },
+                        "endPos": {
+                            "line": 6,
+                            "column": 68
+                        },
+                        "data": "unused variable `hc`\nnote: this linter can be disabled with `set_option linter.unusedVariables false`"
+                    }
+                ],
+                "time": 41.61103081703186
+            }
+        }
+    ]
+}

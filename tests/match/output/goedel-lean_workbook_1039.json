@@ -1,0 +1,25 @@
+{
+    "results": [
+        {
+            "custom_id": "lean_workbook_1039",
+            "error": null,
+            "response": {
+                "messages": [
+                    {
+                        "severity": "warning",
+                        "pos": {
+                            "line": 19,
+                            "column": 2
+                        },
+                        "endPos": {
+                            "line": 19,
+                            "column": 18
+                        },
+                        "data": "'norm_num at hx ⊢' tactic does nothing\nnote: this linter can be disabled with `set_option linter.unusedTactic false`"
+                    }
+                ],
+                "time": 0.5541861057281494
+            }
+        }
+    ]
+}

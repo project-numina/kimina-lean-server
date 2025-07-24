@@ -1,0 +1,73 @@
+{
+    "results": [
+        {
+            "custom_id": "lean_workbook_10178",
+            "error": null,
+            "response": {
+                "messages": [
+                    {
+                        "severity": "warning",
+                        "pos": {
+                            "line": 7,
+                            "column": 3
+                        },
+                        "endPos": {
+                            "line": 7,
+                            "column": 5
+                        },
+                        "data": "unused variable `h₀`\nnote: this linter can be disabled with `set_option linter.unusedVariables false`"
+                    },
+                    {
+                        "severity": "warning",
+                        "pos": {
+                            "line": 8,
+                            "column": 3
+                        },
+                        "endPos": {
+                            "line": 8,
+                            "column": 5
+                        },
+                        "data": "unused variable `h₁`\nnote: this linter can be disabled with `set_option linter.unusedVariables false`"
+                    },
+                    {
+                        "severity": "warning",
+                        "pos": {
+                            "line": 9,
+                            "column": 3
+                        },
+                        "endPos": {
+                            "line": 9,
+                            "column": 5
+                        },
+                        "data": "unused variable `h₂`\nnote: this linter can be disabled with `set_option linter.unusedVariables false`"
+                    },
+                    {
+                        "severity": "warning",
+                        "pos": {
+                            "line": 10,
+                            "column": 3
+                        },
+                        "endPos": {
+                            "line": 10,
+                            "column": 5
+                        },
+                        "data": "unused variable `h₃`\nnote: this linter can be disabled with `set_option linter.unusedVariables false`"
+                    },
+                    {
+                        "severity": "warning",
+                        "pos": {
+                            "line": 11,
+                            "column": 3
+                        },
+                        "endPos": {
+                            "line": 11,
+                            "column": 5
+                        },
+                        "data": "unused variable `h₄`\nnote: this linter can be disabled with `set_option linter.unusedVariables false`"
+                    }
+                ],
+                "time": 1.951706886291504
+            }
+        }
+    ]
+}

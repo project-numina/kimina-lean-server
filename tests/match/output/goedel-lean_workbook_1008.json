@@ -1,0 +1,37 @@
+{
+    "results": [
+        {
+            "custom_id": "lean_workbook_1008",
+            "error": null,
+            "response": {
+                "messages": [
+                    {
+                        "severity": "info",
+                        "pos": {
+                            "line": 25,
+                            "column": 68
+                        },
+                        "endPos": {
+                            "line": 25,
+                            "column": 72
+                        },
+                        "data": "Try this: ring_nf"
+                    },
+                    {
+                        "severity": "info",
+                        "pos": {
+                            "line": 26,
+                            "column": 68
+                        },
+                        "endPos": {
+                            "line": 26,
+                            "column": 72
+                        },
+                        "data": "Try this: ring_nf"
+                    }
+                ],
+                "time": 0.21331191062927246
+            }
+        }
+    ]
+}

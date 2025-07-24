@@ -1,0 +1,79 @@
+name: CI
+
+on:
+  push:
+    # branches: [main]
+    paths:
+      - 'client/**'
+      - 'server/**'
+      - 'pyproject.toml'
+  pull_request:
+    paths:
+      - 'client/**'
+      - 'server/**'
+      - 'pyproject.toml'
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      BASE: ${{ github.workspace }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+
+      - name: "Set up Python"
+        uses: actions/setup-python@v5
+        with:
+          python-version-file: "pyproject.toml"
+
+      - name: Install the project
+        run: uv sync --locked --all-extras --dev
+
+      - name: Generate prisma types
+        run: uv run prisma generate
+
+      - name: Run pre-commit
+        run: uv run pre-commit run --all-files
+
+      - name: Restore Lean cache
+        id: lean-cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.elan
+            repl
+            mathlib4
+          key: ${{ runner.os }}-lean-${{ env.LEAN_SERVER_VERSION }}
+          restore-keys: ${{ runner.os }}-lean-
+
+      - name: Run Lean setup
+        if: steps.lean-cache.outputs.cache-hit != 'true'
+        run: bash setup.sh
+        
+      - name: Add lake binary to PATH
+        run: |
+          echo "$HOME/.elan/bin" >> $GITHUB_PATH
+
+      - name: Verify lake
+        run: which lake
+
+      - name: Run tests
+        run: uv run pytest
+
+      - name: Run performance tests
+        run: uv run pytest -m perfs
+
+      # - name: Run backward compatibility tests # Only one core on Github actions, so takes 11 minutes
+      #   run: uv run pytest -n auto -m match
+
+      # - name: Docker compose test
+      #   run: docker compose --profile test up --exit-code-from test
+
+        # env:
+        #   API_KEY: dev
