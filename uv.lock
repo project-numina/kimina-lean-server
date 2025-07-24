@@ -965,11 +965,9 @@ version = "0.1.0"
 source = { editable = "." }
 dependencies = [
     { name = "aiohttp" },
-    { name = "google-cloud-logging" },
     { name = "httpx" },
     { name = "loguru" },
     { name = "pip" },
-    { name = "prisma" },
     { name = "pydantic-settings" },
     { name = "python-dotenv" },
     { name = "requests" },
@@ -980,6 +978,7 @@ dependencies = [
 [package.optional-dependencies]
 server = [
     { name = "fastapi" },
+    { name = "google-cloud-logging" },
     { name = "prisma" },
     { name = "psutil" },
     { name = "uvicorn" },
@@ -1006,11 +1005,10 @@ dev = [
 requires-dist = [
     { name = "aiohttp", specifier = ">=3.12.14" },
     { name = "fastapi", marker = "extra == 'server'", specifier = ">=0.115.13" },
-    { name = "google-cloud-logging", specifier = ">=3.12.1" },
+    { name = "google-cloud-logging", marker = "extra == 'server'", specifier = ">=3.12.1" },
     { name = "httpx", specifier = ">=0.28.1" },
     { name = "loguru", specifier = ">=0.7.3" },
     { name = "pip", specifier = ">=25.1.1" },
-    { name = "prisma", specifier = ">=0.15.0" },
     { name = "prisma", marker = "extra == 'server'", specifier = ">=0.15.0" },
     { name = "psutil", marker = "extra == 'server'", specifier = ">=7.0.0" },
     { name = "pydantic-settings", specifier = ">=2.10.0" },

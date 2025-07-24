@@ -22,8 +22,6 @@ dependencies = [
     "pip>=25.1.1",
     "httpx>=0.28.1",
     "requests>=2.31.0",
-    "google-cloud-logging>=3.12.1",
-    "prisma>=0.15.0",
     "tenacity>=9.1.2",
     "aiohttp>=3.12.14",
 ]
@@ -33,7 +31,7 @@ Homepage = "https://github.com/project-numina/kimina-lean-server"
 Issues = "https://github.com/project-numina/kimina-lean-server/issues"
 
 [project.optional-dependencies]
-server = [ "fastapi>=0.115.13", "uvicorn>=0.34.3", "prisma>=0.15.0", "psutil>=7.0.0",]
+server = [ "fastapi>=0.115.13", "uvicorn>=0.34.3", "prisma>=0.15.0", "psutil>=7.0.0", "google-cloud-logging>=3.12.1", "prisma>=0.15.0",]
 
 [tool.uv]
 dev-dependencies = [
