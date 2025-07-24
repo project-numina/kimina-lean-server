@@ -46,7 +46,7 @@ COPY client client
 COPY prisma prisma
 COPY pyproject.toml uv.lock README-client.md ./
 
-RUN uv export --no-dev --no-emit-project > requirements.txt \
+RUN uv export --extra server --no-dev --no-emit-project > requirements.txt \
  && pip install --no-cache-dir -r requirements.txt \
  && pip install --no-cache-dir -e . \
  && prisma generate

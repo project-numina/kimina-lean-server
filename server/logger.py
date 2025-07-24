@@ -1,3 +1,4 @@
+from google.auth.exceptions import DefaultCredentialsError
 from google.cloud.logging import Client as GCPClient
 from google.cloud.logging.handlers import CloudLoggingHandler
 from loguru import logger
@@ -15,9 +16,25 @@ def setup_logging() -> None:
     install(show_locals=True)
 
     if settings.environment == Environment.prod:
-        gcp_client = GCPClient()
-        gcp_handler = CloudLoggingHandler(gcp_client)
-        logger.add(gcp_handler, level="INFO", serialize=True)
+        try:
+            gcp_client = GCPClient()
+            gcp_handler = CloudLoggingHandler(gcp_client)
+            logger.add(gcp_handler, level="INFO", serialize=True)
+        except DefaultCredentialsError:
+            logger.add(
+                RichHandler(
+                    console=console,
+                    show_time=False,
+                    markup=True,
+                    show_level=True,
+                    rich_tracebacks=True,
+                ),
+                colorize=True,
+                level=settings.log_level,
+                format="{message}",
+                backtrace=True,
+                diagnose=True,
+            )
     else:
         logger.add(
             RichHandler(

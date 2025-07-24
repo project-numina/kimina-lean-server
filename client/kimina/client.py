@@ -7,16 +7,18 @@ from uuid import uuid4
 
 import aiohttp
 import requests
+from dotenv import load_dotenv
 from loguru import logger
 from tenacity import retry  # RetryError,
 from tenacity import before_sleep_log, stop_after_attempt, wait_exponential
 
 from .models import CheckRequest, CheckResponse, Code, Infotree, Snippet, VerifyResponse
 
+load_dotenv()
 logger.remove()
 logger.add(sys.stderr, level="INFO", colorize=True, format="<level>{message}</level>")
 
-loggsies = logging.Logger("kimina.client")
+logger = logging.getLogger(__name__)
 
 
 class Kimina:
@@ -138,7 +140,7 @@ class Lean4Client(Kimina):
     @retry(
         stop=stop_after_attempt(3),
         wait=wait_exponential(multiplier=1, min=1, max=10),
-        before_sleep=before_sleep_log(loggsies, logging.ERROR),
+        before_sleep=before_sleep_log(logger, logging.ERROR),
     )
     def _sync_query(
         self, method: str, endpoint: str, **request_kwargs: Any
