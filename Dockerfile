@@ -11,7 +11,14 @@ RUN apt-get update && apt-get install -y \
     build-essential \
     unzip \
     jq \
+    clang \
+    libc++-dev \
+    cvc5 \
+    libcvc5-dev \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
+
+RUN update-alternatives --install /usr/bin/cc cc /usr/bin/clang 100 && \
+    update-alternatives --install /usr/bin/c++ c++ /usr/bin/clang++ 100
 
 # Install Lean
 RUN curl https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -sSf | sh -s -- --default-toolchain ${LEAN_VERSION} -y
@@ -29,7 +36,6 @@ COPY LeanGeo /root/LeanGeo
 # RUN git clone https://github.com/leanprover-community/mathlib4.git /root/mathlib4
 WORKDIR /root/LeanGeo
 RUN lake run cvc5/downloadRelease && \
-    lake script run check && \
     lake exe cache get && \
     lake build && \
     lake build LeanGeo

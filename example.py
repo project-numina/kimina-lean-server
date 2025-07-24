@@ -4,7 +4,7 @@ from client import Lean4Client
 # Enable nested asyncio for Jupyter notebooks
 nest_asyncio.apply()
 
-client = Lean4Client(base_url="http://127.0.0.1:12332")
+client = Lean4Client(base_url="http://127.0.0.0:80")
 mock_proof = """import Mathlib
 import SystemE
 import LeanGeo
