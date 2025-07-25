@@ -62,8 +62,8 @@ markers = [
 [tool.mypy]
 plugins = ['pydantic.mypy']
 strict = true
-files = ["server", "tests", "client"]
-exclude = ["prisma", "tsts_old/**", "server/server_old"]
+files = ["server", "tests"]
+exclude = "^(client|server/server_old|tsts_old/)"
 ignore_missing_imports = true
 allow_untyped_decorators=true
 disable_error_code = [
