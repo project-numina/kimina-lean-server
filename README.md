@@ -13,7 +13,7 @@ A Python SDK simplifies interaction with the server's API.
 - [Client](#client)
 - [Contributing](#contributing)
 - [License](#license)
-- [Citation][#citation]
+- [Citation](#citation)
 
 This repository contains the source code for:
 - the Kimina Lean server
