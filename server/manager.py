@@ -5,7 +5,7 @@ import json
 from datetime import datetime
 from time import time
 
-from kimina import CheckResponse, Snippet
+from kimina import ReplResponse, Snippet
 from loguru import logger
 
 from .errors import NoAvailableReplError, ReplError
@@ -111,7 +111,16 @@ class Manager:
                 if remaining <= 0:
                     raise NoAvailableReplError(f"Timed out after {timeout}s")
 
-                await asyncio.wait_for(self._cond.wait(), timeout=remaining)
+                try:
+                    logger.info(
+                        f"Waiting for a REPL to become available (timeout in {remaining:.2f}s)"
+                    )
+                    # Wait for a REPL to be released
+                    await asyncio.wait_for(self._cond.wait(), timeout=remaining)
+                except asyncio.TimeoutError:
+                    raise NoAvailableReplError(
+                        f"Timed out after {timeout}s while waiting for a REPL"
+                    ) from None
 
     async def destroy_repl(self, repl: Repl) -> None:
         async with self._cond:
@@ -123,6 +132,7 @@ class Manager:
             await repl.close()
             del repl
             logger.info(f"Destroyed REPL {uuid.hex[:8]}")
+            self._cond.notify(1)
 
     async def release_repl(self, repl: Repl) -> None:
         async with self._cond:
@@ -172,7 +182,7 @@ class Manager:
 
     async def prep(
         self, repl: Repl, snippet_id: str, timeout: float, debug: bool
-    ) -> CheckResponse | None:
+    ) -> ReplResponse | None:
         if repl.is_running:
             return None
 

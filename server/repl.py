@@ -10,12 +10,12 @@ from uuid import UUID, uuid4
 
 import psutil
 from kimina import (
-    CheckResponse,
     Command,
     CommandResponse,
     Diagnostics,
     Error,
     Infotree,
+    ReplResponse,
     Snippet,
 )
 from loguru import logger
@@ -72,7 +72,7 @@ class Repl:
         self.last_check_at = created_at
 
         # Stores the response received when running the import header.
-        self.header_cmd_response: CheckResponse | None = None
+        self.header_cmd_response: ReplResponse | None = None
 
         self.proc: Process | None = None
         self.error_file = tempfile.TemporaryFile("w+")
@@ -211,7 +211,7 @@ class Repl:
         timeout: float,
         is_header: bool = False,
         infotree: Infotree | None = None,
-    ) -> CheckResponse:
+    ) -> ReplResponse:
         error = None
         cmd_response = None
         elapsed_time = (
@@ -238,7 +238,7 @@ class Repl:
             logger.exception("REPL error: %s", e)
             raise e
 
-        return CheckResponse(
+        return ReplResponse(
             id=snippet.id,
             error=error,
             response=cmd_response,
@@ -340,13 +340,6 @@ class Repl:
             logger.error("Failed to read from REPL stdout: %s", e)
             raise LeanError("Failed to read from REPL stdout")
         return b"".join(lines)
-
-    # def __del__(self):
-    #     try:
-    #         loop = self._loop or asyncio.get_running_loop()
-    #     except RuntimeError:
-    #         return
-    #     loop.create_task(self.close())
 
     async def close(self) -> None:
         if self.proc:

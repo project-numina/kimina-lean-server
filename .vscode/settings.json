@@ -1,4 +1,13 @@
 {
+  "files.exclude": {
+    ".data": true,
+    ".ipynb_checkpoints": true,
+    ".venv": true,
+    ".mypy_cache": true,
+    ".pytest_cache": true,
+    "dist": true,
+    ".coverage": true,
+  },
   "[python]": {
     "editor.formatOnSave": true,
     "editor.codeActionsOnSave": {
