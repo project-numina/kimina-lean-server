@@ -10,7 +10,7 @@ import pytest
 from asgi_lifespan import LifespanManager
 from datasets import load_dataset
 from httpx import ASGITransport, AsyncClient
-from kimina import CheckRequest, CheckResponse
+from kimina import CheckRequest, ReplResponse, Snippet
 from loguru import logger
 
 from server.main import app
@@ -47,20 +47,20 @@ async def test_goedel(perf_rows: int, perf_shuffle: bool) -> None:
                 settings.max_repls
             )  # limit concurrent requests don't use this semaphore just llilmit in async client
 
-            async def run_item(item: dict[str, str]) -> CheckResponse:
+            async def run_item(item: dict[str, str]) -> ReplResponse:
                 async with semaphore:
                     proof = item["full_proof"]
                     payload = CheckRequest(
-                        snippet={"id": item["problem_id"], "code": proof},
+                        snippet=Snippet(id=item["problem_id"], code=proof),
                         timeout=30,
                     ).model_dump()
                     resp = await client.post("check", json=payload)
                     assert resp.status_code == 200
-                    data = resp.json()
+                    data = resp.json()["results"][0]
                     logger.info(json.dumps(data, indent=2))
                     assert "time" in data
                     times.append(float(data["time"]))
-                    return cast(CheckResponse, data)
+                    return cast(ReplResponse, data)
 
             tasks = [
                 asyncio.create_task(run_item(item))

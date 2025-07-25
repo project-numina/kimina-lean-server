@@ -2,6 +2,7 @@ import json
 import textwrap
 from enum import Enum
 from typing import Any, Literal, NotRequired, Type, TypedDict
+from uuid import uuid4
 
 import pygments
 from pydantic import BaseModel, ConfigDict, Field, model_validator
@@ -41,6 +42,16 @@ class VerifyRequestBody(BaseModel):
 class Snippet(BaseModel):
     id: str = Field(..., description="Identifier to trace the snippet")
     code: str = Field(..., description="Lean 4 snippet or proof attempt")
+
+    @classmethod
+    def from_code(cls, code: str) -> "Snippet":
+        return cls(id=uuid4().hex, code=code)
+
+    @classmethod
+    def from_snip(cls, snip: "str | Snippet") -> "Snippet":
+        if isinstance(snip, str):
+            return cls.from_code(snip)
+        return snip
 
 
 # The classes below map to the REPL/JSON.lean in the Lean REPL repository:
@@ -117,12 +128,48 @@ class ExtendedCommandResponse(CommandResponse):
 
 from typing import TypeVar
 
-T = TypeVar("T", bound="CheckRequest")
-TS = TypeVar("TS", bound="ChecksRequest")
-U = TypeVar("U", bound="CheckResponse")
+T = TypeVar("T", bound="ReplRequest")
+U = TypeVar("U", bound="ReplResponse")
+TS = TypeVar("TS", bound="CheckRequest")
+US = TypeVar("US", bound="CheckResponse")
 
 
-class CheckResponse(BaseModel):
+class BaseRequest(BaseModel):
+    timeout: int = Field(
+        30, description="Maximum time in seconds before aborting the check", ge=0
+    )
+    debug: bool = Field(
+        False, description="Include CPU/RAM usage and REPL instance ID in the response"
+    )
+    reuse: bool = Field(
+        True, description="Whether to attempt using a REPL if available"
+    )
+    infotree: Infotree | None = Field(
+        None,
+        description="Level of detail for the info tree.",
+    )
+
+
+class ReplRequest(BaseRequest):
+    snippet: Snippet = Field(description="Single snippet to validate")
+
+    model_config = ConfigDict(
+        json_schema_extra={
+            "example": {
+                "snippet": {
+                    "id": "mathlib-import-def",
+                    "code": "import Mathlib\ndef f := 1",
+                },
+                "timeout": 20,
+                "debug": False,
+                "reuse": True,
+                "infotree": "original",
+            },
+        }
+    )
+
+
+class ReplResponse(BaseModel):
     id: str = Field(..., description="Identifier to trace the snippet")
     time: float = 0.0
     error: str | None = None
@@ -149,42 +196,20 @@ class CheckResponse(BaseModel):
         return values
 
 
-class BaseRequest(BaseModel):
-    timeout: int = Field(
-        30, description="Maximum time in seconds before aborting the check", ge=0
-    )
-    debug: bool = Field(
-        False, description="Include CPU/RAM usage and REPL instance ID in the response"
-    )
-    reuse: bool = Field(
-        True, description="Whether to attempt using a REPL if available"
-    )
-    infotree: Infotree | None = Field(
-        None,
-        description="Level of detail for the info tree.",
-    )
-
-
-class ChecksRequest(BaseRequest):
+class CheckRequest(BaseRequest):
     snippets: list[Snippet] = Field(
         description="List of snippets to validate (batch or single element)"
     )
 
-    @model_validator(mode="before")
-    @classmethod
-    def check_snippets(cls: Type[TS], values: dict[str, Any]) -> dict[str, Any]:
-        arr = values.get("snippets")
-        if not arr or len(arr) == 0:
-            raise ValueError("`snippets` must be provided and non empty")
+    @model_validator(mode="after")
+    def check_snippets(self):
+        if not self.snippets:
+            raise ValueError("`snippets` must be non empty")
 
-        for i, snippet in enumerate(arr):
-            if not isinstance(snippet, dict) or "id" not in snippet:
-                raise ValueError(f"`snippets[{i}].id` is required")
-
-        ids = set({s["id"] for s in arr})
-        if len(ids) != len(arr):
+        ids = set({s.id for s in self.snippets})
+        if len(ids) != len(self.snippets):
             raise ValueError("`snippets` must have unique ids")
-        return values
+        return self
 
     model_config = ConfigDict(
         json_schema_extra={
@@ -204,23 +229,8 @@ class ChecksRequest(BaseRequest):
     )
 
 
-class CheckRequest(BaseRequest):
-    snippet: Snippet = Field(description="Single snippet to validate")
-
-    model_config = ConfigDict(
-        json_schema_extra={
-            "example": {
-                "snippet": {
-                    "id": "mathlib-import-def",
-                    "code": "import Mathlib\ndef f := 1",
-                },
-                "timeout": 20,
-                "debug": False,
-                "reuse": True,
-                "infotree": "original",
-            },
-        }
-    )
+class CheckResponse(BaseModel):
+    results: list[ReplResponse]
 
 
 class BackwardResponse(TypedDict):

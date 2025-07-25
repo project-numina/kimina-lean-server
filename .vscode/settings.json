@@ -1,4 +1,8 @@
 {
+  "explorer.excludeGitIgnore": true,
+  "files.exclude": {
+    "**/.env": false
+  },
   "[python]": {
     "editor.formatOnSave": true,
     "editor.codeActionsOnSave": {

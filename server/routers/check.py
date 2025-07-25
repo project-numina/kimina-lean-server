@@ -3,10 +3,10 @@ import json
 from typing import cast
 
 from fastapi import APIRouter, Depends, HTTPException, Request
-from kimina import CheckRequest, CheckResponse, ChecksRequest, Infotree, Snippet
+from kimina import CheckRequest, Infotree, ReplResponse, Snippet
+from kimina.models import CheckResponse
 from loguru import logger
 
-from ..auth import require_key
 from ..db import db
 from ..errors import NoAvailableReplError
 from ..manager import Manager
@@ -28,8 +28,8 @@ async def run_checks(
     manager: Manager,
     reuse: bool,
     infotree: Infotree | None = None,
-) -> list[CheckResponse]:
-    async def run_one(snippet: Snippet) -> CheckResponse:
+) -> list[ReplResponse]:
+    async def run_one(snippet: Snippet) -> ReplResponse:
         header, body = split_snippet(snippet.code)
         try:
             repl = await manager.get_repl(header, snippet.id, reuse=reuse)
@@ -61,7 +61,7 @@ async def run_checks(
                         },
                     }  # type: ignore
                 )
-            return CheckResponse(
+            return ReplResponse(
                 id=snippet.id,
                 error=error,
                 time=timeout,
@@ -94,7 +94,7 @@ async def run_checks(
                         },
                     }  # type: ignore
                 )
-            return CheckResponse(
+            return ReplResponse(
                 id=snippet.id,
                 error=error,
                 time=timeout,
@@ -142,31 +142,6 @@ async def run_checks(
 
 
 @router.post(
-    "/checks",
-    response_model=list[CheckResponse],
-    response_model_exclude_none=True,
-)
-@router.post(
-    "/checks/",
-    response_model=list[CheckResponse],
-    response_model_exclude_none=True,
-    include_in_schema=False,  # To not clutter OpenAPI spec.
-)
-async def check_batch(
-    request: ChecksRequest,
-    manager: Manager = Depends(get_manager),
-) -> list[CheckResponse]:
-    return await run_checks(
-        request.snippets,
-        float(request.timeout),
-        request.debug,
-        manager,
-        request.reuse,
-        request.infotree,
-    )
-
-
-@router.post(
     "/check",
     response_model=CheckResponse,
     response_model_exclude_none=True,
@@ -177,17 +152,17 @@ async def check_batch(
     response_model_exclude_none=True,
     include_in_schema=False,  # To not clutter OpenAPI spec.
 )
-async def check_single(
+async def check(
     request: CheckRequest,
     manager: Manager = Depends(get_manager),
-    _: str = Depends(require_key),
 ) -> CheckResponse:
-    resp_list = await run_checks(
-        [request.snippet],
-        float(request.timeout),
-        request.debug,
-        manager,
-        request.reuse,
-        request.infotree,
+    return CheckResponse(
+        results=await run_checks(
+            request.snippets,
+            float(request.timeout),
+            request.debug,
+            manager,
+            request.reuse,
+            request.infotree,
+        ),
     )
-    return resp_list[0]

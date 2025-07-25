@@ -5,7 +5,7 @@ import json
 from datetime import datetime
 from time import time
 
-from kimina import CheckResponse, Snippet
+from kimina import ReplResponse, Snippet
 from loguru import logger
 
 from .errors import NoAvailableReplError, ReplError
@@ -172,7 +172,7 @@ class Manager:
 
     async def prep(
         self, repl: Repl, snippet_id: str, timeout: float, debug: bool
-    ) -> CheckResponse | None:
+    ) -> ReplResponse | None:
         if repl.is_running:
             return None
 

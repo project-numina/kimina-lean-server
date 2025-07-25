@@ -12,56 +12,13 @@ from loguru import logger
 from tenacity import retry  # RetryError,
 from tenacity import before_sleep_log, stop_after_attempt, wait_exponential
 
-from .models import CheckRequest, CheckResponse, Code, Infotree, Snippet, VerifyResponse
+from .models import Code, Infotree, ReplRequest, ReplResponse, Snippet, VerifyResponse
 
 load_dotenv()
 logger.remove()
 logger.add(sys.stderr, level="INFO", colorize=True, format="<level>{message}</level>")
 
 logger = logging.getLogger(__name__)
-
-
-class BaseKimina:
-    """
-    Base class for Kimina and AsyncKimina clients.
-    Example:
-    ```python
-    from kimina import Kimina, AsyncKimina
-
-    client = Kimina(api_key="your_api_key")
-    async_client = AsyncKimina(api_key="your_api_key")
-    ```
-    """
-
-    def __init__(
-        self,
-        api_url: str | None,
-        api_key: str | None = None,
-        timeout: int = 60,
-        reuse: bool = True,
-        headers: dict[str, str] | None = None,
-    ):
-        if not api_url:
-            api_url = os.getenv("LEAN_SERVER_API_URL", "http://localhost:8000")
-        self.api_url = api_url.rstrip("/")
-
-        if not api_key:
-            api_key = os.getenv("LEAN_SERVER_API_KEY") or os.getenv(
-                "LEANSERVER_API_KEY"
-            )
-
-        self.api_key = api_key
-        self.timeout = timeout
-        self.reuse = reuse
-        self.headers = headers
-
-    def build_url(self, path: str) -> str:
-        return f"{self.api_url}/{path.lstrip('/')}"
-
-    def handle(self, r: requests.Response) -> Any:
-        if r.status_code >= 400:
-            raise Exception(f"{r.status_code} → {r.text!r}")
-        return r.json()
 
 
 class Kimina:
@@ -84,11 +41,11 @@ class Kimina:
         debug: bool = False,
         reuse: bool | None = None,
         infotree: Infotree | None = None,
-    ) -> CheckResponse:
+    ) -> ReplResponse:
         if isinstance(snippet, str):
             snippet = Snippet(id=uuid4().hex, code=snippet)
 
-        req = CheckRequest(
+        req = ReplRequest(
             snippet=snippet,
             timeout=timeout,
             debug=debug,
@@ -104,7 +61,7 @@ class Kimina:
             f"{self.api_url}/api/check", json=req.model_dump(), headers=headers
         )
         resp.raise_for_status()
-        return CheckResponse.model_validate(resp.json())
+        return ReplResponse.model_validate(resp.json())
 
     def _test_connection(self):
         headers = {"Content-Type": "application/json"}
