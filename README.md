@@ -127,7 +127,7 @@ pytest -m match
 ```
 
 To release the client:
-- bump the version in `pyproject.toml`
+- bump the version in `pyproject.toml` and run `uv lock`
 - run the "Publish to PyPI" action on Github
 
 To release the server:
