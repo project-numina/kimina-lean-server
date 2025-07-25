@@ -1,7 +1,6 @@
 import os
-from typing import Type, TypeVar
+from typing import Any, Type, TypeVar
 
-from httpx import Response
 from pydantic import BaseModel
 
 T = TypeVar("T", bound=BaseModel)
@@ -14,7 +13,7 @@ class BaseKimina:
         api_key: str | None = None,
         headers: dict[str, str] | None = None,
         http_timeout: int = 60,
-        n_retries: int = 10,
+        n_retries: int = 3,
     ):
         if not api_url:
             api_url = os.getenv("LEAN_SERVER_API_URL", "http://localhost:8000")
@@ -33,6 +32,5 @@ class BaseKimina:
     def build_url(self, path: str) -> str:
         return f"{self.api_url}/{path.lstrip('/')}"
 
-    def handle(self, r: Response, model: Type[T]) -> T:
-        r.raise_for_status()
-        return model.model_validate(r.json())
+    def handle(self, resp: Any, model: Type[T]) -> T:
+        return model.model_validate(resp)

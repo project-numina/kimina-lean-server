@@ -1,5 +1,6 @@
 import pytest
 
+from server.errors import NoAvailableReplError
 from server.manager import Manager
 
 
@@ -18,7 +19,7 @@ async def test_get_repl() -> None:
 async def test_exhausted() -> None:
     manager = Manager(max_repls=0, max_repl_uses=1)
 
-    with pytest.raises(TimeoutError):
+    with pytest.raises(NoAvailableReplError):
         await manager.get_repl(timeout=3)
 
 

@@ -1,4 +1,4 @@
-from .client import Kimina, Lean4Client
+from .async_client import AsyncKimina
 from .models import (
     BackwardResponse,
     CheckRequest,
@@ -18,9 +18,10 @@ from .models import (
     VerifyRequestBody,
     VerifyResponse,
 )
-from .sync_client import KiminaClient
+from .sync_client import Kimina
 
 __all__ = [
+    "AsyncKimina",
     "BackwardResponse",
     "ReplRequest",
     "ReplResponse",
@@ -35,8 +36,6 @@ __all__ = [
     "ExtendedError",
     "Infotree",
     "Kimina",
-    "KiminaClient",
-    "Lean4Client",
     "Message",
     "Snippet",
     "VerifyRequestBody",

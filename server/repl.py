@@ -341,13 +341,6 @@ class Repl:
             raise LeanError("Failed to read from REPL stdout")
         return b"".join(lines)
 
-    # def __del__(self):
-    #     try:
-    #         loop = self._loop or asyncio.get_running_loop()
-    #     except RuntimeError:
-    #         return
-    #     loop.create_task(self.close())
-
     async def close(self) -> None:
         if self.proc:
             self.last_check_at = datetime.now()

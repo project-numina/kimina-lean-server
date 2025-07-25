@@ -51,7 +51,7 @@ async def test_goedel(perf_rows: int, perf_shuffle: bool) -> None:
                 async with semaphore:
                     proof = item["full_proof"]
                     payload = CheckRequest(
-                        snippet=Snippet(id=item["problem_id"], code=proof),
+                        snippets=[Snippet(id=item["problem_id"], code=proof)],
                         timeout=30,
                     ).model_dump()
                     resp = await client.post("check", json=payload)

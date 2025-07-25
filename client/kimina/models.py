@@ -1,6 +1,7 @@
 import json
 import textwrap
 from enum import Enum
+from itertools import chain
 from typing import Any, Literal, NotRequired, Type, TypedDict
 from uuid import uuid4
 
@@ -231,6 +232,10 @@ class CheckRequest(BaseRequest):
 
 class CheckResponse(BaseModel):
     results: list[ReplResponse]
+
+    @classmethod
+    def merge(cls, responses: list["CheckResponse"]) -> "CheckResponse":
+        return cls(results=list(chain.from_iterable(r.results for r in responses)))
 
 
 class BackwardResponse(TypedDict):

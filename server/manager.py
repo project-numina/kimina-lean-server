@@ -111,7 +111,16 @@ class Manager:
                 if remaining <= 0:
                     raise NoAvailableReplError(f"Timed out after {timeout}s")
 
-                await asyncio.wait_for(self._cond.wait(), timeout=remaining)
+                try:
+                    logger.info(
+                        f"Waiting for a REPL to become available (timeout in {remaining:.2f}s)"
+                    )
+                    # Wait for a REPL to be released
+                    await asyncio.wait_for(self._cond.wait(), timeout=remaining)
+                except asyncio.TimeoutError:
+                    raise NoAvailableReplError(
+                        f"Timed out after {timeout}s while waiting for a REPL"
+                    ) from None
 
     async def destroy_repl(self, repl: Repl) -> None:
         async with self._cond:
@@ -123,6 +132,7 @@ class Manager:
             await repl.close()
             del repl
             logger.info(f"Destroyed REPL {uuid.hex[:8]}")
+            self._cond.notify(1)
 
     async def release_repl(self, repl: Repl) -> None:
         async with self._cond:

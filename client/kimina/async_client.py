@@ -1,5 +1,5 @@
+import asyncio
 import logging
-from concurrent.futures import ThreadPoolExecutor, as_completed
 from typing import Any
 
 import httpx
@@ -10,7 +10,7 @@ from tenacity import (
     stop_after_attempt,
     wait_exponential,
 )
-from tqdm import tqdm
+from tqdm.asyncio import tqdm_asyncio
 
 from .base import BaseKimina
 from .models import CheckRequest, CheckResponse, Infotree, ReplResponse, Snippet
@@ -18,7 +18,7 @@ from .models import CheckRequest, CheckResponse, Infotree, ReplResponse, Snippet
 logger = logging.getLogger(__name__)
 
 
-class Kimina(BaseKimina):
+class AsyncKimina(BaseKimina):
     def __init__(
         self,
         api_url: str | None = None,
@@ -34,9 +34,11 @@ class Kimina(BaseKimina):
             http_timeout=http_timeout,
             n_retries=n_retries,
         )
-        self.session = httpx.Client(headers=self.headers, timeout=self.http_timeout)
+        self.session = httpx.AsyncClient(
+            headers=self.headers, timeout=self.http_timeout
+        )
 
-    def check(
+    async def check(
         self,
         snips: str | list[str] | Snippet | list[Snippet],
         timeout: int = 60,
@@ -56,24 +58,23 @@ class Kimina(BaseKimina):
         batches = [
             snippets[i : i + batch_size] for i in range(0, len(snippets), batch_size)
         ]
-        results: list[CheckResponse] = []
-        with ThreadPoolExecutor(max_workers=max_workers) as executor:
-            futures = {
-                executor.submit(
-                    self.api_check, batch, timeout, debug, reuse, infotree, True
-                ): batch
-                for batch in batches
-            }
-            iterator = (
-                tqdm(as_completed(futures), total=len(futures))
-                if show_progress
-                else as_completed(futures)
-            )
-            for future in iterator:
-                results.append(future.result())
-        return CheckResponse.merge(results)
+        sem = asyncio.Semaphore(max_workers)
 
-    def api_check(
+        async def worker(batch: list[Snippet]) -> CheckResponse:
+            async with sem:
+                return await self.api_check(
+                    batch, timeout, debug, reuse, infotree, True
+                )
+
+        tasks = [worker(batch) for batch in batches]
+        if show_progress:
+            results = await tqdm_asyncio.gather(*tasks)  # type: ignore
+
+        else:
+            results = await asyncio.gather(*tasks)
+        return CheckResponse.merge(results)  # type: ignore
+
+    async def api_check(
         self,
         snippets: list[Snippet],
         timeout: int = 30,
@@ -84,7 +85,6 @@ class Kimina(BaseKimina):
     ) -> CheckResponse:
         try:
             url = self.build_url("/api/check")
-
             payload = CheckRequest(
                 snippets=snippets,
                 timeout=timeout,
@@ -93,7 +93,7 @@ class Kimina(BaseKimina):
                 infotree=infotree,
             ).model_dump()
 
-            resp = self._query(url, payload)
+            resp = await self._query(url, payload)
             return self.handle(resp, CheckResponse)
         except Exception as e:
             if safe:
@@ -104,7 +104,7 @@ class Kimina(BaseKimina):
                 )
             raise e
 
-    def _query(
+    async def _query(
         self, url: str, payload: dict[str, Any] | None = None, method: str = "POST"
     ) -> Any:
         @retry(
@@ -112,12 +112,12 @@ class Kimina(BaseKimina):
             wait=wait_exponential(multiplier=1, min=1, max=10),
             before_sleep=before_sleep_log(logger, logging.ERROR),
         )
-        def run_method():
+        async def run_method():
             try:
                 if method.upper() == "POST":
-                    response = self.session.post(url, json=payload)
+                    response = await self.session.post(url, json=payload)
                 elif method.upper() == "GET":
-                    response = self.session.get(url, params=payload)
+                    response = await self.session.get(url, params=payload)
                 else:
                     raise ValueError(f"Unsupported method: {method}")
                 response.raise_for_status()  # Ensure 2xx, otherwise retry
@@ -126,24 +126,25 @@ class Kimina(BaseKimina):
                 raise e
 
             try:
-                return response.json()  # Ensure JSON, otherwise retry
+                return response.json()
             except ValueError:
                 logger.error(f"Server returned non-JSON: {response.text}")
                 raise ValueError("Invalid response from server: not a valid JSON")
 
         try:
-            return run_method()
+            return await run_method()
         except RetryError:
             raise RuntimeError(f"Request failed after {self.n_retries} retries")
 
-    def health(self) -> None:
+    async def health(self) -> None:
         url = self.build_url("/health")
-        resp = self._query(url, method="GET")
-        return resp  # TODO: create status object to cast automaticalllly
+        return await self._query(url, method="GET")
 
-    def test(self):
+    async def test(self):
         logger.info("Testing with `#check Nat`...")
-        response = self.check("#check Nat", show_progress=False).results[0].response
+        response = (
+            (await self.check("#check Nat", show_progress=False)).results[0].response
+        )
         assert response is not None, "Response should not be None"
         assert response.get("messages", None) == [
             {
@@ -155,5 +156,5 @@ class Kimina(BaseKimina):
         ]
         logger.info("Test passed!")
 
-    def close(self):
-        self.session.close()
+    async def close(self):
+        await self.session.aclose()
