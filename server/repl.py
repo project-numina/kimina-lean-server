@@ -212,7 +212,6 @@ class Repl:
         is_header: bool = False,
         infotree: Infotree | None = None,
     ) -> ReplResponse:
-        error = None
         cmd_response = None
         elapsed_time = (
             0.0  # TODO: check what's the best time to check elapsed time, time lib?
@@ -240,7 +239,6 @@ class Repl:
 
         return ReplResponse(
             id=snippet.id,
-            error=error,
             response=cmd_response,
             time=elapsed_time,
             diagnostics=diagnostics if len(diagnostics) > 0 else None,

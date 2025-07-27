@@ -189,10 +189,6 @@ If running benchmarks from an end-user computer, you may face the following erro
 
 You can check the maximum number of open files on your machine with `ulimit -n` (256 on a MacBook Pro). It may be smaller than what's needed to run the benchmark: increase it with `ulimit -n 65535`.
 
-Server logs may show the following failure when a REPL gets acquired prior to be being deleted. It does not impact performances, it's only at the cache level.
-
-> Failed to evict header 'import Mathlib\nimport Aesop with id 306512ca-8935-4cdb-b88b-7510e0c98ac3, putting it back
-
 ### Cached vs Non-Cached
 
 | Mode       | Valid Proofs (%) | Total Verification Time (s) | Average Verification Time (s) |
