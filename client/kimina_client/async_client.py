@@ -18,7 +18,7 @@ from .base import BaseKimina
 from .models import CheckRequest, CheckResponse, Infotree, ReplResponse, Snippet
 from .utils import build_log, find_code_column, find_id_column
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("kimina-client")
 
 
 class AsyncKiminaClient(BaseKimina):
