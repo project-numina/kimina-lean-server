@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    # branches: [main]
+    branches: [main]
     paths:
       - 'client/**'
       - 'server/**'
@@ -49,7 +49,7 @@ jobs:
             ~/.elan
             repl
             mathlib4
-          key: ${{ runner.os }}-lean-${{ env.LEAN_SERVER_VERSION }}
+          key: ${{ runner.os }}-lean-${{ env.LEAN_SERVER_LEAN_VERSION }}
           restore-keys: ${{ runner.os }}-lean-
 
       - name: Run Lean setup

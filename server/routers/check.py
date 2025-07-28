@@ -3,8 +3,8 @@ import json
 from typing import cast
 
 from fastapi import APIRouter, Depends, HTTPException, Request
-from kimina import CheckRequest, Infotree, ReplResponse, Snippet
-from kimina.models import CheckResponse
+from kimina_client import CheckRequest, Infotree, ReplResponse, Snippet
+from kimina_client.models import CheckResponse
 from loguru import logger
 
 from ..db import db
@@ -48,7 +48,7 @@ async def run_checks(
                 prep = await manager.prep(repl, snippet.id, timeout, debug)
                 if prep and prep.error:
                     return prep
-            except TimeoutError as e:
+            except TimeoutError:
                 error = f"Lean REPL header command timed out in {timeout} seconds"
                 uuid_hex = repl.uuid.hex
                 await manager.destroy_repl(repl)
@@ -81,7 +81,7 @@ async def run_checks(
                 resp = await repl.send_timeout(
                     Snippet(id=snippet.id, code=body), timeout, infotree=infotree
                 )
-            except TimeoutError as e:
+            except TimeoutError:
                 error = f"Lean REPL command timed out in {timeout} seconds"
                 uuid_hex = repl.uuid.hex
                 await manager.destroy_repl(repl)
@@ -97,7 +97,7 @@ async def run_checks(
                             },
                         }  # type: ignore
                     )
-                return ReplResponse(
+                resp = ReplResponse(
                     id=snippet.id,
                     error=error,
                     time=timeout,
@@ -105,6 +105,13 @@ async def run_checks(
                         "repl_uuid": uuid_hex,
                     },
                 )
+                logger.info(
+                    "[{}] Response for [bold magenta]{}[/bold magenta] body →\n{}",
+                    repl.uuid.hex[:8],
+                    snippet.id,
+                    json.dumps(resp.model_dump(exclude_none=True), indent=2),
+                )
+                return resp
             except Exception as e:
                 logger.exception("Snippet execution failed")
                 await manager.destroy_repl(repl)
@@ -117,7 +124,7 @@ async def run_checks(
                     json.dumps(resp.model_dump(exclude_none=True), indent=2),
                 )
                 await manager.release_repl(repl)
-                # todo: Try catch everything DB related
+                # TODO: Try catch everything DB related
                 if db.connected:
                     await prisma.proof.create(
                         data={

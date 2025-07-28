@@ -10,7 +10,7 @@ class DataLayer:
         try:
             await self.client.connect()
             self.connected = True
-        except:
+        except Exception:
             self.connected = False
 
     async def disconnect(self) -> None:

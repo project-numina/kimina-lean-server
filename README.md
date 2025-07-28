@@ -21,11 +21,14 @@ This repository contains the source code for:
 
 ## Server
 
-From source (make sure you have Astral's uv installed):
+From source with `requirements.txt` (option to use `uv`, see [Contributing](#contributing)):
 ```sh
 cp .env.template .env # Optional
-bash setup.sh
-uv run python -m server
+bash setup.sh # Installs Lean, repl and mathlib4
+pip install -r requirements.txt
+pip install .
+prisma generate
+python -m server
 ```
 
 > [!NOTE]
@@ -76,15 +79,15 @@ Or use the client below.
 
 ## Client
 
-From [PyPI](https://test.pypi.org/project/kimina/):
+From [PyPI](https://test.pypi.org/project/kimina-client/):
 ```sh
-pip install kimina
+pip install kimina-client
 ```
 
 Example use:
 ```python
-from kimina import Kimina
-client = Kimina() # Defaults to "http://localhost:8000", no API key
+from kimina_client import KiminaClient
+client = KiminaClient() # Defaults to "http://localhost:8000", no API key
 client.check("#check Nat")
 ```
 
@@ -134,6 +137,11 @@ To release the server:
 - bump the version in `compose-prod.yaml`
 - run the "Deploy to Google Cloud" action on Github
 - run the "Publish to Docker" action on Github (doesn't exist yet)
+
+If you change dependencies (uv.lock), make sure to generate `requirements.txt` again with:
+```sh
+uv export --extra server --no-dev --no-emit-project --no-hashes > requirements.txt
+```
 
 ## License
 
@@ -188,10 +196,6 @@ If running benchmarks from an end-user computer, you may face the following erro
 > tenacity.before_sleep:log_it:65 - Retrying **main**.Lean4Client.\_query.<locals>.query_with_retries in 10.0 seconds as it raised ClientConnectorError: Cannot connect to host 127.0.0.1:80 ssl:default [Too many open files].
 
 You can check the maximum number of open files on your machine with `ulimit -n` (256 on a MacBook Pro). It may be smaller than what's needed to run the benchmark: increase it with `ulimit -n 65535`.
-
-Server logs may show the following failure when a REPL gets acquired prior to be being deleted. It does not impact performances, it's only at the cache level.
-
-> Failed to evict header 'import Mathlib\nimport Aesop with id 306512ca-8935-4cdb-b88b-7510e0c98ac3, putting it back
 
 ### Cached vs Non-Cached
 

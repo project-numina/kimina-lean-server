@@ -1,14 +1,6 @@
 from fastapi import APIRouter, Depends
-from kimina import (
-    BackwardResponse,
-    CommandResponse,
-    Error,
-    ExtendedCommandResponse,
-    ExtendedError,
-    Snippet,
-    VerifyRequestBody,
-    VerifyResponse,
-)
+from kimina_client import BackwardResponse, Snippet, VerifyRequestBody, VerifyResponse
+from kimina_client.models import extend
 
 from ..auth import require_key
 from ..manager import Manager
@@ -47,7 +39,7 @@ async def one_pass_verify_batch(
     results: list[BackwardResponse] = []
 
     for check_response in check_responses:
-        extended_response = extend(check_response.response)
+        extended_response = extend(check_response.response, time=check_response.time)
 
         result = BackwardResponse(
             custom_id=check_response.id,
@@ -57,24 +49,3 @@ async def one_pass_verify_batch(
         results.append(result)
 
     return VerifyResponse(results=results)
-
-
-def extend(
-    response: CommandResponse | Error | None,
-) -> ExtendedCommandResponse | ExtendedError | None:
-    if response is None:
-        return None
-    elif "message" in response:
-        return ExtendedError(
-            message=response.get("message", ""),
-            time=response.get("time", None),
-        )
-    else:
-        return ExtendedCommandResponse(
-            env=response.get("env", None),
-            messages=response.get("messages", None),
-            sorries=response.get("sorries", None),
-            tactics=response.get("tactics", None),
-            infotree=response.get("infotree", None),
-            time=response.get("time", None),
-        )

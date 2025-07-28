@@ -60,7 +60,7 @@ def create_app(settings: Settings) -> FastAPI:
                         "  --url http://localhost:8000/api/check \\\n"
                         "  --header 'Content-Type: application/json' \\\n"
                         "  --data '{"
-                        '"snippet":{"id":"1234","code":"#check Nat"}'
+                        '"snippets":[{"id":"check-nat-test","code":"#check Nat"}]'
                         "}' | jq\n",
                         "  ",
                     )

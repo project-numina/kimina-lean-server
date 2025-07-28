@@ -960,18 +960,19 @@ wheels = [
 ]
 
 [[package]]
-name = "kimina"
-version = "0.1.2"
+name = "kimina-client"
+version = "0.1.3"
 source = { editable = "." }
 dependencies = [
-    { name = "aiohttp" },
+    { name = "colorama" },
+    { name = "datasets" },
     { name = "httpx" },
     { name = "loguru" },
     { name = "pip" },
     { name = "pydantic-settings" },
     { name = "python-dotenv" },
     { name = "requests" },
-    { name = "rich" },
+    { name = "tabulate" },
     { name = "tenacity" },
 ]
 
@@ -981,6 +982,7 @@ server = [
     { name = "google-cloud-logging" },
     { name = "prisma" },
     { name = "psutil" },
+    { name = "rich" },
     { name = "uvicorn" },
 ]
 
@@ -988,7 +990,6 @@ server = [
 dev = [
     { name = "asgi-lifespan" },
     { name = "datasets" },
-    { name = "httpx" },
     { name = "mypy" },
     { name = "pre-commit" },
     { name = "pydantic-settings" },
@@ -1003,7 +1004,8 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "aiohttp", specifier = ">=3.12.14" },
+    { name = "colorama", specifier = ">=0.4.6" },
+    { name = "datasets", specifier = ">=4.0.0" },
     { name = "fastapi", marker = "extra == 'server'", specifier = ">=0.115.13" },
     { name = "google-cloud-logging", marker = "extra == 'server'", specifier = ">=3.12.1" },
     { name = "httpx", specifier = ">=0.28.1" },
@@ -1014,7 +1016,8 @@ requires-dist = [
     { name = "pydantic-settings", specifier = ">=2.10.0" },
     { name = "python-dotenv", specifier = ">=1.1.0" },
     { name = "requests", specifier = ">=2.31.0" },
-    { name = "rich", specifier = ">=14.0.0" },
+    { name = "rich", marker = "extra == 'server'", specifier = ">=14.0.0" },
+    { name = "tabulate", specifier = ">=0.9.0" },
     { name = "tenacity", specifier = ">=9.1.2" },
     { name = "uvicorn", marker = "extra == 'server'", specifier = ">=0.34.3" },
 ]
@@ -1023,7 +1026,6 @@ requires-dist = [
 dev = [
     { name = "asgi-lifespan", specifier = ">=2.1.0" },
     { name = "datasets", specifier = ">=4.0.0" },
-    { name = "httpx", specifier = ">=0.28.1" },
     { name = "mypy", specifier = ">=1.16.1" },
     { name = "pre-commit", specifier = ">=4.2.0" },
     { name = "pydantic-settings", specifier = ">=2.10.0" },
@@ -2246,6 +2248,15 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/85/ad/430fb60d90e1d112a62ff57bdd1f286ec73a2a0331272febfddd21f330e1/StrEnum-0.4.15.tar.gz", hash = "sha256:878fb5ab705442070e4dd1929bb5e2249511c0bcf2b0eeacf3bcd80875c82eff", size = 23384 }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/81/69/297302c5f5f59c862faa31e6cb9a4cd74721cd1e052b38e464c5b402df8b/StrEnum-0.4.15-py3-none-any.whl", hash = "sha256:a30cda4af7cc6b5bf52c8055bc4bf4b2b6b14a93b574626da33df53cf7740659", size = 8851 },
+]
+
+[[package]]
+name = "tabulate"
+version = "0.9.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/ec/fe/802052aecb21e3797b8f7902564ab6ea0d60ff8ca23952079064155d1ae1/tabulate-0.9.0.tar.gz", hash = "sha256:0095b12bf5966de529c0feb1fa08671671b3368eec77d7ef7ab114be2c068b3c", size = 81090 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/40/44/4a5f08c96eb108af5cb50b41f76142f0afa346dfa99d5296fe7202a11854/tabulate-0.9.0-py3-none-any.whl", hash = "sha256:024ca478df22e9340661486f85298cff5f6dcdba14f3813e8830015b9ed1948f", size = 35252 },
 ]
 
 [[package]]
