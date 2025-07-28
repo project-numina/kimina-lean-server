@@ -80,7 +80,7 @@ def extract_proof_from_text(output: str, formal_statement: str) -> str:
         return "Theorem statement couldn't be parsed from statement."
 
     # Extract all Lean 4 code blocks
-    lean4_codes = re.findall(r"```lean4\n(.*?)\n```", output, re.DOTALL)
+    lean4_codes: list[str] = re.findall(r"```lean4\n(.*?)\n```", output, re.DOTALL)
 
     for lean4_code in reversed(lean4_codes):
         if theorem_statement in lean4_code:
