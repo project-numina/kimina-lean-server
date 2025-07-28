@@ -257,4 +257,3 @@ class Kimina(BaseKimina):
 
     def close(self) -> None:
         self.session.close()
-        self.session.close()

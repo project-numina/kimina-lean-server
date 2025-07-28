@@ -19,6 +19,8 @@ from .models import (
     ReplRequest,
     ReplResponse,
     Snippet,
+    SnippetAnalysis,
+    SnippetStatus,
     VerifyRequestBody,
     VerifyResponse,
 )
@@ -42,6 +44,8 @@ __all__ = [
     "Kimina",
     "Message",
     "Snippet",
+    "SnippetAnalysis",
+    "SnippetStatus",
     "VerifyRequestBody",
     "VerifyResponse",
 ]
