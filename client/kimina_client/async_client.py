@@ -1,8 +1,10 @@
 import asyncio
 import logging
+import time
 from typing import Any
 
 import httpx
+from datasets import load_dataset, load_dataset_builder  # type: ignore
 from tenacity import (
     RetryError,
     before_sleep_log,
@@ -14,6 +16,7 @@ from tqdm.asyncio import tqdm_asyncio
 
 from .base import BaseKimina
 from .models import CheckRequest, CheckResponse, Infotree, ReplResponse, Snippet
+from .utils import build_log, find_code_column, find_id_column
 
 logger = logging.getLogger(__name__)
 
@@ -155,6 +158,82 @@ class AsyncKiminaClient(BaseKimina):
             }
         ]
         logger.info("Test passed!")
+
+    async def run_benchmark(
+        self,
+        dataset_name: str = "Goedel-LM/Lean-workbook-proofs",
+        split: str = "train",
+        n: int = 100,
+        batch_size: int = 8,
+        max_workers: int = 5,
+        timeout: int = 60,
+        reuse: bool = True,
+        show_progress: bool = True,
+    ) -> None:
+        """
+        Runs benchmark on Hugging Face dataset.
+        Displays results in the console.
+        """
+        # TODO: add option output dir with file hierarchy based on metadata like uuid in the run_benchmark method
+        # TODO: add count heartbeats option
+
+        if n <= 0:
+            logger.error("Please specify n > 0")
+            return
+
+        if batch_size <= 0:
+            logger.warning("Cannot use batch size = %d, defaulting to 8", batch_size)
+            batch_size = 8
+
+        logger.info(build_log(dataset_name, n, batch_size))
+
+        builder = load_dataset_builder(dataset_name)
+        if not builder.info.features:
+            logger.error("Dataset has no features, cannot run benchmark")
+            return
+
+        columns: list[str] = list(builder.info.features)
+
+        id_column_name: str | tuple[str, str] = "id"
+        code_column_name: str = "code"
+        if dataset_name == "Goedel-LM/Lean-workbook-proofs":
+            id_column_name = "problem_id"
+            code_column_name = "full_proof"
+        elif dataset_name == "AI-MO/math-test-inference-results":
+            id_column_name = ("uuid", "proof_id")
+            code_column_name = "proof"
+        else:
+            id_column_name = find_id_column(columns)
+            code_column_name = find_code_column(columns)
+
+        dataset = load_dataset(dataset_name, split=split + f"[:{n}]")
+
+        def get_id(sample: Any, id_column_name: str | tuple[str, str]) -> str:
+            if isinstance(id_column_name, tuple):
+                a, b = id_column_name
+                return str(sample[a]) + "_" + str(sample[b])
+            return str(sample[id_column_name])
+
+        snips = [
+            Snippet(
+                id=str(get_id(sample, id_column_name)),
+                code=sample[code_column_name],  # type: ignore
+            )
+            for sample in dataset  # type: ignore
+        ]
+
+        start_time = time.time()
+        check_response = await self.check(
+            snips=snips,
+            timeout=timeout,
+            reuse=reuse,
+            batch_size=batch_size,
+            max_workers=max_workers,
+            show_progress=show_progress,
+        )
+        elapsed_time = time.time() - start_time
+
+        check_response.analyze(elapsed_time)
 
     async def close(self) -> None:
         await self.session.aclose()
