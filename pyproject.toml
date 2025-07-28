@@ -32,7 +32,7 @@ Homepage = "https://github.com/project-numina/kimina-lean-server"
 Issues = "https://github.com/project-numina/kimina-lean-server/issues"
 
 [project.optional-dependencies]
-server = [ "fastapi>=0.115.13", "uvicorn>=0.34.3", "prisma>=0.15.0", "psutil>=7.0.0", "google-cloud-logging>=3.12.1", "prisma>=0.15.0", "rich>=14.0.0"]
+server = [ "fastapi>=0.115.13", "uvicorn>=0.34.3", "prisma>=0.15.0", "psutil>=7.0.0", "google-cloud-logging>=3.12.1", "rich>=14.0.0"]
 
 [tool.uv]
 dev-dependencies = [

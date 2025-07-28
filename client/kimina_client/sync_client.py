@@ -159,7 +159,7 @@ class KiminaClient(BaseKimina):
         """
         url = self.build_url("/health")
         resp = self._query(url, method="GET")
-        return resp  # TODO: create status object to cast automaticalllly
+        return resp  # TODO: create status object to cast automatically
 
     def test(self) -> None:
         """
@@ -193,7 +193,6 @@ class KiminaClient(BaseKimina):
         Runs benchmark on Hugging Face dataset.
         Displays results in the console.
         """
-        # TODO: add option for uuid as metadata in the check call + output dir.
         # TODO: add option output dir with file hierarchy based on metadata like uuid in the run_benchmark method
         # TODO: add count heartbeats option
 

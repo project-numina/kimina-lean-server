@@ -84,7 +84,7 @@ def get_messages_for_lines(
         if idx in messages:
             selected_messages.append(
                 messages[idx]
-            )  # todo: check how we ensure there is indeed a message at line idx?
+            )  # TODO: check how we ensure there is indeed a message at line idx?
             if messages[idx]["severity"] == "error":
                 has_error = True
             if "unsolved goals" in messages[idx]["message"]:

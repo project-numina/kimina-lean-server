@@ -21,13 +21,14 @@ This repository contains the source code for:
 
 ## Server
 
-From source (make sure you have [Astral's uv](https://docs.astral.sh/uv/) installed):
+From source with `requirements.txt` (option to use `uv`, see [Contributing](#contributing)):
 ```sh
 cp .env.template .env # Optional
 bash setup.sh # Installs Lean, repl and mathlib4
-uv sync --extra server
-uv run prisma generate
-uv run python -m server
+pip install -r requirements.txt
+pip install .
+prisma generate
+python -m server
 ```
 
 > [!NOTE]
@@ -136,6 +137,11 @@ To release the server:
 - bump the version in `compose-prod.yaml`
 - run the "Deploy to Google Cloud" action on Github
 - run the "Publish to Docker" action on Github (doesn't exist yet)
+
+If you change dependencies (uv.lock), make sure to generate `requirements.txt` again with:
+```sh
+uv export --extra server --no-dev --no-emit-project --no-hashes > requirements.txt
+```
 
 ## License
 

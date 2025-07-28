@@ -124,7 +124,7 @@ async def run_checks(
                     json.dumps(resp.model_dump(exclude_none=True), indent=2),
                 )
                 await manager.release_repl(repl)
-                # todo: Try catch everything DB related
+                # TODO: Try catch everything DB related
                 if db.connected:
                     await prisma.proof.create(
                         data={
