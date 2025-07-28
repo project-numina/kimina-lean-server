@@ -134,7 +134,7 @@ To release the client:
 - run the "Publish to PyPI" action on Github
 
 To release the server:
-- bump the version in `compose-prod.yaml`
+- bump the version in `compose-prod.yaml` and in Dockerfile
 - run the "Deploy to Google Cloud" action on Github
 - run the "Publish to Docker" action on Github (doesn't exist yet)
 
