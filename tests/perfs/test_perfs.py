@@ -10,7 +10,7 @@ import pytest
 from asgi_lifespan import LifespanManager
 from datasets import load_dataset
 from httpx import ASGITransport, AsyncClient
-from kimina import CheckRequest, ReplResponse, Snippet
+from kimina_client import CheckRequest, ReplResponse, Snippet
 from loguru import logger
 
 from server.main import app
@@ -20,7 +20,6 @@ from server.settings import settings
 @pytest.mark.perfs
 @pytest.mark.asyncio  # TODO: Parametrize
 async def test_goedel(perf_rows: int, perf_shuffle: bool) -> None:
-
     ds = load_dataset(
         "Goedel-LM/Lean-workbook-proofs", split="train"
     )  # Goedel is on v4.9.0, some proofs aren't valid in later versions.
@@ -79,16 +78,20 @@ async def test_goedel(perf_rows: int, perf_shuffle: bool) -> None:
                     assert "messages" not in result["response"] or not any(
                         msg["severity"] == "error"
                         for msg in result["response"]["messages"]
-                    ), f"Proof #{idx} contains errors: {pformat(result['response']['messages'])}"
+                    ), (
+                        f"Proof #{idx} contains errors: {pformat(result['response']['messages'])}"
+                    )
                 else:
                     assert "messages" in result["response"]
                     assert any(
                         msg["data"] == "Goals accomplished!"
                         for msg in result["response"]["messages"]
-                    ), f"Proof #{idx} did not accomplish goals: {pformat(result['response']['messages'])}"
+                    ), (
+                        f"Proof #{idx} did not accomplish goals: {pformat(result['response']['messages'])}"
+                    )
     logger.info(
         f"min: {min(times):.2f} s, max: {max(times):.2f} s and mean: {mean(times):.2f} s"
     )
-    assert (
-        mean(times) < 10
-    ), "Mean time for proofs should be less than 10 seconds"  # max repls = 5
+    assert mean(times) < 10, (
+        "Mean time for proofs should be less than 10 seconds"
+    )  # max repls = 5

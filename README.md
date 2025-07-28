@@ -78,15 +78,15 @@ Or use the client below.
 
 ## Client
 
-From [PyPI](https://test.pypi.org/project/kimina/):
+From [PyPI](https://test.pypi.org/project/kimina-client/):
 ```sh
-pip install kimina
+pip install kimina-client
 ```
 
 Example use:
 ```python
-from kimina import Kimina
-client = Kimina() # Defaults to "http://localhost:8000", no API key
+from kimina_client import KiminaClient
+client = KiminaClient() # Defaults to "http://localhost:8000", no API key
 client.check("#check Nat")
 ```
 

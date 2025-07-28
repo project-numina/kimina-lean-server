@@ -5,7 +5,7 @@ import json
 from datetime import datetime
 from time import time
 
-from kimina import ReplResponse, Snippet
+from kimina_client import ReplResponse, Snippet
 from loguru import logger
 
 from .errors import NoAvailableReplError, ReplError

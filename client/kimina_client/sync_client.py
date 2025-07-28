@@ -18,10 +18,10 @@ from .base import BaseKimina
 from .models import CheckRequest, CheckResponse, Infotree, ReplResponse, Snippet
 from .utils import build_log, find_code_column, find_id_column
 
-logger = logging.getLogger("kimina")
+logger = logging.getLogger("kimina-client")
 
 
-class Kimina(BaseKimina):
+class KiminaClient(BaseKimina):
     def __init__(
         self,
         api_url: str | None = None,

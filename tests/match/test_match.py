@@ -4,7 +4,7 @@ import os
 
 import pytest
 from fastapi.testclient import TestClient
-from kimina import VerifyRequestBody
+from kimina_client import VerifyRequestBody
 from starlette import status
 
 INPUT_DIR = os.path.join("tests", "match", "input")
@@ -29,9 +29,9 @@ def assert_eq_mod_time(expected: object, actual: object) -> None:
     expected = prune(expected, {"time", "env", "error"})
     actual = prune(actual, {"time", "env", "error", "diagnostics"})
 
-    assert (
-        expected == actual
-    ), f"Expected {json.dumps(expected, indent=2)}, got {json.dumps(actual, indent=2)}"
+    assert expected == actual, (
+        f"Expected {json.dumps(expected, indent=2)}, got {json.dumps(actual, indent=2)}"
+    )
 
 
 def prune(obj: object, ignore_keys: set[str]) -> object:
@@ -76,8 +76,8 @@ def test_match(root_client: TestClient, input_file: str, expected_file: str) -> 
     assert response.status_code == status.HTTP_200_OK
     response = response.json()
 
-    assert (
-        "error" not in response["results"][0]
-    ), f"Error in response for {input_file}: {response['results'][0]['error']}"
+    assert "error" not in response["results"][0], (
+        f"Error in response for {input_file}: {response['results'][0]['error']}"
+    )
 
     assert_eq_mod_time(expected_response, response)

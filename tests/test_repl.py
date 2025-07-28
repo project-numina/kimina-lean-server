@@ -2,7 +2,7 @@ from typing import AsyncGenerator
 
 import psutil
 import pytest
-from kimina import Snippet
+from kimina_client import Snippet
 
 from server.repl import Repl
 

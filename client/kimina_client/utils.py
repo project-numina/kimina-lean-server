@@ -3,7 +3,7 @@ from difflib import get_close_matches
 
 from colorama import Style
 
-logger = logging.getLogger("kimina")
+logger = logging.getLogger("kimina-client")
 
 
 def find_id_column(columns: list[str]) -> str | tuple[str, str]:

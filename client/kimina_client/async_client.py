@@ -18,7 +18,7 @@ from .models import CheckRequest, CheckResponse, Infotree, ReplResponse, Snippet
 logger = logging.getLogger(__name__)
 
 
-class AsyncKimina(BaseKimina):
+class AsyncKiminaClient(BaseKimina):
     def __init__(
         self,
         api_url: str | None = None,
