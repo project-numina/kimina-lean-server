@@ -7,6 +7,7 @@ from kimina_client import CheckRequest, Infotree, ReplResponse, Snippet
 from kimina_client.models import CheckResponse
 from loguru import logger
 
+from ..auth import require_key
 from ..db import db
 from ..errors import NoAvailableReplError
 from ..manager import Manager
@@ -170,6 +171,7 @@ async def check(
     request: CheckRequest,
     raw_request: Request,
     manager: Manager = Depends(get_manager),
+    _: str = Depends(require_key),
 ) -> CheckResponse:
     task = asyncio.create_task(
         run_checks(
