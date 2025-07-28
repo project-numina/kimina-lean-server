@@ -1,4 +1,3 @@
-import asyncio
 from typing import AsyncGenerator
 
 import psutil
@@ -39,7 +38,7 @@ async def test_create_close_multiple() -> None:
             Snippet(id="test", code="def f := 2"), timeout=10
         )
 
-        assert "error" not in response  # or not response["error"]
+        assert response.error is None
 
         # Close the REPL
         await repl.close()

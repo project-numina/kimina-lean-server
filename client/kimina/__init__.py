@@ -60,7 +60,7 @@ class ColorFormatter(logging.Formatter):
         logging.CRITICAL: Fore.MAGENTA + Style.BRIGHT,
     }
 
-    def format(self, record: Any):
+    def format(self, record: Any) -> str:
         log_color = self.COLORS.get(record.levelno, "")
         message = super().format(record)
         return f"{log_color}{message}{Style.RESET_ALL}"

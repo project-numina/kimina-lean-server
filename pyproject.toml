@@ -62,13 +62,12 @@ markers = [
 [tool.mypy]
 plugins = ['pydantic.mypy']
 strict = true
-files = ["server", "tests"]
-exclude = "^(client|server/server_old|tsts_old/)"
+files = ["client", "server", "tests"]
+exclude = "^(server/server_old|tsts_old/)"
 ignore_missing_imports = true
-allow_untyped_decorators=true
-disable_error_code = [
-    "unused-ignore", 
-]
+allow_untyped_decorators = true
+disable_error_code = ["unused-ignore"]
+
 
 [build-system]
 requires = ["hatchling"]

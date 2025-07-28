@@ -48,7 +48,7 @@ async def run_checks(
                 prep = await manager.prep(repl, snippet.id, timeout, debug)
                 if prep and prep.error:
                     return prep
-            except TimeoutError as e:
+            except TimeoutError:
                 error = f"Lean REPL header command timed out in {timeout} seconds"
                 uuid_hex = repl.uuid.hex
                 await manager.destroy_repl(repl)
@@ -81,7 +81,7 @@ async def run_checks(
                 resp = await repl.send_timeout(
                     Snippet(id=snippet.id, code=body), timeout, infotree=infotree
                 )
-            except TimeoutError as e:
+            except TimeoutError:
                 error = f"Lean REPL command timed out in {timeout} seconds"
                 uuid_hex = repl.uuid.hex
                 await manager.destroy_repl(repl)

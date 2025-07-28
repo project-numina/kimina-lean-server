@@ -1,9 +1,7 @@
 import re
 import statistics
-
-# import pandas
 from dataclasses import dataclass
-from typing import TypedDict
+from typing import Any, TypedDict
 
 from .models import (
     BackwardResponse,
@@ -59,9 +57,9 @@ def parse_error_message(message: str) -> list[FinalMessage]:
 def parse_lean_response(response: CommandResponse | Error) -> dict[int, FinalMessage]:
     messages: list[FinalMessage] = []
     if "messages" in response:
-        messages = parse_messages(response.get("messages", []) or [])
+        messages = parse_messages(response.get("messages", []) or [])  # type: ignore
     elif "message" in response:
-        messages = parse_error_message(response.get("message", ""))
+        messages = parse_error_message(response.get("message", ""))  # type: ignore
 
     # TODO: @marco is it ok to filter out unsolved goals?
     # messages = list(filter(lambda x: "unsolved goals" not in x["message"], messages))
@@ -122,10 +120,10 @@ def has_error_response(
     has_error = False
     error_data_values = []
     sorry_data_values = []
-    if "messages" in feedback:
+    if "messages" in feedback:  # type: ignore
         error_data_values = [
             message["data"]
-            for message in feedback.get("messages", [])
+            for message in feedback.get("messages", [])  # type: ignore
             if message.get("severity") == "error"
         ]
         has_error = bool(error_data_values)
@@ -133,7 +131,7 @@ def has_error_response(
         if not accept_sorry:
             warning_data_values = [
                 message["data"]
-                for message in feedback.get("messages", [])
+                for message in feedback.get("messages", [])  # type: ignore
                 if message.get("severity") == "warning"
             ]
             sorry_data_values = [
@@ -144,7 +142,7 @@ def has_error_response(
             has_error = has_error or bool(sorry_data_values)
 
     if return_error_messages:
-        return has_error, error_data_values + sorry_data_values
+        return has_error, error_data_values + sorry_data_values  # type: ignore
     else:
         return has_error
 
@@ -156,6 +154,7 @@ class ParsedClientResponse(TypedDict):
     time: float | None
 
 
+# TODO: Remove all this code
 def parse_client_response(response: BackwardResponse) -> ParsedClientResponse:
     """
     Parses the response from the Lean4Client.
@@ -174,16 +173,16 @@ def parse_client_response(response: BackwardResponse) -> ParsedClientResponse:
                 this is used for statement verification.
     """
     error_message = response.get("error", None)
-    json_response = response.get(
+    json_response: Any = response.get(
         "response", {}
     )  # time used to be included in the lean response :/
 
-    error = bool(error_message) or has_error_response(json_response)
+    error = bool(error_message) or has_error_response(json_response)  # type: ignore
     is_valid_no_sorry = (not bool(error_message)) and (
-        not has_error_response(json_response, accept_sorry=False)
+        not has_error_response(json_response, accept_sorry=False)  # type: ignore
     )
     is_valid_with_sorry = (not bool(error_message)) and (
-        not has_error_response(json_response, accept_sorry=True)
+        not has_error_response(json_response, accept_sorry=True)  # type: ignore
     )
 
     return ParsedClientResponse(
@@ -218,7 +217,7 @@ def analyze_sample(lean_feedback: BackwardResponse) -> SampleAnalysis:
 
 
 # Move to benchmark maybe
-def analyze(results: list[BackwardResponse]):
+def analyze(results: list[BackwardResponse]) -> None:
     analyses = [analyze_sample(sample_result) for sample_result in results]
     total = len(analyses)
 

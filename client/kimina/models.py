@@ -1,21 +1,21 @@
 import json
 import logging
+import shutil
 import textwrap
 from enum import Enum
 from itertools import chain
-from typing import Any, Literal, NotRequired, Type, TypedDict
+from textwrap import wrap
+from typing import Any, Literal, NotRequired, Type, TypedDict, TypeVar
 from uuid import uuid4
 
 import pygments
 from colorama import Fore
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 from pygments.formatters import Terminal256Formatter
-from pygments.lexers import JsonLexer
+from pygments.lexers import JsonLexer  # type: ignore
 from tabulate import tabulate  # type: ignore
 
 logger = logging.getLogger("kimina")
-
-from enum import Enum
 
 
 class SnippetStatus(str, Enum):
@@ -199,8 +199,6 @@ class ExtendedCommandResponse(CommandResponse):
 #     return ExtendedError(**error, time=time)
 
 
-from typing import TypeVar
-
 T = TypeVar("T", bound="ReplRequest")
 U = TypeVar("U", bound="ReplResponse")
 TS = TypeVar("TS", bound="CheckRequest")
@@ -254,7 +252,9 @@ class ReplResponse(BaseModel):
         json_str = json.dumps(data, indent=2)
 
         colored: str = pygments.highlight(  # type: ignore
-            json_str, JsonLexer(), Terminal256Formatter(style="monokai", full=False)  # type: ignore
+            json_str,
+            JsonLexer(),  # type: ignore
+            Terminal256Formatter(style="monokai", full=False),  # type: ignore
         ).rstrip()  # type: ignore
         indented = textwrap.indent(colored, 2 * " ")  # type: ignore
         return f"{self.__class__.__name__}(\n{indented}\n)"
@@ -302,7 +302,7 @@ class CheckRequest(BaseRequest):
     )
 
     @model_validator(mode="after")
-    def check_snippets(self):
+    def check_snippets(self) -> "CheckRequest":
         if not self.snippets:
             raise ValueError("`snippets` must be non empty")
 
@@ -329,11 +329,11 @@ class CheckRequest(BaseRequest):
     )
 
 
-def add_color(text: str, color: str):
-    return color + text + Fore.RESET
+def add_color(text: str, color: str) -> str:
+    return str(color + text + Fore.RESET)
 
 
-def add_percent(count: int, total: int):
+def add_percent(count: int, total: int) -> str:
     if count == 0:
         return f"{count}"
     pct = 100 * (count / total)
@@ -401,10 +401,6 @@ def print_summary(
         "\n"
         + tabulate(table, headers=headers, tablefmt="fancy_grid", stralign="center")  # type: ignore
     )
-
-
-import shutil
-from textwrap import wrap
 
 
 def log_table_multiline(table_str: str) -> None:
@@ -483,7 +479,7 @@ def extend(
     if response is None:
         return None
     elif "message" in response:
-        return ExtendedError(**response, time=time)
+        return ExtendedError(**response, time=time)  # type: ignore
     else:
         return ExtendedCommandResponse(**response, time=time)
 

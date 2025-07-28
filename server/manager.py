@@ -23,7 +23,6 @@ class Manager:
         max_repl_mem: int = settings.max_repl_mem,
         init_repls: dict[str, int] = settings.init_repls,
     ) -> None:
-
         self.max_repls = max_repls
         self.max_repl_uses = max_repl_uses
         self.max_repl_mem = max_repl_mem
@@ -88,7 +87,7 @@ class Manager:
                             self._busy.add(repl)
 
                             logger.info(
-                                f"\\[{repl.uuid.hex[:8]}] Reusing ({"started" if repl.is_running else "non-started"}) REPL for {snippet_id}"
+                                f"\\[{repl.uuid.hex[:8]}] Reusing ({'started' if repl.is_running else 'non-started'}) REPL for {snippet_id}"
                             )
                             return repl
                 total = len(self._free) + len(self._busy)

@@ -83,8 +83,10 @@ def pytest_assertrepr_compare(
     op: Literal["=="], left: Any, right: Any
 ) -> list[str] | None:
     if op == "==" and isinstance(left, dict) and isinstance(right, dict):
-        l = json.dumps(left, indent=2, sort_keys=True).splitlines(keepends=True)
-        r = json.dumps(right, indent=2, sort_keys=True).splitlines(keepends=True)
-        diff = difflib.unified_diff(l, r, fromfile="actual", tofile="expected")
+        left_dump = json.dumps(left, indent=2, sort_keys=True).splitlines(keepends=True)
+        r_dump = json.dumps(right, indent=2, sort_keys=True).splitlines(keepends=True)
+        diff = difflib.unified_diff(
+            left_dump, r_dump, fromfile="actual", tofile="expected"
+        )
         return [""] + list(diff)
     return None

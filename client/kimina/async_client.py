@@ -112,7 +112,7 @@ class AsyncKimina(BaseKimina):
             wait=wait_exponential(multiplier=1, min=1, max=10),
             before_sleep=before_sleep_log(logger, logging.ERROR),
         )
-        async def run_method():
+        async def run_method() -> Any:
             try:
                 if method.upper() == "POST":
                     response = await self.session.post(url, json=payload)
@@ -136,11 +136,11 @@ class AsyncKimina(BaseKimina):
         except RetryError:
             raise RuntimeError(f"Request failed after {self.n_retries} retries")
 
-    async def health(self) -> None:
+    async def health(self) -> Any:
         url = self.build_url("/health")
         return await self._query(url, method="GET")
 
-    async def test(self):
+    async def test(self) -> None:
         logger.info("Testing with `#check Nat`...")
         response = (
             (await self.check("#check Nat", show_progress=False)).results[0].response
@@ -156,5 +156,5 @@ class AsyncKimina(BaseKimina):
         ]
         logger.info("Test passed!")
 
-    async def close(self):
+    async def close(self) -> None:
         await self.session.aclose()
