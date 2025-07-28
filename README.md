@@ -21,10 +21,12 @@ This repository contains the source code for:
 
 ## Server
 
-From source (make sure you have Astral's uv installed):
+From source (make sure you have [Astral's uv](https://docs.astral.sh/uv/) installed):
 ```sh
 cp .env.template .env # Optional
-bash setup.sh
+bash setup.sh # Installs Lean, repl and mathlib4
+uv sync --extra server
+uv run prisma generate
 uv run python -m server
 ```
 
