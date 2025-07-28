@@ -10,6 +10,7 @@ repos:
     rev: v0.12.5
     hooks:
       - id: ruff
+        stages: [pre-commit]
         args: [--fix]
   - repo: https://github.com/compilerla/conventional-pre-commit
     rev: v4.2.0
