@@ -118,7 +118,7 @@ Install [Lean 4](https://github.com/leanprover/lean4) and build the [repl](https
 bash setup.sh
 ```
 
-Run tests with:
+Run tests with (reads your `LEAN_SERVER_API_KEY` so make sure that line is commented):
 ```sh
 pytest
 
