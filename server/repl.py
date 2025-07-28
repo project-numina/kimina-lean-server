@@ -270,6 +270,7 @@ class Repl:
 
         if self.use_count != 0 and not is_header:  # remove is_header
             input["env"] = 0
+            input["gc"] = True
 
         if infotree:
             input["infotree"] = infotree
