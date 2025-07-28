@@ -15,7 +15,7 @@ class TestLeanServer:
         self.headers = {
             "Content-Type": "application/json",
             "Accept": "application/json",
-            "Authorization": f"Bearer {self.api_key}",
+            "X-Auth-Token": f"Bearer {self.api_key}",
         }
         self.timeout = 60
 
@@ -180,16 +180,16 @@ class TestLeanServer:
             time.sleep(0.1)
 
         # Verify the process has terminated
-        assert (
-            repl.process.poll() is not None
-        ), "Process did not terminate within timeout"
+        assert repl.process.poll() is not None, (
+            "Process did not terminate within timeout"
+        )
 
         # Verify that child processes have also terminated
         time.sleep(0.5)  # Give child processes time to terminate
         for child_pid in child_pids:
-            assert not psutil.pid_exists(
-                child_pid
-            ), f"Child process {child_pid} is still running"
+            assert not psutil.pid_exists(child_pid), (
+                f"Child process {child_pid} is still running"
+            )
 
         # Verify we can create a new REPL after closing the old one
         new_repl = LeanREPL()
@@ -215,6 +215,6 @@ class TestLeanServer:
         repl.close()
 
         # Verify the process has terminated
-        assert (
-            repl.process.poll() is not None
-        ), "Process did not terminate after close()"
+        assert repl.process.poll() is not None, (
+            "Process did not terminate after close()"
+        )

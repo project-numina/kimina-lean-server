@@ -27,7 +27,7 @@ class BaseKimina:
         self.api_key = api_key
         self.headers = headers or {}
         if self.api_key:
-            self.headers.setdefault("Authorization", f"Bearer {self.api_key}")
+            self.headers.setdefault("X-Auth-Token", f"Bearer {self.api_key}")
         self.http_timeout = http_timeout
         self.n_retries = n_retries
 

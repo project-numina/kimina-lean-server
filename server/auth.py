@@ -3,7 +3,7 @@ from fastapi.security.api_key import APIKeyHeader
 
 from .settings import settings
 
-api_key_header = APIKeyHeader(name="Authorization", auto_error=False)
+api_key_header = APIKeyHeader(name="X-Auth-Token", auto_error=False)
 
 # TODO: Implement key in db once ready
 # async def seed_key():
