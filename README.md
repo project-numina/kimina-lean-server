@@ -1,7 +1,12 @@
-# Kimina Lean Server
+<h1 align="center">Kimina Lean Server</h1>
 
 <p align="center">
-    <a href="https://projectnumina.ai/"><img alt="Project Numina" src="images/logo_projectNumina_light.png" style="height:20px; width:auto; vertical-align:middle;"></a>
+<b>Check Lean 4 code at scale ⚡️</b>
+
+</p>
+
+<p align="center">
+    <a href="https://projectnumina.ai/"><img alt="Project Numina" src="images/logo_projectNumina_light.png" style="height:20px; width:auto; vertical-align:middle; border-radius:4px;"></a>
     <a href="https://pypi.org/project/kimina-client" rel="nofollow"><img alt="PyPI version" src="https://img.shields.io/pypi/v/kimina.svg" style="max-width:100%;"></a>
     <a href="https://github.com/project-numina/kimina-lean-server/actions/workflows/ci.yaml" rel="nofollow"><img alt="CI" src="https://github.com/project-numina/kimina-lean-server/actions/workflows/ci.yaml/badge.svg" style="max-width:100%;"></a>
 </p>
@@ -9,9 +14,9 @@
 This project serves the [Lean REPL](https://github.com/leanprover-community/repl) using FastAPI. 
 It supports parallelization to check Lean 4 proofs at scale. 
 
-[Technical Report](./Technical_Report.pdf)
-
 A Python SDK simplifies interaction with the server's API.
+
+Read the [Technical Report](./Technical_Report.pdf) for more details.
 
 ## Table of Contents
 
@@ -152,21 +157,11 @@ Alternatively, you can use the asynchronous client `AsyncKiminaClient` which use
 
 ### Benchmark reports
 
-![Benchmark Results](images/benchmark_results.png)
+Without REPL reuse:
+![Benchmark Results without REPL reuse](images/benchmark_results_reuse_false.png)
 
-With cache:
-╒══════╤════════════╤════════════╤═════════════════╤══════════════╤══════════════╤════════════════╤══════════════════╤════════════════╤═══════════╕
-│    # │  Valid ✅  │   Sorry ⚠️ │  Lean Error ❌  │  Timeout ⏰  │   REPL Error │   Server Error │  Total CPU Time  │  Avg CPU Time  │  Elapsed  │
-╞══════╪════════════╪════════════╪═════════════════╪══════════════╪══════════════╪════════════════╪══════════════════╪════════════════╪═══════════╡
-│ 1000 │ 979 (97 %) │          0 │    4 (0.4 %)    │  17 (1.7 %)  │            0 │              0 │    3282.29 s     │ 3.34 s/snippet │ 583.96 s  │
-╘══════╧════════════╧════════════╧═════════════════╧══════════════╧══════════════╧════════════════╧══════════════════╧════════════════╧═══════════╛
-
-Without cache:
-╒══════╤════════════╤════════════╤═════════════════╤══════════════╤══════════════╤════════════════╤══════════════════╤════════════════╤═══════════╕
-│    # │  Valid ✅  │   Sorry ⚠️ │  Lean Error ❌  │  Timeout ⏰  │   REPL Error │   Server Error │  Total CPU Time  │  Avg CPU Time  │  Elapsed  │
-╞══════╪════════════╪════════════╪═════════════════╪══════════════╪══════════════╪════════════════╪══════════════════╪════════════════╪═══════════╡
-│ 1000 │ 976 (97 %) │          0 │    4 (0.4 %)    │   20 (2 %)   │            0 │              0 │    3568.86 s     │ 3.64 s/snippet │ 1051.89 s │
-╘══════╧════════════╧════════════╧═════════════════╧══════════════╧══════════════╧════════════════╧══════════════════╧════════════════╧═══════════╛
+With REPL reuse:
+![Benchmark Results with REPL reuse](images/benchmark_results_reuse_true.png)
 
 **Note**:
 
