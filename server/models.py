@@ -32,3 +32,17 @@ class Proof(BaseModel):
     time: float = 0.0
     error: str | None = None
     repl_uuid: UUID
+
+
+class ApiKey(BaseModel):
+    id: UUID
+    created_at: datetime
+    key: str
+    user_id: UUID
+
+
+class User(BaseModel):
+    id: UUID
+    created_at: datetime
+    email: str
+    apikeys: list[ApiKey] | None = None
