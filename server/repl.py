@@ -357,3 +357,11 @@ class Repl:
                     where={"uuid": str(self.uuid)},
                     data={"status": ReplStatus.STOPPED},  # type: ignore
                 )
+
+
+async def close_verbose(repl: Repl) -> None:
+    uuid = repl.uuid
+    logger.info(f"Closing REPL {uuid.hex[:8]}")
+    await repl.close()
+    del repl
+    logger.info(f"Closed REPL {uuid.hex[:8]}")

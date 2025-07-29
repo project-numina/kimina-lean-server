@@ -2,6 +2,7 @@ import asyncio
 from uuid import uuid4
 
 import pytest
+from _pytest.monkeypatch import MonkeyPatch
 from fastapi.testclient import TestClient
 from kimina_client import (
     CheckRequest,
@@ -15,6 +16,7 @@ from kimina_client import (
 from loguru import logger
 from starlette import status
 
+from server.repl import Repl
 from server.settings import settings
 
 from .utils import assert_json_equal
@@ -525,3 +527,41 @@ async def test_infotree(client: TestClient) -> None:
 
     assert resp.status_code == status.HTTP_200_OK
     assert_json_equal(resp.json(), expected, ignore_keys=["time", "env"])
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "client",
+    [
+        {"max_repls": 1, "max_repl_uses": 10, "init_repls": {}, "database_url": None},
+    ],
+    indirect=True,
+)
+async def test_repl_close_hangs(monkeypatch: MonkeyPatch, client: TestClient) -> None:
+    async def hanging_close(self: Repl) -> None:
+        await asyncio.Event().wait()  # Wait forever
+
+    monkeypatch.setattr(Repl, "close", hanging_close)
+
+    # Important to specify 2 different import headers so that
+    # there get_repl() goes through a REPL close.
+    # (Don't put two imports that start with Mathlib, that's a special case,
+    # where all Mathlib imports are grouped into one "import Mathlib").
+    payload = CheckRequest(
+        snippets=[
+            Snippet(id="1", code="import Std.Data.HashMap\n#check Nat"),
+            Snippet(id="2", code="import Lean.Elab.Exception\n#check 0"),
+        ],
+        debug=True,
+    ).model_dump()
+
+    try:
+        resp = client.post("check", json=payload)
+    except Exception as e:
+        logger.info(f"Error during request: {e}")
+        raise
+
+    # If we reach here without infinitely hanging, that's a success: means no race condition in manager.
+    results = resp.json()["results"]
+    repl_uuids = set(result["diagnostics"]["repl_uuid"] for result in results)
+    assert len(repl_uuids) == 2, "Expected two different REPLs to be used"

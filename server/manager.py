@@ -9,7 +9,7 @@ from kimina_client import ReplResponse, Snippet
 from loguru import logger
 
 from .errors import NoAvailableReplError, ReplError
-from .repl import Repl
+from .repl import Repl, close_verbose
 from .settings import settings
 from .utils import is_blank
 
@@ -73,8 +73,9 @@ class Manager:
         Immediately raises an Exception if not possible.
         """
         deadline = time() + timeout
-        async with self._cond:
-            while True:
+        repl_to_destroy: Repl | None = None
+        while True:
+            async with self._cond:
                 logger.info(
                     f"# Free = {len(self._free)} | # Busy = {len(self._busy)} | # Max = {self.max_repls}"
                 )
@@ -92,19 +93,15 @@ class Manager:
                             return repl
                 total = len(self._free) + len(self._busy)
                 if total < self.max_repls:
-                    return await self.start_new(header)
+                    break
 
                 if self._free:
                     oldest = min(
                         self._free, key=lambda r: r.last_check_at
                     )  # Use the one that's been around the longest
                     self._free.remove(oldest)
-                    uuid = oldest.uuid
-                    logger.info(f"Destroying REPL {uuid.hex[:8]}")
-                    await oldest.close()
-                    del oldest
-                    logger.info(f"Destroyed REPL {uuid.hex[:8]}")
-                    return await self.start_new(header)
+                    repl_to_destroy = oldest
+                    break
 
                 remaining = deadline - time()
                 if remaining <= 0:
@@ -121,16 +118,17 @@ class Manager:
                         f"Timed out after {timeout}s while waiting for a REPL"
                     ) from None
 
+        if repl_to_destroy is not None:
+            asyncio.create_task(close_verbose(repl_to_destroy))
+
+        return await self.start_new(header)
+
     async def destroy_repl(self, repl: Repl) -> None:
         async with self._cond:
-            uuid = repl.uuid
             self._busy.discard(repl)
             if repl in self._free:
                 self._free.remove(repl)
-            logger.info(f"Destroying REPL {uuid.hex[:8]}")
-            await repl.close()
-            del repl
-            logger.info(f"Destroyed REPL {uuid.hex[:8]}")
+            asyncio.create_task(close_verbose(repl))
             self._cond.notify(1)
 
     async def release_repl(self, repl: Repl) -> None:
@@ -146,10 +144,8 @@ class Manager:
                 logger.info(f"REPL {uuid.hex[:8]} is exhausted, closing it")
                 self._busy.discard(repl)
 
-                await repl.close()
+                asyncio.create_task(close_verbose(repl))
                 self._cond.notify(1)
-                del repl
-                logger.info(f"Deleted REPL {uuid.hex[:8]}")
                 return
             self._busy.remove(repl)
             self._free.append(repl)
@@ -168,13 +164,11 @@ class Manager:
         async with self._cond:
             logger.info("Cleaning up REPL manager...")
             for repl in self._free:
-                await repl.close()
-                del repl
+                asyncio.create_task(close_verbose(repl))
             self._free.clear()
 
             for repl in self._busy:
-                await repl.close()
-                del repl
+                asyncio.create_task(close_verbose(repl))
             self._busy.clear()
 
             logger.info("REPL manager cleaned up!")
