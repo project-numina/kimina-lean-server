@@ -316,7 +316,6 @@ async def test_exhausted_with_batch(client: TestClient) -> None:
         resp = client.post("check", json=payload)
     except Exception as e:
         logger.info(f"Error during request: {e}")
-        logger.info(resp.status_code)
         raise
 
     results = resp.json()["results"]
