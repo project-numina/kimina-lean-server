@@ -4,7 +4,6 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from typing import Any
 
 import httpx
-from datasets import load_dataset, load_dataset_builder  # type: ignore
 from tenacity import (
     RetryError,
     before_sleep_log,
@@ -133,7 +132,8 @@ class KiminaClient(BaseKimina):
         def run_method() -> Any:
             try:
                 with httpx.Client(
-                    headers=self.headers, timeout=self.http_timeout
+                    headers=self.headers,
+                    timeout=httpx.Timeout(self.http_timeout, read=self.http_timeout),
                 ) as client:
                     if method.upper() == "POST":
                         response = client.post(url, json=payload)
@@ -209,6 +209,14 @@ class KiminaClient(BaseKimina):
             batch_size = 8
 
         logger.info(build_log(dataset_name, n, batch_size))
+
+        try:
+            from datasets import load_dataset, load_dataset_builder  # type: ignore
+        except Exception as e:
+            raise ImportError(
+                "The 'datasets' library is required for run_benchmark.\n"
+                "Install it with 'pip install datasets'."
+            ) from e
 
         builder = load_dataset_builder(dataset_name)
         if not builder.info.features:
