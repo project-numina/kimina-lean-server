@@ -1,7 +1,7 @@
 # Kimina Lean Server
 
 <p align="center">
-    <a href="https://projectnumina.ai/"><img alt="Project Numina" src="https://projectnumina.ai/Assets/logo_projectNumina.svg" style="height:20px; width:auto; vertical-align:middle;"></a>
+    <a href="https://projectnumina.ai/"><img alt="Project Numina" src="images/logo_projectNumina_light.png" style="height:20px; width:auto; vertical-align:middle;"></a>
     <a href="https://pypi.org/project/kimina-client" rel="nofollow"><img alt="PyPI version" src="https://img.shields.io/pypi/v/kimina.svg" style="max-width:100%;"></a>
     <a href="https://github.com/project-numina/kimina-lean-server/actions/workflows/ci.yaml" rel="nofollow"><img alt="CI" src="https://github.com/project-numina/kimina-lean-server/actions/workflows/ci.yaml/badge.svg" style="max-width:100%;"></a>
 </p>
