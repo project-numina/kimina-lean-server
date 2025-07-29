@@ -15,7 +15,7 @@ class TestLeanServer:
         self.headers = {
             "Content-Type": "application/json",
             "Accept": "application/json",
-            "X-Auth-Token": f"Bearer {self.api_key}",
+            "Authorization": f"Bearer {self.api_key}",
         }
         self.timeout = 60
 

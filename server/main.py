@@ -76,8 +76,8 @@ def create_app(settings: Settings) -> FastAPI:
 
     app = FastAPI(
         lifespan=lifespan,
-        title="Lean 4 Proof-Check API",
-        description="Submit Lean 4 snippets to be checked/validated via REPL",
+        title="Kimina Lean Server API",
+        description="Check Lean 4 snippets at scale via REPL",
         version=__version__,
         openapi_url="/api/openapi.json",
         docs_url="/docs",

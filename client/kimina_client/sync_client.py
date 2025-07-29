@@ -60,7 +60,6 @@ class KiminaClient(BaseKimina):
         ]
         results: list[CheckResponse] = []
         with ThreadPoolExecutor(max_workers=max_workers) as executor:
-            # TODO: not thread-safe because reusing the same httpx.Client..., create a new one for each call to api_check
             futures = {
                 executor.submit(
                     self.api_check, batch, timeout, debug, reuse, infotree, True
