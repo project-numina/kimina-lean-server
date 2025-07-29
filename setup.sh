@@ -1,20 +1,21 @@
 #!/usr/bin/env bash
 set -euxo pipefail
 
-# Allow passing LEAN_VERSION via env (ARG → ENV in Dockerfile)
-LEAN_VERSION="${LEAN_VERSION:-v4.15.0}"
-REPL_BRANCH="${REPL_BRANCH:-$LEAN_VERSION}"
-MATHLIB_BRANCH="${MATHLIB_BRANCH:-$LEAN_VERSION}"
+LEAN_SERVER_LEAN_VERSION="${LEAN_SERVER_LEAN_VERSION:-v4.15.0}"
+REPL_REPO_URL="${REPL_REPO_URL:-https://github.com/leanprover-community/repl.git}"
+REPL_BRANCH="${REPL_BRANCH:-$LEAN_SERVER_LEAN_VERSION}"
+MATHLIB_REPO_URL="${MATHLIB_REPO_URL:-https://github.com/leanprover-community/mathlib4.git}"
+MATHLIB_BRANCH="${MATHLIB_BRANCH:-$LEAN_SERVER_LEAN_VERSION}"
 
 command -v curl >/dev/null 2>&1 || { echo >&2 "curl is required"; exit 1; }
 command -v git  >/dev/null 2>&1 || { echo >&2 "git is required";  exit 1; }
 
 echo "Installing Elan"
 curl https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -sSf \
-  | sh -s -- --default-toolchain "${LEAN_VERSION}" -y
+  | sh -s -- --default-toolchain "${LEAN_SERVER_LEAN_VERSION}" -y
 source "$HOME/.elan/env"
 
-echo "Installing Lean ${LEAN_VERSION}"
+echo "Installing Lean ${LEAN_SERVER_LEAN_VERSION}"
 lean --version
 
 install_repo() {
@@ -36,5 +37,5 @@ install_repo() {
   popd
 }
 
-install_repo repl https://github.com/leanprover-community/repl.git "$REPL_BRANCH" false
-install_repo mathlib4 https://github.com/leanprover-community/mathlib4.git "$MATHLIB_BRANCH" true
+install_repo repl "$REPL_REPO_URL" "$REPL_BRANCH" false
+install_repo mathlib4 "$MATHLIB_REPO_URL" "$MATHLIB_BRANCH" true

@@ -28,7 +28,7 @@ from .utils import assert_json_equal
     ],
     indirect=True,
 )
-async def test_repl_check_nat(client: TestClient) -> None:
+async def test_check_nat(client: TestClient) -> None:
     uuid = str(uuid4())
     payload = CheckRequest(
         snippets=[Snippet(id=uuid, code="#check Nat")],
@@ -239,7 +239,7 @@ async def test_timeout(client: TestClient) -> None:
     ],
     indirect=True,  # To parametrize fixture
 )
-async def test_repl_exhausted(client: TestClient) -> None:
+async def test_exhausted(client: TestClient) -> None:
     payload = CheckRequest(
         snippets=[Snippet(id="1", code="#check Nat")], debug=True
     ).model_dump()

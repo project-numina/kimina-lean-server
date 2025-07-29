@@ -1,6 +1,4 @@
-from fastapi import APIRouter, Depends
-
-from ..auth import require_key
+from fastapi import APIRouter
 
 router = APIRouter()
 
@@ -11,5 +9,5 @@ router = APIRouter()
 @router.get("/health")
 @router.get("/health/", include_in_schema=False)
 @router.get("/", include_in_schema=False)
-async def get_health(_: str = Depends(require_key)) -> dict[str, str]:
+async def get_health() -> dict[str, str]:
     return {"status": "ok"}

@@ -37,7 +37,6 @@ class KiminaClient(BaseKimina):
             http_timeout=http_timeout,
             n_retries=n_retries,
         )
-        self.session = httpx.Client(headers=self.headers, timeout=self.http_timeout)
 
     def check(
         self,
@@ -122,6 +121,8 @@ class KiminaClient(BaseKimina):
     ) -> Any:
         """
         Sends a `method` request to `url` with `payload` as body/params.
+        A new `httpx.Client` is created for each request for thread-safety.
+        Use AsyncClient for more efficient concurrent requests (TCP connection reuse/pooling).
         """
 
         @retry(
@@ -131,13 +132,16 @@ class KiminaClient(BaseKimina):
         )
         def run_method() -> Any:
             try:
-                if method.upper() == "POST":
-                    response = self.session.post(url, json=payload)
-                elif method.upper() == "GET":
-                    response = self.session.get(url, params=payload)
-                else:
-                    raise ValueError(f"Unsupported method: {method}")
-                response.raise_for_status()  # Ensure 2xx, otherwise retry
+                with httpx.Client(
+                    headers=self.headers, timeout=self.http_timeout
+                ) as client:
+                    if method.upper() == "POST":
+                        response = client.post(url, json=payload)
+                    elif method.upper() == "GET":
+                        response = client.get(url, params=payload)
+                    else:
+                        raise ValueError(f"Unsupported method: {method}")
+                    response.raise_for_status()  # Ensure 2xx, otherwise retry
             except httpx.HTTPError as e:
                 logger.error(f"Error posting to {url}: {e}")
                 raise e
@@ -253,6 +257,3 @@ class KiminaClient(BaseKimina):
         elapsed_time = time.time() - start_time
 
         check_response.analyze(elapsed_time)
-
-    def close(self) -> None:
-        self.session.close()

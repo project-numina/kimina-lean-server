@@ -88,6 +88,7 @@ class Command(TypedDict):
     cmd: str
     env: NotRequired[int | None]
     infotree: NotRequired[Infotree]
+    gc: NotRequired[bool]
 
 
 class Pos(TypedDict):
@@ -264,7 +265,7 @@ class ReplResponse(BaseModel):
     def require_error_or_response(
         cls: Type[U], values: dict[str, Any]
     ) -> dict[str, Any]:
-        if not (values.get("error") or values.get("response")):
+        if not values.get("error") and (values.get("response") is None):
             raise ValueError("Either `error` or `response` must be set")
         if values.get("error") is not None and values.get("response") is not None:
             raise ValueError("Only one of `error` or `response` can be set")

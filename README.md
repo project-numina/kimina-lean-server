@@ -1,11 +1,22 @@
-# Kimina Lean Server
+<h1 align="center">Kimina Lean Server</h1>
+
+<p align="center">
+<b>Check Lean 4 code at scale ⚡️</b>
+
+</p>
+
+<p align="center">
+    <a href="https://projectnumina.ai/"><img alt="Project Numina" src="images/logo_projectNumina_light.png" style="height:20px; width:auto; vertical-align:middle; border-radius:4px;"></a>
+    <a href="https://pypi.org/project/kimina-client" rel="nofollow"><img alt="PyPI version" src="https://img.shields.io/pypi/v/kimina.svg" style="max-width:100%;"></a>
+    <a href="https://github.com/project-numina/kimina-lean-server/actions/workflows/ci.yaml" rel="nofollow"><img alt="CI" src="https://github.com/project-numina/kimina-lean-server/actions/workflows/ci.yaml/badge.svg" style="max-width:100%;"></a>
+</p>
 
 This project serves the [Lean REPL](https://github.com/leanprover-community/repl) using FastAPI. 
-It supports parallelization to check Lean 4 proofs at scale.
-
-[Technical Report](./Technical_Report.pdf)
+It supports parallelization to check Lean 4 proofs at scale. 
 
 A Python SDK simplifies interaction with the server's API.
+
+Read the [Technical Report](./Technical_Report.pdf) for more details.
 
 ## Table of Contents
 
@@ -16,8 +27,8 @@ A Python SDK simplifies interaction with the server's API.
 - [Citation](#citation)
 
 This repository contains the source code for:
-- the Kimina Lean server
-- a Python client to interact with it
+- the Kimina server
+- the Kimina client to interact with it
 
 ## Server
 
@@ -93,9 +104,84 @@ client.check("#check Nat")
 
 Or from source with `pip install -e .`
 
+## ⚙️ Environment Variables
+
+| Variable                              | Default       | Description                                            |
+| ------------------------------------- | ------------- | ------------------------------------------------------ |
+| `LEAN_SERVER_HOST`                    | `0.0.0.0`     | Host address to bind the server                        |
+| `LEAN_SERVER_PORT`                    | `8000`        | Port number for the server                             |
+| `LEAN_SERVER_LOG_LEVEL`               | `INFO`        | Logging level (`DEBUG`, `INFO`, `ERROR`, etc.)         |
+| `LEAN_SERVER_ENVIRONMENT`             | `dev`         | Environment `dev` or `prod`                            |
+| `LEAN_SERVER_LEAN_VERSION`            | `v4.15.0`     | Lean version                                           |
+| `LEAN_SERVER_MAX_REPLS`               | CPU count - 1 | Maximum number of REPLs                                |
+| `LEAN_SERVER_MAX_REPL_USES`           | `-1`          | Maximum number of uses per REPL (-1 is no limit)       |
+| `LEAN_SERVER_MAX_REPL_MEM`            | `8G`          | Maximum memory limit for each REPL (Linux-only)        |
+| `LEAN_SERVER_MAX_WAIT`                | `60`          | Maximum wait time to wait for a REPL (in seconds)      |
+| `LEAN_SERVER_INIT_REPLS`              | `{}`          | Map of header to REPL count to initialize with         |
+| `LEAN_SERVER_API_KEY`                 | `None`        | Optional API key for authentication                    |
+| `LEAN_SERVER_REPL_PATH`               | `repl/.lake/build/bin/repl` | Path to REPL directory, relative to workspace    |
+| `LEAN_SERVER_PROJECT_DIR`             | `mathlib4`    | Path to Lean 4 project directory, relative to workspace        |
+| `LEAN_SERVER_DATABASE_URL`            |               | URL for the database (if using one)                   |
+
+`LEAN_SERVER_MAX_REPL_MEM` can help avoid certain OOM issues (see Issue #25)
+The server also runs all commands with `"gc": true` to automatically discard environments which helps limit memory usage.
+
+
+
+## 🚀 Performance Benchmarks
+
+You can run benchmarks with the Kimina client on any HuggingFace dataset: the benchmark run expects `id` and `code` columns in
+the dataset, but you can select your own column names.
+
+Example with [Goedel-LM/Lean-workbook-proofs](https://huggingface.co/datasets/Goedel-LM/Lean-workbook-proofs):
+```python
+from kimina_client import KiminaClient
+
+client = KiminaClient()
+client.run_benchmark(dataset_name="Goedel-LM/Lean-workbook-proofs", 
+                     n=1000,
+                     batch_size=8,
+                     max_workers=10)
+```
+
+If running benchmarks using the synchronous client (`KiminaClient` instead of `AsyncKiminaClient`) from an end-user computer, you may face the following error:
+
+> tenacity.before_sleep:log_it:65 - Retrying **main**.Lean4Client.\_query.<locals>.query_with_retries in 10.0 seconds as it raised ClientConnectorError: Cannot connect to host 127.0.0.1:80 ssl:default [Too many open files]. 
+
+This happens when you set a number of `max_workers` greater than the allowed number of TCP connections on your machine. 
+The synchronous client could not reliably make use of the same connection across threads, so each worker has its session. 
+
+You can check the maximum number of open files on your machine with `ulimit -n` (256 on a MacBook Pro). It may be smaller than what's needed to run the benchmark: increase it with `ulimit -n 4096`.
+
+Alternatively, you can use the asynchronous client `AsyncKiminaClient` which uses a single session and can handle more workers without running into this issue.
+
+### Benchmark reports
+
+Without REPL reuse:
+![Benchmark Results without REPL reuse](images/benchmark_results_reuse_false.png)
+
+With REPL reuse:
+![Benchmark Results with REPL reuse](images/benchmark_results_reuse_true.png)
+
+**Note**:
+
+The benchmarks were run on a machine with **10 CPUs** (MacBook Pro M2) with the above command and default parameters.
+The dataset is available at [`Goedel-LM/Lean-workbook-proofs`](https://huggingface.co/datasets/Goedel-LM/Lean-workbook-proofs). 
+
+To reproduce:
+- Server command: `python -m server` (no `.env` file)
+- Client (from ipython / Jupyter notebook or `python -m asyncio`):
+```python
+from kimina_client import AsyncKiminaClient
+client = AsyncKiminaClient() # defaults to "http://localhost:8000", no API key
+
+# Add `reuse=False` to prevent REPL reuse across requests
+await client.run_benchmark(dataset_name="Goedel-LM/Lean-workbook-proofs", n=1000)
+```
+
 ## Contributing
 
-Contributions are welcome, just open an issue or submit a pull request.
+Contributions are welcome 🤗, just open an issue or submit a pull request.
 
 To contribute, ensure you have Astral's [uv](https://docs.astral.sh/uv/) installed and:
 
@@ -104,8 +190,11 @@ uv run pre-commit install
 ```
 
 On commit, the hooks:
-- run `pyright` and `mypy`
+- run `ruff`, `pyright` and `mypy`
 - enforce [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/). 
+
+`mypy` was slow against the `client` directory, so I excluded it in the pre-commit config, therefore also on the CI. 
+You can still run `mypy` manually to check. 
 
 An additional hook runs basic tests on push.
 
@@ -118,7 +207,7 @@ Install [Lean 4](https://github.com/leanprover/lean4) and build the [repl](https
 bash setup.sh
 ```
 
-Run tests with:
+Run tests with (reads your `LEAN_SERVER_API_KEY` so make sure that line is commented):
 ```sh
 pytest
 
@@ -126,7 +215,7 @@ pytest
 pytest -m perfs
 
 # Tests on 100 first Goedel rows to validate API backward-compatibility
-pytest -m match
+pytest -m match # Use -n auto to use all cores.
 ```
 
 To release the client:
@@ -134,7 +223,7 @@ To release the client:
 - run the "Publish to PyPI" action on Github
 
 To release the server:
-- bump the version in `compose-prod.yaml`
+- bump the version in `compose-prod.yaml` and in Dockerfile
 - run the "Deploy to Google Cloud" action on Github
 - run the "Publish to Docker" action on Github (doesn't exist yet)
 
@@ -161,53 +250,3 @@ You are free to use, modify, and distribute this software with proper attributio
 }
 ```
 
-| `LEAN_SERVER_LOG_DIR`                 | `./logs`      | Directory where logs are stored                        |
-
-## ⚙️ Environment Variables
-
-| Variable                              | Default       | Description                                            |
-| ------------------------------------- | ------------- | ------------------------------------------------------ |
-| `LEAN_SERVER_HOST`                    | `0.0.0.0`     | Host address to bind the server                        |
-| `LEAN_SERVER_PORT`                    | `8000`        | Port number for the server                             |
-| `LEAN_SERVER_LOG_LEVEL`               | `INFO`        | Logging level (`DEBUG`, `INFO`, `ERROR`, etc.)         |
-| `LEAN_SERVER_ENVIRONMENT`             | `dev`         | Environment `dev` or `prod`                            |
-| `LEAN_SERVER_LEAN_VERSION`            | `v4.15.0`     | Lean version                                           |
-| `LEAN_SERVER_MAX_REPLS`               | CPU count - 1 | Maximum number of REPLs                                |
-| `LEAN_SERVER_MAX_REPL_USES`           | `-1`          | Maximum number of uses per REPL (-1 is no limit)       |
-| `LEAN_SERVER_MAX_REPL_MEM`            | `8G`          | Maximum memory limit for each REPL                     |
-| `LEAN_SERVER_MAX_WAIT`                | `60`          | Maximum wait time to get a REPL (in seconds)           |
-| `LEAN_SERVER_INIT_REPLS`              | `{}`          | Map of header to REPL count to use on initialization   |
-| `LEAN_SERVER_API_KEY`                 | `None`        | Optional API key for authentication                    |
-| `LEAN_SERVER_REPL_PATH`               | `repl/.lake/build/bin/repl`        | Path to the REPL directory relative to the workspace    |
-| `LEAN_SERVER_PROJECT_DIR`               | `mathlib4`   | Path to project directory containing library          |
-<!-- | `LEAN_SERVER_HEALTHCHECK_CPU_USAGE_THRESHOLD` | **None** | CPU usage threshold for healthcheck |
-| `LEAN_SERVER_HEALTHCHECK_MEMORY_USAGE_THRESHOLD` | **None** | Memory usage threshold for healthcheck | -->
-| `LEAN_SERVER_DATABASE_URL`            |                | URL for the database (if using one)                   |
-
-`LEAN_SERVER_MAX_REPL_MEM` can help avoid certain OOM issues (see Issue #25)
-
-
-## 🚀 Performance Benchmarks
-
-You can run benchmarks in the `benchmarks` directory on dataset: [Goedel-LM/Lean-workbook-proofs](https://huggingface.co/datasets/Goedel-LM/Lean-workbook-proofs)
-
-If running benchmarks from an end-user computer, you may face the following error:
-
-> tenacity.before_sleep:log_it:65 - Retrying **main**.Lean4Client.\_query.<locals>.query_with_retries in 10.0 seconds as it raised ClientConnectorError: Cannot connect to host 127.0.0.1:80 ssl:default [Too many open files].
-
-You can check the maximum number of open files on your machine with `ulimit -n` (256 on a MacBook Pro). It may be smaller than what's needed to run the benchmark: increase it with `ulimit -n 65535`.
-
-### Cached vs Non-Cached
-
-| Mode       | Valid Proofs (%) | Total Verification Time (s) | Average Verification Time (s) |
-| ---------- | ---------------- | --------------------------- | ----------------------------- |
-| Cached     | 96.00            | 350.29                      | 3.65                          |
-| Non-Cached | 96.00            | 493.67                      | 5.14                          |
-
-**Note**:
-
-- The benchmarks were run on a machine with **10 CPUs** (MacBook Pro M2).
-- Script used: [`benchmark.py`](./benchmark.py)
-- Dataset: First 100 samples from [`Goedel-LM/Lean-workbook-proofs`](https://huggingface.co/datasets/Goedel-LM/Lean-workbook-proofs)
-- Params: `timeout = 60s`, `batch = 1`, `num_proc = 10` (number of CPU cores)
-- Server: `LEANSERVER_MAX_REPLS = 10` and `LEANSERVER_MAX_CONCURRENT_REQUESTS = 10`

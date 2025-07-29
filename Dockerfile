@@ -1,20 +1,18 @@
 FROM python:3.13-slim
 
-ARG APP_VERSION
+ARG APP_VERSION=2.0.0
 ARG LEAN_SERVER_LEAN_VERSION=v4.15.0
-ARG REPL_VERSION=${LEAN_SERVER_LEAN_VERSION}
-ARG MATHLIB_VERSION=${LEAN_SERVER_LEAN_VERSION}
+ARG REPL_REPO_URL=https://github.com/FrederickPu/repl.git
+ARG REPL_BRANCH=lean415compat
+ARG MATHLIB_REPO_URL=https://github.com/leanprover-community/mathlib4.git
+ARG MATHLIB_BRANCH=${LEAN_SERVER_LEAN_VERSION}
 
 LABEL version="${APP_VERSION}"
 
 # Override with docker compose / docker run -e
-ENV APP_VERSION=${APP_VERSION} \
-    LEAN_SERVER_LEAN_VERSION=${LEAN_SERVER_LEAN_VERSION} \
-    REPL_VERSION=${REPL_VERSION} \
-    MATHLIB_VERSION=${MATHLIB_VERSION} \
+ENV LEAN_SERVER_LEAN_VERSION=${LEAN_SERVER_LEAN_VERSION} \
     LEAN_SERVER_HOST=0.0.0.0 \
     LEAN_SERVER_PORT=8000 \
-    # LEAN_SERVER_API_KEY is provided at runtime via docker-compose (.env) or -e
     LEAN_SERVER_LOG_LEVEL=INFO \
     LEAN_SERVER_ENVIRONMENT=prod \
     LEAN_SERVER_LEAN_VERSION=${LEAN_SERVER_LEAN_VERSION} \
@@ -26,6 +24,7 @@ ENV APP_VERSION=${APP_VERSION} \
     LEAN_SERVER_MAX_WAIT=60 \
     LEAN_SERVER_INIT_REPLS={} \
     LEAN_SERVER_DATABASE_URL=
+    # LEAN_SERVER_API_KEY is provided at runtime via docker-compose (.env) or -e
 
 RUN apt-get update && apt-get install -y \
       ca-certificates curl git build-essential unzip jq \
