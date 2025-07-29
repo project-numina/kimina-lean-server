@@ -147,6 +147,7 @@ class Manager:
                 self._busy.discard(repl)
 
                 await repl.close()
+                self._cond.notify(1)
                 del repl
                 logger.info(f"Deleted REPL {uuid.hex[:8]}")
                 return

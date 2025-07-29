@@ -297,6 +297,36 @@ async def test_exhausted(client: TestClient) -> None:
 @pytest.mark.parametrize(
     "client",
     [
+        {"max_repls": 1, "max_repl_uses": 3, "init_repls": {}, "database_url": None},
+    ],
+    indirect=True,  # To parametrize fixture
+)
+async def test_exhausted_with_batch(client: TestClient) -> None:
+    payload = CheckRequest(
+        snippets=[
+            Snippet(id="1", code="#check Nat"),
+            Snippet(id="2", code="#check 0"),
+            Snippet(id="3", code="#check 1"),
+            Snippet(id="4", code="#check 2"),
+        ],
+        debug=True,
+    ).model_dump()
+
+    try:
+        resp = client.post("check", json=payload)
+    except Exception as e:
+        logger.info(f"Error during request: {e}")
+        raise
+
+    results = resp.json()["results"]
+    repl_uuids = set(result["diagnostics"]["repl_uuid"] for result in results)
+    assert len(repl_uuids) == 2, "Expected two different REPLs to be used"
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "client",
+    [
         {"init_repls": {}, "database_url": None},
     ],
     indirect=True,

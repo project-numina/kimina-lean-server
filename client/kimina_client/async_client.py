@@ -4,7 +4,6 @@ import time
 from typing import Any
 
 import httpx
-from datasets import load_dataset, load_dataset_builder  # type: ignore
 from tenacity import (
     RetryError,
     before_sleep_log,
@@ -38,7 +37,8 @@ class AsyncKiminaClient(BaseKimina):
             n_retries=n_retries,
         )
         self.session = httpx.AsyncClient(
-            headers=self.headers, timeout=self.http_timeout
+            headers=self.headers,
+            timeout=httpx.Timeout(self.http_timeout, read=self.http_timeout),
         )
 
     async def check(
@@ -186,6 +186,14 @@ class AsyncKiminaClient(BaseKimina):
             batch_size = 8
 
         logger.info(build_log(dataset_name, n, batch_size))
+
+        try:
+            from datasets import load_dataset, load_dataset_builder  # type: ignore
+        except Exception as e:
+            raise ImportError(
+                "The 'datasets' library is required for run_benchmark.\n"
+                "Install it with 'pip install datasets'."
+            ) from e
 
         builder = load_dataset_builder(dataset_name)
         if not builder.info.features:

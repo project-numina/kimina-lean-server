@@ -2,7 +2,8 @@
 name = "kimina-client"
 version = "0.2.0"
 authors = [
-  { name="Kimi Team - Project Numina", email="contact@projectnumina.com" },
+  { name = "Kimi Team - Project Numina"},
+  { email = "contact@projectnumina.com" },
 ]
 description = "Client SDK to interact with Kimina Lean server."
 readme = "README-client.md"
