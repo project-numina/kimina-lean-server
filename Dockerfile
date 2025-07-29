@@ -13,7 +13,6 @@ LABEL version="${APP_VERSION}"
 ENV LEAN_SERVER_LEAN_VERSION=${LEAN_SERVER_LEAN_VERSION} \
     LEAN_SERVER_HOST=0.0.0.0 \
     LEAN_SERVER_PORT=8000 \
-    LEAN_SERVER_API_KEY= \
     LEAN_SERVER_LOG_LEVEL=INFO \
     LEAN_SERVER_ENVIRONMENT=prod \
     LEAN_SERVER_LEAN_VERSION=${LEAN_SERVER_LEAN_VERSION} \
@@ -25,6 +24,7 @@ ENV LEAN_SERVER_LEAN_VERSION=${LEAN_SERVER_LEAN_VERSION} \
     LEAN_SERVER_MAX_WAIT=60 \
     LEAN_SERVER_INIT_REPLS={} \
     LEAN_SERVER_DATABASE_URL=
+    # LEAN_SERVER_API_KEY is provided at runtime via docker-compose (.env) or -e
 
 RUN apt-get update && apt-get install -y \
       ca-certificates curl git build-essential unzip jq \

@@ -152,10 +152,21 @@ Alternatively, you can use the asynchronous client `AsyncKiminaClient` which use
 
 ### Benchmark reports
 
-| Mode       | Valid Proofs (%) | Total Verification Time (s) | Average Verification Time (s) |
-| ---------- | ---------------- | --------------------------- | ----------------------------- |
-| Cached     | 96.00            | 350.29                      | 3.65                          |
-| Non-Cached | 96.00            | 493.67                      | 5.14                          |
+![Benchmark Results](images/benchmark_results.png)
+
+With cache:
+╒══════╤════════════╤════════════╤═════════════════╤══════════════╤══════════════╤════════════════╤══════════════════╤════════════════╤═══════════╕
+│    # │  Valid ✅  │   Sorry ⚠️ │  Lean Error ❌  │  Timeout ⏰  │   REPL Error │   Server Error │  Total CPU Time  │  Avg CPU Time  │  Elapsed  │
+╞══════╪════════════╪════════════╪═════════════════╪══════════════╪══════════════╪════════════════╪══════════════════╪════════════════╪═══════════╡
+│ 1000 │ 979 (97 %) │          0 │    4 (0.4 %)    │  17 (1.7 %)  │            0 │              0 │    3282.29 s     │ 3.34 s/snippet │ 583.96 s  │
+╘══════╧════════════╧════════════╧═════════════════╧══════════════╧══════════════╧════════════════╧══════════════════╧════════════════╧═══════════╛
+
+Without cache:
+╒══════╤════════════╤════════════╤═════════════════╤══════════════╤══════════════╤════════════════╤══════════════════╤════════════════╤═══════════╕
+│    # │  Valid ✅  │   Sorry ⚠️ │  Lean Error ❌  │  Timeout ⏰  │   REPL Error │   Server Error │  Total CPU Time  │  Avg CPU Time  │  Elapsed  │
+╞══════╪════════════╪════════════╪═════════════════╪══════════════╪══════════════╪════════════════╪══════════════════╪════════════════╪═══════════╡
+│ 1000 │ 976 (97 %) │          0 │    4 (0.4 %)    │   20 (2 %)   │            0 │              0 │    3568.86 s     │ 3.64 s/snippet │ 1051.89 s │
+╘══════╧════════════╧════════════╧═════════════════╧══════════════╧══════════════╧════════════════╧══════════════════╧════════════════╧═══════════╛
 
 **Note**:
 
@@ -164,13 +175,13 @@ The dataset is available at [`Goedel-LM/Lean-workbook-proofs`](https://huggingfa
 
 To reproduce:
 - Server command: `python -m server` (no `.env` file)
-- Client:
+- Client (from ipython / Jupyter notebook or `python -m asyncio`):
 ```python
 from kimina_client import AsyncKiminaClient
 client = AsyncKiminaClient() # defaults to "http://localhost:8000", no API key
 
 # Add `reuse=False` to prevent REPL reuse across requests
-client.run_benchmark(dataset_name="Goedel-LM/Lean-workbook-proofs", n=1000)
+await client.run_benchmark(dataset_name="Goedel-LM/Lean-workbook-proofs", n=1000)
 ```
 
 ## Contributing
