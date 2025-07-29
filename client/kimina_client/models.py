@@ -5,7 +5,13 @@ import textwrap
 from enum import Enum
 from itertools import chain
 from textwrap import wrap
-from typing import Any, Literal, NotRequired, Type, TypedDict, TypeVar
+
+try:
+    from typing import NotRequired, TypedDict
+except ImportError:
+    from typing_extensions import NotRequired, TypedDict
+
+from typing import Any, Literal, Type, TypeVar
 from uuid import uuid4
 
 import pygments
