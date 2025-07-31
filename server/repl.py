@@ -152,6 +152,9 @@ class Repl:
 
             os.setsid()
 
+        self.error_file.seek(0)
+        self.error_file.truncate()
+
         self.proc = await asyncio.create_subprocess_exec(
             "lake",
             "env",
@@ -160,7 +163,7 @@ class Repl:
             env=os.environ,
             stdin=asyncio.subprocess.PIPE,
             stdout=asyncio.subprocess.PIPE,
-            stderr=asyncio.subprocess.PIPE,
+            stderr=self.error_file,
             preexec_fn=_preexec,
         )
 
