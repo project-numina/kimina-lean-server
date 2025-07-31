@@ -32,6 +32,12 @@ from .utils import is_blank
 log_lock = asyncio.Lock()
 
 
+class ReplOOMError(ReplError):
+    """Raised when the REPL exceeds its memory limit."""
+
+    pass
+
+
 async def log_snippet(uuid: UUID, snippet_id: str, code: str) -> None:
     if settings.environment == Environment.prod:
         header = f"[{uuid.hex[:8]}] Running snippet {snippet_id}:"
@@ -233,6 +239,9 @@ class Repl:
         except LeanError as e:
             logger.exception("Lean REPL error: %s", e)
             raise e
+        except ReplOOMError as e:
+            logger.error("[{}] REPL OOM: {}", self.uuid.hex[:8], e)
+            return ReplResponse(id=snippet.id, error=str(e), time=0.0)
         except ReplError as e:
             logger.exception("REPL error: %s", e)
             raise e
@@ -298,6 +307,15 @@ class Repl:
         try:
             resp: CommandResponse | Error = json.loads(raw)
         except json.JSONDecodeError:
+            if self._mem_max >= self.max_memory_bytes:
+                msg = "Lean REPL process exceeded memory limit"
+                logger.error(
+                    "[{}] OOM: used {} / {} bytes",
+                    self.uuid.hex[:8],
+                    self._mem_max,
+                    self.max_memory_bytes,
+                )
+                raise ReplOOMError(msg)
             logger.error("JSON decode error: %r", raw)
             raise ReplError("JSON decode error")
 
