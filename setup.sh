@@ -1,6 +1,12 @@
 #!/usr/bin/env bash
 set -euxo pipefail
 
+if [ -f .env ]; then
+  set -a
+  source .env
+  set +a
+fi
+
 LEAN_SERVER_LEAN_VERSION="${LEAN_SERVER_LEAN_VERSION:-v4.15.0}"
 REPL_REPO_URL="${REPL_REPO_URL:-https://github.com/leanprover-community/repl.git}"
 REPL_BRANCH="${REPL_BRANCH:-$LEAN_SERVER_LEAN_VERSION}"
