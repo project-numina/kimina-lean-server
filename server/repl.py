@@ -308,24 +308,18 @@ class Repl:
         raw = await self._read_response()
         elapsed = loop.time() - start
 
-        await self.proc.wait()
         if self.proc.returncode not in (None, 0):
             self.error_file.seek(0)
-            err = self.error_file.read().strip() or "Lean REPL out of memory"
+            err = (
+                self.error_file.read().strip()
+                or "Lean REPL died, probably out of memory"
+            )
             raise ReplOOMError(err)
+
         logger.debug("Raw response from REPL: {}", raw)
         try:
             resp: CommandResponse | Error = json.loads(raw)
         except json.JSONDecodeError:
-            if self._mem_max >= self.max_memory_bytes:
-                msg = "Lean REPL process exceeded memory limit"
-                logger.error(
-                    "[{}] OOM: used {} / {} bytes",
-                    self.uuid.hex[:8],
-                    self._mem_max,
-                    self.max_memory_bytes,
-                )
-                raise ReplOOMError(msg)
             logger.error("JSON decode error: {}", raw)
             raise ReplError("JSON decode error")
 
