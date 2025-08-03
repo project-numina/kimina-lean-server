@@ -81,7 +81,9 @@ class Repl:
         self.header_cmd_response: ReplResponse | None = None
 
         self.proc: Process | None = None
-        self.error_file = tempfile.TemporaryFile("w+")
+        self.error_file = tempfile.TemporaryFile(
+            "w+", encoding="utf-8", errors="ignore"
+        )
         self.max_memory_bytes = max_repl_mem * 1024 * 1024
         self.max_repl_uses = max_repl_uses
 
@@ -240,13 +242,13 @@ class Repl:
             )
             raise e
         except LeanError as e:
-            logger.exception("Lean REPL error: %s", e)
+            logger.exception("Lean REPL error: {}", e)
             raise e
         except ReplOOMError as e:
             logger.error("[{}] REPL OOM: {}", self.uuid.hex[:8], e)
             return ReplResponse(id=snippet.id, error=str(e), time=0.0)
         except ReplError as e:
-            logger.exception("REPL error: %s", e)
+            logger.exception("REPL error: {}", e)
             raise e
 
         return ReplResponse(
@@ -299,14 +301,19 @@ class Repl:
             logger.error("Broken pipe while writing to REPL stdin")
             raise LeanError("Lean process broken pipe")
         except Exception as e:
-            logger.error("Failed to write to REPL stdin: %s", e)
+            logger.error("Failed to write to REPL stdin: {}", e)
             raise LeanError("Failed to write to REPL stdin")
 
         logger.debug("Reading response from REPL stdout")
         raw = await self._read_response()
         elapsed = loop.time() - start
 
-        logger.debug("Raw response from REPL: %r", raw)
+        await self.proc.wait()
+        if self.proc.returncode not in (None, 0):
+            self.error_file.seek(0)
+            err = self.error_file.read().strip() or "Lean REPL out of memory"
+            raise ReplOOMError(err)
+        logger.debug("Raw response from REPL: {}", raw)
         try:
             resp: CommandResponse | Error = json.loads(raw)
         except json.JSONDecodeError:
@@ -319,7 +326,7 @@ class Repl:
                     self.max_memory_bytes,
                 )
                 raise ReplOOMError(msg)
-            logger.error("JSON decode error: %r", raw)
+            logger.error("JSON decode error: {}", raw)
             raise ReplError("JSON decode error")
 
         self.error_file.seek(0)
@@ -327,7 +334,7 @@ class Repl:
         self.error_file.seek(0)
         self.error_file.truncate(0)
         if err:
-            logger.error("Stderr: %s", err)
+            logger.error("Stderr: {}", err)
             raise LeanError(err)
 
         elapsed_time = round(elapsed, 6)
@@ -357,7 +364,7 @@ class Repl:
                     break
                 lines.append(chunk)
         except Exception as e:
-            logger.error("Failed to read from REPL stdout: %s", e)
+            logger.error("Failed to read from REPL stdout: {}", e)
             raise LeanError("Failed to read from REPL stdout")
         return b"".join(lines)
 
