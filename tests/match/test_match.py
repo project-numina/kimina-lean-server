@@ -4,7 +4,7 @@ import os
 
 import pytest
 from fastapi.testclient import TestClient
-from kimina_client import VerifyRequestBody
+from lean_verification_client import VerifyRequestBody
 from starlette import status
 
 INPUT_DIR = os.path.join("tests", "match", "input")

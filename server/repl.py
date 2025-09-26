@@ -9,7 +9,7 @@ from datetime import datetime
 from uuid import UUID, uuid4
 
 import psutil
-from kimina_client import (
+from lean_verification_client import (
     Command,
     CommandResponse,
     Diagnostics,

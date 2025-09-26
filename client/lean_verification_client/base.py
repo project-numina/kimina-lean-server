@@ -6,7 +6,7 @@ from pydantic import BaseModel
 T = TypeVar("T", bound=BaseModel)
 
 
-class BaseKimina:
+class BaseVerificationClient:
     def __init__(
         self,
         api_url: str | None = None,

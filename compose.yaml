@@ -2,7 +2,7 @@
 # If .env specifies a LEAN_SERVER_DATABASE_URL, make sure it's up with schema deployed.
 services:
   server:
-    image: projectnumina/kimina-lean-server:2.0.0
+    image: example/lean-verification-server:2.0.0
     build:
       context: .
     env_file:

@@ -1,17 +1,17 @@
-# Kimina client
+# Lean verification client
 
-Client SDK to interact with Kimina Lean server. 
+Client SDK to interact with the anonymized Lean verification server.
 
 Example use:
 ```python
-from kimina_client import KiminaClient
+from lean_verification_client import LeanVerificationClient
 
 # Specify LEAN_SERVER_API_KEY in your .env or pass `api_key`.
-# Default `api_url` is https://projectnumina.ai
-client = KiminaClient()
+# Default `api_url` is https://example.com
+client = LeanVerificationClient()
 
 # If running locally use:
-# client = KiminaClient(api_url="http://localhost:80")
+# client = LeanVerificationClient(api_url="http://localhost:80")
 
 client.check("#check Nat")
 ```
@@ -19,7 +19,7 @@ client.check("#check Nat")
 ## Backward client
 
 ```python
-from kimina_client import Lean4Client
+from lean_verification_client import Lean4Client
 
 client = Lean4Client()
 

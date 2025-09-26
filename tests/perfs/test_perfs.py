@@ -10,7 +10,7 @@ import pytest
 from asgi_lifespan import LifespanManager
 from datasets import load_dataset
 from httpx import ASGITransport, AsyncClient
-from kimina_client import CheckRequest, ReplResponse, Snippet
+from lean_verification_client import CheckRequest, ReplResponse, Snippet
 from loguru import logger
 
 from server.main import app

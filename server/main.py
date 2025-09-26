@@ -28,7 +28,7 @@ def create_app(settings: Settings) -> FastAPI:
     @asynccontextmanager
     async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
         logger.info(
-            "Running Kimina Lean Server [bold]'v{}'[/bold] in [bold]{}[/bold] mode with Lean version: '{}'",
+            "Running Lean Verification Server [bold]'v{}'[/bold] in [bold]{}[/bold] mode with Lean version: '{}'",
             __version__,
             settings.environment.value,
             settings.lean_version,
@@ -76,7 +76,7 @@ def create_app(settings: Settings) -> FastAPI:
 
     app = FastAPI(
         lifespan=lifespan,
-        title="Kimina Lean Server API",
+        title="Lean Verification Server API",
         description="Check Lean 4 snippets at scale via REPL",
         version=__version__,
         openapi_url="/api/openapi.json",

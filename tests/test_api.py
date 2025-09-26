@@ -4,7 +4,7 @@ from uuid import uuid4
 import pytest
 from _pytest.monkeypatch import MonkeyPatch
 from fastapi.testclient import TestClient
-from kimina_client import (
+from lean_verification_client import (
     CheckRequest,
     CheckResponse,
     CommandResponse,

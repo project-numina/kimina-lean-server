@@ -3,8 +3,13 @@ import json
 from typing import cast
 
 from fastapi import APIRouter, Depends, HTTPException, Request
-from kimina_client import CheckRequest, Infotree, ReplResponse, Snippet
-from kimina_client.models import CheckResponse
+from lean_verification_client import (
+    CheckRequest,
+    Infotree,
+    ReplResponse,
+    Snippet,
+)
+from lean_verification_client.models import CheckResponse
 from loguru import logger
 
 from ..auth import require_key

@@ -2,7 +2,7 @@ from typing import AsyncGenerator
 
 import psutil
 import pytest
-from kimina_client import Snippet
+from lean_verification_client import Snippet
 
 from server.repl import Repl
 

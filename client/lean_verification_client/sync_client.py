@@ -13,14 +13,14 @@ from tenacity import (
 )
 from tqdm import tqdm
 
-from .base import BaseKimina
+from .base import BaseVerificationClient
 from .models import CheckRequest, CheckResponse, Infotree, ReplResponse, Snippet
 from .utils import build_log, find_code_column, find_id_column
 
-logger = logging.getLogger("kimina-client")
+logger = logging.getLogger("lean-verification-client")
 
 
-class KiminaClient(BaseKimina):
+class LeanVerificationClient(BaseVerificationClient):
     def __init__(
         self,
         api_url: str | None = None,

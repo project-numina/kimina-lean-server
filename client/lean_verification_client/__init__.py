@@ -2,7 +2,7 @@ import logging
 import sys
 from typing import Any
 
-from .async_client import AsyncKiminaClient
+from .async_client import AsyncLeanVerificationClient
 from .models import (
     BackwardResponse,
     CheckRequest,
@@ -24,10 +24,10 @@ from .models import (
     VerifyRequestBody,
     VerifyResponse,
 )
-from .sync_client import KiminaClient
+from .sync_client import LeanVerificationClient
 
 __all__ = [
-    "AsyncKiminaClient",
+    "AsyncLeanVerificationClient",
     "BackwardResponse",
     "ReplRequest",
     "ReplResponse",
@@ -41,7 +41,7 @@ __all__ = [
     "ExtendedCommandResponse",
     "ExtendedError",
     "Infotree",
-    "KiminaClient",
+    "LeanVerificationClient",
     "Message",
     "Snippet",
     "SnippetAnalysis",
@@ -70,7 +70,7 @@ class ColorFormatter(logging.Formatter):
         return f"{log_color}{message}{Style.RESET_ALL}"
 
 
-logger = logging.getLogger("kimina-client")
+logger = logging.getLogger("lean-verification-client")
 
 if not logger.handlers:
     handler = logging.StreamHandler(sys.stdout)

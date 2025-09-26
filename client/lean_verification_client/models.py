@@ -21,7 +21,7 @@ from pygments.formatters import Terminal256Formatter
 from pygments.lexers import JsonLexer  # type: ignore
 from tabulate import tabulate  # type: ignore
 
-logger = logging.getLogger("kimina-client")
+logger = logging.getLogger("lean-verification-client")
 
 
 class SnippetStatus(str, Enum):

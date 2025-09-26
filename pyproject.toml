@@ -1,11 +1,11 @@
 [project]
-name = "kimina-client"
+name = "lean-verification-client"
 version = "0.2.1"
 authors = [
-  { name = "Kimi Team - Project Numina"},
-  { email = "contact@projectnumina.com" },
+  { name = "Anonymous Contributors"},
+  { email = "anonymous@example.com" },
 ]
-description = "Client SDK to interact with Kimina Lean server."
+description = "Client SDK to interact with the anonymized Lean verification server."
 readme = "README-client.md"
 requires-python = ">=3.9"
 classifiers = [
@@ -29,8 +29,8 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/project-numina/kimina-lean-server"
-Issues = "https://github.com/project-numina/kimina-lean-server/issues"
+Homepage = "https://example.com/lean-verification-server"
+Issues = "https://example.com/lean-verification-server/issues"
 
 [project.optional-dependencies]
 server = [ "fastapi>=0.115.13", "uvicorn>=0.34.3", "prisma>=0.15.0", "psutil>=7.0.0", "google-cloud-logging>=3.12.1", "rich>=14.0.0"]
@@ -57,7 +57,7 @@ norecursedirs = ["tsts_old"]
 log_cli_level = "INFO"
 markers = [
     "perfs: performance tests that are not run by default",
-    "match: tests which ensure backward-compatibility with kimina-lean-server"
+    "match: tests which ensure backward-compatibility with the lean-verification-server"
 ]
 
 [tool.mypy]
@@ -75,7 +75,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
-packages = ["client/kimina_client"]
+packages = ["client/lean_verification_client"]
 
 [tool.hatch.build.targets.sdist]
-include = ["client/kimina_client/**"]
+include = ["client/lean_verification_client/**"]

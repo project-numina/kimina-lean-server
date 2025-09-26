@@ -961,7 +961,7 @@ wheels = [
 ]
 
 [[package]]
-name = "kimina-client"
+name = "lean-verification-client"
 version = "0.2.1"
 source = { editable = "." }
 dependencies = [

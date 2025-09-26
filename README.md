@@ -1,4 +1,4 @@
-<h1 align="center">Kimina Lean Server</h1>
+<h1 align="center">Lean Verification Server</h1>
 
 <p align="center">
 <b>Check Lean 4 code at scale ⚡️</b>
@@ -6,17 +6,13 @@
 </p>
 
 <p align="center">
-    <a href="https://projectnumina.ai/"><img alt="Project Numina" src="images/logo_projectNumina_light.png" style="height:20px; width:auto; vertical-align:middle; border-radius:4px;"></a>
-    <a href="https://pypi.org/project/kimina-client" rel="nofollow"><img alt="PyPI version" src="https://img.shields.io/pypi/v/kimina-client.svg" style="max-width:100%;"></a>
-    <a href="https://github.com/project-numina/kimina-lean-server/actions/workflows/ci.yaml" rel="nofollow"><img alt="CI" src="https://github.com/project-numina/kimina-lean-server/actions/workflows/ci.yaml/badge.svg" style="max-width:100%;"></a>
+    <a href="https://pypi.org/project/lean-verification-client" rel="nofollow"><img alt="PyPI version" src="https://img.shields.io/pypi/v/lean-verification-client.svg" style="max-width:100%;"></a>
 </p>
 
 This project serves the [Lean REPL](https://github.com/leanprover-community/repl) using FastAPI. 
 It supports parallelization to check Lean 4 proofs at scale. 
 
 A Python SDK simplifies interaction with the server's API.
-
-Read the [Technical Report](./Technical_Report.pdf) for more details.
 
 ## Table of Contents
 
@@ -27,8 +23,8 @@ Read the [Technical Report](./Technical_Report.pdf) for more details.
 - [Citation](#citation)
 
 This repository contains the source code for:
-- the Kimina server
-- the Kimina client to interact with it
+- the Lean verification server
+- the Lean verification client used to interact with it
 
 ## Server
 
@@ -54,7 +50,7 @@ docker run -d \
   --restart unless-stopped \
   --env-file .env \
   -p 80:${LEAN_SERVER_PORT} \
-  projectnumina/kimina-lean-server:2.0.0
+  example/lean-verification-server:2.0.0
 ```
 
 To shut down the container / view logs:
@@ -90,15 +86,15 @@ Or use the client below.
 
 ## Client
 
-From [PyPI](https://test.pypi.org/project/kimina-client/):
+From [PyPI](https://pypi.org/project/lean-verification-client/):
 ```sh
-pip install kimina-client
+pip install lean-verification-client
 ```
 
 Example use:
 ```python
-from kimina_client import KiminaClient
-client = KiminaClient() # Defaults to "http://localhost:8000", no API key
+from lean_verification_client import LeanVerificationClient
+client = LeanVerificationClient() # Defaults to "http://localhost:8000", no API key
 client.check("#check Nat")
 ```
 
@@ -130,21 +126,21 @@ The server also runs all commands with `"gc": true` to automatically discard env
 
 ## 🚀 Performance Benchmarks
 
-You can run benchmarks with the Kimina client on any HuggingFace dataset: the benchmark run expects `id` and `code` columns in
+You can run benchmarks with the Lean verification client on any HuggingFace dataset: the benchmark run expects `id` and `code` columns in
 the dataset, but you can select your own column names.
 
 Example with [Goedel-LM/Lean-workbook-proofs](https://huggingface.co/datasets/Goedel-LM/Lean-workbook-proofs):
 ```python
-from kimina_client import KiminaClient
+from lean_verification_client import LeanVerificationClient
 
-client = KiminaClient()
+client = LeanVerificationClient()
 client.run_benchmark(dataset_name="Goedel-LM/Lean-workbook-proofs", 
                      n=1000,
                      batch_size=8,
                      max_workers=10)
 ```
 
-If running benchmarks using the synchronous client (`KiminaClient` instead of `AsyncKiminaClient`) from an end-user computer, you may face the following error:
+If running benchmarks using the synchronous client (`LeanVerificationClient` instead of `AsyncLeanVerificationClient`) from an end-user computer, you may face the following error:
 
 > tenacity.before_sleep:log_it:65 - Retrying **main**.Lean4Client.\_query.<locals>.query_with_retries in 10.0 seconds as it raised ClientConnectorError: Cannot connect to host 127.0.0.1:80 ssl:default [Too many open files]. 
 
@@ -153,7 +149,7 @@ The synchronous client could not reliably make use of the same connection across
 
 You can check the maximum number of open files on your machine with `ulimit -n` (256 on a MacBook Pro). It may be smaller than what's needed to run the benchmark: increase it with `ulimit -n 4096`.
 
-Alternatively, you can use the asynchronous client `AsyncKiminaClient` which uses a single session and can handle more workers without running into this issue.
+Alternatively, you can use the asynchronous client `AsyncLeanVerificationClient` which uses a single session and can handle more workers without running into this issue.
 
 ### Benchmark reports
 
@@ -172,8 +168,8 @@ To reproduce:
 - Server command: `python -m server` (no `.env` file)
 - Client (from ipython / Jupyter notebook or `python -m asyncio`):
 ```python
-from kimina_client import AsyncKiminaClient
-client = AsyncKiminaClient() # defaults to "http://localhost:8000", no API key
+from lean_verification_client import AsyncLeanVerificationClient
+client = AsyncLeanVerificationClient() # defaults to "http://localhost:8000", no API key
 
 # Add `reuse=False` to prevent REPL reuse across requests
 await client.run_benchmark(dataset_name="Goedel-LM/Lean-workbook-proofs", n=1000)
@@ -238,15 +234,6 @@ This project is licensed under the MIT License.
 You are free to use, modify, and distribute this software with proper attribution. See the [LICENSE](./LICENSE) file for full details.
 
 ## Citation
-```
-@misc{santos2025kiminaleanservertechnical,
-      title={Kimina Lean Server: Technical Report}, 
-      author={Marco Dos Santos and Haiming Wang and Hugues de Saxcé and Ran Wang and Mantas Baksys and Mert Unsal and Junqi Liu and Zhengying Liu and Jia Li},
-      year={2025},
-      eprint={2504.21230},
-      archivePrefix={arXiv},
-      primaryClass={cs.LO},
-      url={https://arxiv.org/abs/2504.21230}, 
-}
-```
+
+Citation details will be shared after the anonymous review process is complete.
 

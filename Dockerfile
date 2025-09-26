@@ -36,7 +36,7 @@ RUN chmod +x /usr/local/bin/setup.sh \
 
 ENV PATH=/root/.elan/bin:/root/.local/bin:$PATH
 
-WORKDIR /root/kimina-lean-server
+WORKDIR /root/lean-verification-server
 
 RUN curl -LsSf https://astral.sh/uv/install.sh | sh
 
