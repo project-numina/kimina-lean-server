@@ -5,6 +5,25 @@ from server.manager import Manager
 
 
 @pytest.mark.asyncio
+async def test_lazy_lock_initialization() -> None:
+    """Test that Lock and Condition are initialized lazily in async context."""
+    manager = Manager(max_repls=1, max_repl_uses=1)
+    
+    # Initially, lock and condition should be None
+    assert manager._lock is None
+    assert manager._cond is None
+    
+    # After calling an async method, they should be initialized
+    repl = await manager.get_repl()
+    
+    assert manager._lock is not None
+    assert manager._cond is not None
+    assert repl is not None
+    
+    await manager.release_repl(repl)
+
+
+@pytest.mark.asyncio
 async def test_get_repl() -> None:
     manager = Manager(max_repls=1, max_repl_uses=1)
 
