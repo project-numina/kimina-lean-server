@@ -327,18 +327,50 @@ class Repl:
             logger.error("REPL process not started or stdout pipe not initialized")
             raise ReplError("REPL process not started or stdout pipe not initialized")
 
-        lines: list[bytes] = []
+        decoder = json.JSONDecoder()
+        buffer = ""
+
         try:
             while True:
                 chunk = await self.proc.stdout.readline()
-                # EOF or blank line as terminator
-                if not chunk or not chunk.strip():
+
+                if not chunk:
                     break
-                lines.append(chunk)
+
+                if not chunk.strip() and not buffer:
+                    # Skip leading blank lines (e.g. leftover terminators from previous command).
+                    continue
+
+                try:
+                    chunk_text = chunk.decode("utf-8")
+                except UnicodeDecodeError as exc:
+                    logger.error("Failed to decode REPL output: %s", exc)
+                    raise LeanError("Failed to decode REPL output")
+
+                buffer += chunk_text
+
+                try:
+                    _, idx = decoder.raw_decode(buffer)
+                except json.JSONDecodeError:
+                    # Keep reading until a complete JSON object is available.
+                    continue
+
+                remainder = buffer[idx:]
+                if remainder.strip():
+                    # There is additional non-whitespace content, continue accumulating.
+                    continue
+
+                buffer = buffer[:idx]
+                break
         except Exception as e:
             logger.error("Failed to read from REPL stdout: %s", e)
             raise LeanError("Failed to read from REPL stdout")
-        return b"".join(lines)
+
+        if not buffer:
+            logger.error("Received empty response from REPL")
+            raise ReplError("Received empty response from REPL")
+
+        return buffer.encode("utf-8")
 
     async def close(self) -> None:
         if self.proc:

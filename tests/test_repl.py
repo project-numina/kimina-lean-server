@@ -1,10 +1,24 @@
+import json
+from datetime import datetime
+from types import SimpleNamespace
 from typing import AsyncGenerator
+from uuid import uuid4
 
 import psutil
 import pytest
 from kimina_client import Snippet
 
 from server.repl import Repl
+
+
+class _DummyStdout:
+    def __init__(self, outputs: list[bytes]):
+        self._outputs = outputs
+
+    async def readline(self) -> bytes:
+        if self._outputs:
+            return self._outputs.pop(0)
+        return b""
 
 
 @pytest.fixture
@@ -45,6 +59,24 @@ async def test_create_close_multiple() -> None:
 
         # Verify the process has terminated
         assert not psutil.pid_exists(pid)
+
+
+@pytest.mark.asyncio
+async def test_read_response_without_trailing_blank_line() -> None:
+    repl = Repl(uuid=uuid4(), created_at=datetime.now(), max_repl_mem=8192, max_repl_uses=1)
+    repl.proc = SimpleNamespace(stdout=_DummyStdout([b'{"status":"ok"}\n']))  # type: ignore[attr-defined]
+
+    data = await repl._read_response()
+    assert json.loads(data) == {"status": "ok"}
+
+
+@pytest.mark.asyncio
+async def test_read_response_with_leading_blank_line() -> None:
+    repl = Repl(uuid=uuid4(), created_at=datetime.now(), max_repl_mem=8192, max_repl_uses=1)
+    repl.proc = SimpleNamespace(stdout=_DummyStdout([b"\n", b'{"status":"ok"}\n\n']))  # type: ignore[attr-defined]
+
+    data = await repl._read_response()
+    assert json.loads(data) == {"status": "ok"}
 
 
 # @pytest.mark.asyncio
