@@ -28,8 +28,8 @@ class Manager:
         self.max_repl_mem = max_repl_mem
         self.init_repls = init_repls
 
-        self._lock = asyncio.Lock()
-        self._cond = asyncio.Condition(self._lock)
+        self._lock: asyncio.Lock | None = None
+        self._cond: asyncio.Condition | None = None
         self._free: list[Repl] = []
         self._busy: set[Repl] = set()
 
@@ -39,6 +39,12 @@ class Manager:
             max_repl_uses,
             max_repl_mem,
         )
+
+    def _ensure_lock(self) -> None:
+        """Ensure the lock and condition are initialized in an async context."""
+        if self._lock is None:
+            self._lock = asyncio.Lock()
+            self._cond = asyncio.Condition(self._lock)
 
     async def initialize_repls(self) -> None:
         if len(self.init_repls) == 0:
@@ -72,6 +78,8 @@ class Manager:
         Async-safe way to get a `Repl` instance for a given header.
         Immediately raises an Exception if not possible.
         """
+        self._ensure_lock()
+        assert self._cond is not None  # Type narrowing after _ensure_lock
         deadline = time() + timeout
         repl_to_destroy: Repl | None = None
         while True:
@@ -124,6 +132,8 @@ class Manager:
         return await self.start_new(header)
 
     async def destroy_repl(self, repl: Repl) -> None:
+        self._ensure_lock()
+        assert self._cond is not None  # Type narrowing after _ensure_lock
         async with self._cond:
             self._busy.discard(repl)
             if repl in self._free:
@@ -132,6 +142,8 @@ class Manager:
             self._cond.notify(1)
 
     async def release_repl(self, repl: Repl) -> None:
+        self._ensure_lock()
+        assert self._cond is not None  # Type narrowing after _ensure_lock
         async with self._cond:
             if repl not in self._busy:
                 logger.error(
@@ -161,6 +173,8 @@ class Manager:
         return repl
 
     async def cleanup(self) -> None:
+        self._ensure_lock()
+        assert self._cond is not None  # Type narrowing after _ensure_lock
         async with self._cond:
             logger.info("Cleaning up REPL manager...")
             for repl in self._free:
