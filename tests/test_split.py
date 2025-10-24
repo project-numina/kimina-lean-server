@@ -1,6 +1,14 @@
 from server.split import split_snippet
 
 
+def test_only_imports() -> None:
+    code = "import A\nimport Mathlib\nimport B"
+    result = split_snippet(code)
+    assert result.header.splitlines() == ["import Mathlib", "import A", "import B"]
+    assert result.body == ""
+    assert result.header_line_count == 3
+
+
 def test_imports_and_body() -> None:
     code = "import X\n\nimport Mathlib\nimport Y\n\ndef foo():\n    pass"
     result = split_snippet(code)
@@ -34,7 +42,7 @@ def test_single_mathlib_import() -> None:
 
 
 def test_single_mathlib_import_with_trailing_spaces() -> None:
-    code = """import Mathlib
+    code = """import Mathlib  
 
 theorem one_plus_one : 1 + 1 = 2 := by rfl"""
 
