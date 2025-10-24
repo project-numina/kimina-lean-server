@@ -1,7 +1,14 @@
-from typing import Tuple
+from dataclasses import dataclass
 
 
-def split_snippet(code: str) -> Tuple[str, str]:
+@dataclass(frozen=True)
+class SplitSnippet:
+    header: str
+    body: str
+    header_line_count: int
+
+
+def split_snippet(code: str) -> SplitSnippet:
     """
     Splits a code snippet into a header (imports) and body.
 
@@ -41,4 +48,4 @@ def split_snippet(code: str) -> Tuple[str, str]:
     result_header.extend(imports)
 
     header = "\n".join(result_header)
-    return header, body
+    return SplitSnippet(header=header, body=body, header_line_count=i)
