@@ -1,6 +1,7 @@
 import asyncio
 import json
-from typing import cast
+from collections.abc import MutableMapping
+from typing import Any, cast
 
 from fastapi import APIRouter, Depends, HTTPException, Request
 from kimina_client import CheckRequest, Infotree, ReplResponse, Snippet
@@ -23,6 +24,47 @@ def get_manager(request: Request) -> Manager:
     return cast(Manager, request.app.state.manager)
 
 
+def _shift_line(pos: MutableMapping[str, Any] | None, offset: int) -> None:
+    if not pos:
+        return
+    line = pos.get("line")
+    if isinstance(line, int):
+        pos["line"] = line + offset
+
+
+def _apply_header_offset(response: ReplResponse, offset: int) -> None:
+    if offset <= 0 or response.error is not None:
+        return
+
+    payload = response.response
+    if not isinstance(payload, MutableMapping):
+        return
+
+    messages = payload.get("messages")
+    if isinstance(messages, list):
+        for message in messages:
+            if not isinstance(message, MutableMapping):
+                continue
+            pos = message.get("pos")
+            if isinstance(pos, MutableMapping):
+                _shift_line(pos, offset)
+            end_pos = message.get("endPos")
+            if isinstance(end_pos, MutableMapping):
+                _shift_line(end_pos, offset)
+
+    sorries = payload.get("sorries")
+    if isinstance(sorries, list):
+        for sorry in sorries:
+            if not isinstance(sorry, MutableMapping):
+                continue
+            pos = sorry.get("pos")
+            if isinstance(pos, MutableMapping):
+                _shift_line(pos, offset)
+            end_pos = sorry.get("endPos")
+            if isinstance(end_pos, MutableMapping):
+                _shift_line(end_pos, offset)
+
+
 async def run_checks(
     snippets: list[Snippet],
     timeout: float,
@@ -34,7 +76,10 @@ async def run_checks(
     async def run_one(snippet: Snippet) -> ReplResponse:
         repl: Repl | None = None
         try:
-            header, body = split_snippet(snippet.code)
+            split_result = split_snippet(snippet.code)
+            header = split_result.header
+            body = split_result.body
+            header_line_count = split_result.header_line_count
             try:
                 repl = await manager.get_repl(header, snippet.id, reuse=reuse)
             except NoAvailableReplError:
@@ -82,6 +127,7 @@ async def run_checks(
                 resp = await repl.send_timeout(
                     Snippet(id=snippet.id, code=body), timeout, infotree=infotree
                 )
+                _apply_header_offset(resp, header_line_count)
             except TimeoutError:
                 error = f"Lean REPL command timed out in {timeout} seconds"
                 uuid_hex = repl.uuid.hex
