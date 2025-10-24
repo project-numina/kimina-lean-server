@@ -1,11 +1,10 @@
 import asyncio
 import json
-from collections.abc import MutableMapping
-from typing import Any, cast
+from typing import cast
 
 from fastapi import APIRouter, Depends, HTTPException, Request
 from kimina_client import CheckRequest, Infotree, ReplResponse, Snippet
-from kimina_client.models import CheckResponse
+from kimina_client.models import CheckResponse, CommandResponse, Pos
 from loguru import logger
 
 from ..auth import require_key
@@ -24,12 +23,11 @@ def get_manager(request: Request) -> Manager:
     return cast(Manager, request.app.state.manager)
 
 
-def _shift_line(pos: MutableMapping[str, Any] | None, offset: int) -> None:
+def _shift_line(pos: Pos | None, offset: int) -> None:
     if not pos:
         return
     line = pos.get("line")
-    if isinstance(line, int):
-        pos["line"] = line + offset
+    pos["line"] = line + offset
 
 
 def _apply_header_offset(response: ReplResponse, offset: int) -> None:
@@ -37,32 +35,28 @@ def _apply_header_offset(response: ReplResponse, offset: int) -> None:
         return
 
     payload = response.response
-    if not isinstance(payload, MutableMapping):
+    if not payload:
         return
 
-    messages = payload.get("messages")
-    if isinstance(messages, list):
-        for message in messages:
-            if not isinstance(message, MutableMapping):
-                continue
-            pos = message.get("pos")
-            if isinstance(pos, MutableMapping):
-                _shift_line(pos, offset)
-            end_pos = message.get("endPos")
-            if isinstance(end_pos, MutableMapping):
-                _shift_line(end_pos, offset)
+    command_response = cast(CommandResponse, payload)
 
-    sorries = payload.get("sorries")
-    if isinstance(sorries, list):
-        for sorry in sorries:
-            if not isinstance(sorry, MutableMapping):
-                continue
-            pos = sorry.get("pos")
-            if isinstance(pos, MutableMapping):
-                _shift_line(pos, offset)
-            end_pos = sorry.get("endPos")
-            if isinstance(end_pos, MutableMapping):
-                _shift_line(end_pos, offset)
+    messages = command_response.get("messages")
+    if not messages:
+        return
+    for message in messages:
+        pos = message.get("pos")
+        _shift_line(pos, offset)
+        end_pos = message.get("endPos")
+        _shift_line(end_pos, offset)
+
+    sorries = command_response.get("sorries")
+    if not sorries:
+        return
+    for sorry in sorries:
+        pos = sorry.get("pos")
+        _shift_line(pos, offset)
+        end_pos = sorry.get("endPos")
+        _shift_line(end_pos, offset)
 
 
 async def run_checks(
