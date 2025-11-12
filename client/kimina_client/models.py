@@ -1,15 +1,16 @@
 import json
 import logging
 import shutil
+import sys
 import textwrap
 from enum import Enum
 from itertools import chain
 from textwrap import wrap
 
-try:
-    from typing import NotRequired, TypedDict
-except ImportError:
+if sys.version_info < (3, 12):
     from typing_extensions import NotRequired, TypedDict
+else:
+    from typing import NotRequired, TypedDict
 
 from typing import Any, Literal, Type, TypeVar
 from uuid import uuid4
