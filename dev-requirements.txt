@@ -1,4 +1,4 @@
-asgi_lifespan 
+asgi-lifespan
 pytest
 pytest-asyncio
 pytest-cov
