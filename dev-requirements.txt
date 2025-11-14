@@ -1,0 +1,4 @@
+asgi_lifespan 
+pytest
+pytest-asyncio
+pytest-cov
