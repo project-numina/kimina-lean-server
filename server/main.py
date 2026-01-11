@@ -8,7 +8,6 @@ from loguru import logger
 from pydantic.json_schema import GenerateJsonSchema
 
 from .__version__ import __version__
-from .db import db
 from .logger import setup_logging
 from .manager import Manager
 from .routers.backward import router as backward_router
@@ -33,13 +32,6 @@ def create_app(settings: Settings) -> FastAPI:
             settings.environment.value,
             settings.lean_version,
         )
-        if settings.database_url:
-            logger.info(f"Database URL = '{settings.database_url}'")
-            try:
-                await db.connect()
-                logger.info("DB connected: {}", db.connected)
-            except Exception as e:
-                logger.exception("Failed to connect to database: %s", e)
 
         manager = Manager(
             max_repls=settings.max_repls,
@@ -70,9 +62,6 @@ def create_app(settings: Settings) -> FastAPI:
         yield
 
         await app.state.manager.cleanup()
-        await db.disconnect()
-
-        logger.info("Disconnected from database")
 
     app = FastAPI(
         lifespan=lifespan,

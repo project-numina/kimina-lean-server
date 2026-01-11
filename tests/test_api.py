@@ -26,7 +26,7 @@ from .utils import assert_json_equal
 @pytest.mark.parametrize(
     "client",
     [
-        {"max_repls": 2, "max_repl_uses": 2, "init_repls": {}, "database_url": None},
+        {"max_repls": 2, "max_repl_uses": 2, "init_repls": {}},
     ],
     indirect=True,
 )
@@ -62,7 +62,9 @@ async def test_check_nat(client: TestClient) -> None:
 @pytest.mark.parametrize(
     "client",
     [
-        {"init_repls": {}, "database_url": None},
+        {
+            "init_repls": {},
+        },
     ],
     indirect=True,
 )
@@ -100,7 +102,6 @@ async def test_single_snippet(client: TestClient) -> None:
             "max_repls": 1,
             "max_repl_uses": 3,
             "init_repls": {},  # Ensure nothing preloaded
-            "database_url": None,
         },  # bumped max_repl_uses to 3 because now header makes age increment
     ],
     indirect=True,
@@ -155,7 +156,7 @@ async def test_mathlib(client: TestClient) -> None:
 @pytest.mark.parametrize(
     "client",
     [
-        {"max_repls": 1, "max_repl_uses": 2, "init_repls": {}, "database_url": None},
+        {"max_repls": 1, "max_repl_uses": 2, "init_repls": {}},
     ],
     indirect=True,
 )
@@ -237,7 +238,7 @@ async def test_timeout(client: TestClient) -> None:
 @pytest.mark.parametrize(
     "client",
     [
-        {"max_repls": 1, "max_repl_uses": 3, "init_repls": {}, "database_url": None},
+        {"max_repls": 1, "max_repl_uses": 3, "init_repls": {}},
     ],
     indirect=True,  # To parametrize fixture
 )
@@ -299,7 +300,7 @@ async def test_exhausted(client: TestClient) -> None:
 @pytest.mark.parametrize(
     "client",
     [
-        {"max_repls": 1, "max_repl_uses": 3, "init_repls": {}, "database_url": None},
+        {"max_repls": 1, "max_repl_uses": 3, "init_repls": {}},
     ],
     indirect=True,  # To parametrize fixture
 )
@@ -329,7 +330,7 @@ async def test_exhausted_with_batch(client: TestClient) -> None:
 @pytest.mark.parametrize(
     "client",
     [
-        {"init_repls": {}, "database_url": None},
+        {"init_repls": {}},
     ],
     indirect=True,
 )
@@ -350,7 +351,7 @@ async def test_check_trailing_slash(client: TestClient) -> None:
 @pytest.mark.parametrize(
     "client",
     [
-        {"max_repls": 1, "max_repl_uses": 1, "init_repls": {}, "database_url": None},
+        {"max_repls": 1, "max_repl_uses": 1, "init_repls": {}},
     ],
     indirect=True,
 )
@@ -368,7 +369,7 @@ async def test_wrong_custom_id_on_check(client: TestClient) -> None:
 @pytest.mark.parametrize(
     "client",
     [
-        {"max_repls": 1, "max_repl_uses": 1, "init_repls": {}, "database_url": None},
+        {"max_repls": 1, "max_repl_uses": 1, "init_repls": {}},
     ],
     indirect=True,
 )
@@ -392,7 +393,7 @@ async def test_wrong_custom_ids_on_check(client: TestClient) -> None:
 @pytest.mark.parametrize(
     "client",
     [
-        {"max_repls": 1, "max_repl_uses": 1, "init_repls": {}, "database_url": None},
+        {"max_repls": 1, "max_repl_uses": 1, "init_repls": {}},
     ],
     indirect=True,
 )
@@ -545,7 +546,7 @@ async def test_infotree(client: TestClient) -> None:
 @pytest.mark.parametrize(
     "client",
     [
-        {"max_repls": 1, "max_repl_uses": 10, "init_repls": {}, "database_url": None},
+        {"max_repls": 1, "max_repl_uses": 10, "init_repls": {}},
     ],
     indirect=True,
 )

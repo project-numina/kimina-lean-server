@@ -35,9 +35,6 @@ jobs:
       - name: Install the project
         run: uv sync --locked --all-extras --dev
 
-      - name: Generate prisma types
-        run: uv run prisma generate
-
       - name: Run pre-commit
         run: uv run pre-commit run --all-files
 

@@ -36,8 +36,6 @@ class Settings(BaseSettings):
 
     init_repls: dict[str, int] = {}
 
-    database_url: str | None = None
-
     model_config = SettingsConfigDict(
         env_file=".env", env_file_encoding="utf-8", env_prefix="LEAN_SERVER_"
     )

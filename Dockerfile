@@ -22,8 +22,7 @@ ENV LEAN_SERVER_LEAN_VERSION=${LEAN_SERVER_LEAN_VERSION} \
     LEAN_SERVER_MAX_REPL_USES=-1 \
     LEAN_SERVER_MAX_REPL_MEM=8G \
     LEAN_SERVER_MAX_WAIT=60 \
-    LEAN_SERVER_INIT_REPLS={} \
-    LEAN_SERVER_DATABASE_URL=
+    LEAN_SERVER_INIT_REPLS={}
     # LEAN_SERVER_API_KEY is provided at runtime via docker-compose (.env) or -e
 
 RUN apt-get update && apt-get install -y \
@@ -42,13 +41,11 @@ RUN curl -LsSf https://astral.sh/uv/install.sh | sh
 
 COPY server server
 COPY client client
-COPY prisma prisma
 COPY pyproject.toml uv.lock README-client.md ./
 
 RUN uv export --extra server --no-dev --no-emit-project > requirements.txt \
  && pip install --no-cache-dir -r requirements.txt \
- && pip install --no-cache-dir -e . \
- && prisma generate
+ && pip install --no-cache-dir -e .
 
 EXPOSE ${LEAN_SERVER_PORT}
 
