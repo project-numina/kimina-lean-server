@@ -67,19 +67,19 @@ async def test_goedel(perf_rows: int, perf_shuffle: bool) -> None:
                 if item["problem_id"]
                 not in [
                     "lean_workbook_10036",
-                    # "lean_workbook_1003",
+                    "lean_workbook_10012",  # Unknown identifier: div_le_div_iff (disappeared in v4.26.0)
                 ]  # skip this one, it's too long
             ]
 
             all_results = await asyncio.gather(*tasks)
             for idx, result in enumerate(all_results):
                 assert "response" in result, f"response #{idx} missing 'response' key"
-                if settings.lean_version == "v4.15.0":
+                if settings.lean_version == "v4.26.0":
                     assert "messages" not in result["response"] or not any(
                         msg["severity"] == "error"
                         for msg in result["response"]["messages"]
                     ), (
-                        f"Proof #{idx} contains errors: {pformat(result['response']['messages'])}"
+                        f"Proof #{idx} contains errors : {pformat(result['response']['messages'])}"
                     )
                 else:
                     assert "messages" in result["response"]
