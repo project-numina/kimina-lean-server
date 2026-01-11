@@ -25,7 +25,7 @@ class Settings(BaseSettings):
 
     environment: Environment = Environment.dev
 
-    lean_version: str = "v4.15.0"
+    lean_version: str = "v4.26.0"
     repl_path: Path = BASE_DIR / "repl/.lake/build/bin/repl"
     project_dir: Path = BASE_DIR / "mathlib4"
 

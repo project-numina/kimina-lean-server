@@ -1,7 +1,7 @@
 FROM python:3.13-slim
 
 ARG APP_VERSION=2.0.0
-ARG LEAN_SERVER_LEAN_VERSION=v4.15.0
+ARG LEAN_SERVER_LEAN_VERSION=v4.26.0
 ARG REPL_REPO_URL=https://github.com/FrederickPu/repl.git
 ARG REPL_BRANCH=lean415compat
 ARG MATHLIB_REPO_URL=https://github.com/leanprover-community/mathlib4.git
