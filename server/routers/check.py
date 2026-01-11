@@ -8,10 +8,8 @@ from kimina_client.models import CheckResponse, CommandResponse, Pos
 from loguru import logger
 
 from ..auth import require_key
-from ..db import db
 from ..errors import NoAvailableReplError
 from ..manager import Manager
-from ..prisma_client import prisma
 from ..repl import Repl
 from ..split import split_snippet
 
@@ -92,18 +90,6 @@ async def run_checks(
                 error = f"Lean REPL header command timed out in {timeout} seconds"
                 uuid_hex = repl.uuid.hex
                 await manager.destroy_repl(repl)
-                if db.connected:
-                    await prisma.proof.create(
-                        data={
-                            "id": snippet.id,
-                            "code": header,
-                            "time": timeout,
-                            "error": error,
-                            "repl": {
-                                "connect": {"uuid": uuid_hex},
-                            },
-                        }  # type: ignore
-                    )
                 return ReplResponse(
                     id=snippet.id,
                     error=error,
@@ -126,18 +112,6 @@ async def run_checks(
                 error = f"Lean REPL command timed out in {timeout} seconds"
                 uuid_hex = repl.uuid.hex
                 await manager.destroy_repl(repl)
-                if db.connected:
-                    await prisma.proof.create(
-                        data={
-                            "id": snippet.id,
-                            "code": body,
-                            "time": timeout,
-                            "error": error,
-                            "repl": {
-                                "connect": {"uuid": uuid_hex},
-                            },
-                        }  # type: ignore
-                    )
                 resp = ReplResponse(
                     id=snippet.id,
                     error=error,
@@ -165,25 +139,6 @@ async def run_checks(
                     json.dumps(resp.model_dump(exclude_none=True), indent=2),
                 )
                 await manager.release_repl(repl)
-                # TODO: Try catch everything DB related
-                if db.connected:
-                    await prisma.proof.create(
-                        data={
-                            "id": snippet.id,
-                            "code": body,
-                            "diagnostics": json.dumps(
-                                resp.diagnostics if resp.diagnostics else None
-                            ),
-                            "response": json.dumps(
-                                resp.response if resp.response else None
-                            ),
-                            "time": resp.time,
-                            "error": resp.error,
-                            "repl": {
-                                "connect": {"uuid": repl.uuid.hex},
-                            },
-                        }  # type: ignore
-                    )
                 if not debug:
                     resp.diagnostics = None
                 return resp

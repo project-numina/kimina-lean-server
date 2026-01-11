@@ -16,7 +16,6 @@ def client(request: FixtureRequest) -> TestClient:
         "max_repls": 5,
         "max_repl_uses": 10,
         "init_repls": {},
-        "database_url": None,
         "environment": Environment.prod,
     }
 
@@ -37,7 +36,6 @@ def client(request: FixtureRequest) -> TestClient:
             "max_repls": 5,
             "max_repl_uses": 10,
             "init_repls": {},
-            "database_url": None,
             "environment": Environment.prod,
         },
     ]

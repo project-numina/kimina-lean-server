@@ -22,7 +22,6 @@ Read the [Technical Report](./Technical_Report.pdf) for more details.
 
 - [Server](#server)
 - [Client](#client)
-- [Contributing](#contributing)
 - [License](#license)
 - [Citation](#citation)
 
@@ -32,14 +31,11 @@ This repository contains the source code for:
 
 ## Server
 
-From source with `requirements.txt` (option to use `uv`, see [Contributing](#contributing)):
+From source with Astral's [uv](https://docs.astral.sh/uv/):
 ```sh
 cp .env.template .env # Optional
 bash setup.sh # Installs Lean, repl and mathlib4
-pip install -r requirements.txt
-pip install .
-prisma generate
-python -m server
+uv run python -m server
 ```
 
 > [!NOTE]
@@ -102,7 +98,7 @@ client = KiminaClient() # Defaults to "http://localhost:8000", no API key
 client.check("#check Nat")
 ```
 
-Or from source with `pip install -e .`
+Or from source with `uv pip install -e .`
 
 ## ⚙️ Environment Variables
 
@@ -121,7 +117,6 @@ Or from source with `pip install -e .`
 | `LEAN_SERVER_API_KEY`                 | `None`        | Optional API key for authentication                    |
 | `LEAN_SERVER_REPL_PATH`               | `repl/.lake/build/bin/repl` | Path to REPL directory, relative to workspace    |
 | `LEAN_SERVER_PROJECT_DIR`             | `mathlib4`    | Path to Lean 4 project directory, relative to workspace        |
-| `LEAN_SERVER_DATABASE_URL`            |               | URL for the database (if using one)                   |
 
 `LEAN_SERVER_MAX_REPL_MEM` can help avoid certain OOM issues (see Issue #25)
 The server also runs all commands with `"gc": true` to automatically discard environments which helps limit memory usage.
@@ -177,59 +172,6 @@ client = AsyncKiminaClient() # defaults to "http://localhost:8000", no API key
 
 # Add `reuse=False` to prevent REPL reuse across requests
 await client.run_benchmark(dataset_name="Goedel-LM/Lean-workbook-proofs", n=1000)
-```
-
-## Contributing
-
-Contributions are welcome 🤗, just open an issue or submit a pull request.
-
-To contribute, ensure you have Astral's [uv](https://docs.astral.sh/uv/) installed and:
-
-```sh
-uv run pre-commit install
-```
-
-On commit, the hooks:
-- run `ruff`, `pyright` and `mypy`
-- enforce [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/). 
-
-`mypy` was slow against the `client` directory, so I excluded it in the pre-commit config, therefore also on the CI. 
-You can still run `mypy` manually to check. 
-
-An additional hook runs basic tests on push.
-
-> [!TIP]
-> Use `--no-verify` to skip hooks on commit / push (but the CI runs them).
-
-
-Install [Lean 4](https://github.com/leanprover/lean4) and build the [repl](https://github.com/leanprover-community/repl) and [mathlib4](https://github.com/leanprover-community/mathlib4):
-```sh
-bash setup.sh
-```
-
-Run tests with (reads your `LEAN_SERVER_API_KEY` so make sure that line is commented):
-```sh
-pytest
-
-# Performance tests on first rows of Goedel (ensures less than 10s average check time per proof)
-pytest -m perfs
-
-# Tests on 100 first Goedel rows to validate API backward-compatibility
-pytest -m match # Use -n auto to use all cores.
-```
-
-To release the client:
-- bump the version in `pyproject.toml` and run `uv lock`
-- run the "Publish to PyPI" action on Github
-
-To release the server:
-- bump the version in `compose-prod.yaml` and in Dockerfile
-- run the "Deploy to Google Cloud" action on Github
-- run the "Publish to Docker" action on Github (doesn't exist yet)
-
-If you change dependencies (uv.lock), make sure to generate `requirements.txt` again with:
-```sh
-uv export --extra server --no-dev --no-emit-project --no-hashes > requirements.txt
 ```
 
 ## License

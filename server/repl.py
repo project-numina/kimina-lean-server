@@ -21,11 +21,8 @@ from kimina_client import (
 from loguru import logger
 from rich.syntax import Syntax
 
-from .db import db
 from .errors import LeanError, ReplError
 from .logger import console
-from .models import ReplStatus
-from .prisma_client import prisma
 from .settings import Environment, settings
 from .utils import is_blank
 
@@ -95,21 +92,6 @@ class Repl:
 
     @classmethod
     async def create(cls, header: str, max_repl_uses: int, max_repl_mem: int) -> "Repl":
-        if db.connected:
-            record = await prisma.repl.create(
-                data={
-                    "header": header,
-                    "max_repl_uses": max_repl_uses,
-                    "max_repl_mem": max_repl_mem,
-                }
-            )
-            return cls(
-                uuid=UUID(record.uuid),
-                created_at=record.created_at,
-                header=record.header,
-                max_repl_uses=record.max_repl_uses,
-                max_repl_mem=record.max_repl_mem,
-            )
         return cls(
             uuid=uuid4(),
             created_at=datetime.now(),
@@ -351,12 +333,6 @@ class Repl:
                 self._cpu_task.cancel()
             if self._mem_task:
                 self._mem_task.cancel()
-
-            if db.connected:
-                await prisma.repl.update(
-                    where={"uuid": str(self.uuid)},
-                    data={"status": ReplStatus.STOPPED},  # type: ignore
-                )
 
 
 async def close_verbose(repl: Repl) -> None:

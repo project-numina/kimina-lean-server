@@ -1,5 +1,4 @@
 # Compose file to run server in production mode without having to `docker run`.
-# If .env specifies a LEAN_SERVER_DATABASE_URL, make sure it's up with schema deployed.
 services:
   server:
     image: projectnumina/kimina-lean-server:2.0.0
