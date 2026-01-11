@@ -7,7 +7,7 @@ if [ -f .env ]; then
   set +a
 fi
 
-LEAN_SERVER_LEAN_VERSION="${LEAN_SERVER_LEAN_VERSION:-v4.15.0}"
+LEAN_SERVER_LEAN_VERSION="${LEAN_SERVER_LEAN_VERSION:-v4.26.0}"
 REPL_REPO_URL="${REPL_REPO_URL:-https://github.com/leanprover-community/repl.git}"
 REPL_BRANCH="${REPL_BRANCH:-$LEAN_SERVER_LEAN_VERSION}"
 MATHLIB_REPO_URL="${MATHLIB_REPO_URL:-https://github.com/leanprover-community/mathlib4.git}"
