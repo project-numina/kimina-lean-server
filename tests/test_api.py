@@ -215,7 +215,7 @@ async def test_timeout(client: TestClient) -> None:
                 )
             ]
         ).model_dump(exclude_none=True),
-        "v4.15.0": CheckResponse(
+        "v4.26.0": CheckResponse(
             results=[
                 ReplResponse(
                     id=uuid,
