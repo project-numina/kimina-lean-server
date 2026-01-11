@@ -413,6 +413,8 @@ async def test_infotree(client: TestClient) -> None:
                         {
                             "node": {
                                 "stx": {
+                                    "argKinds": ["by", "Lean.Parser.Tactic.tacticSeq"],
+                                    "kind": "Lean.Parser.Term.byTactic",
                                     "range": {
                                         "synthetic": False,
                                         "start": {"line": 1, "column": 26},
@@ -429,6 +431,8 @@ async def test_infotree(client: TestClient) -> None:
                                 {
                                     "node": {
                                         "stx": {
+                                            "argKinds": [],
+                                            "kind": "by",
                                             "range": {
                                                 "synthetic": False,
                                                 "start": {"line": 1, "column": 26},
@@ -445,6 +449,10 @@ async def test_infotree(client: TestClient) -> None:
                                         {
                                             "node": {
                                                 "stx": {
+                                                    "argKinds": [
+                                                        "Lean.Parser.Tactic.tacticSeq1Indented"
+                                                    ],
+                                                    "kind": "Lean.Parser.Tactic.tacticSeq",
                                                     "range": {
                                                         "synthetic": False,
                                                         "start": {
@@ -467,6 +475,8 @@ async def test_infotree(client: TestClient) -> None:
                                                 {
                                                     "node": {
                                                         "stx": {
+                                                            "argKinds": ["null"],
+                                                            "kind": "Lean.Parser.Tactic.tacticSeq1Indented",
                                                             "range": {
                                                                 "synthetic": False,
                                                                 "start": {
@@ -489,6 +499,8 @@ async def test_infotree(client: TestClient) -> None:
                                                         {
                                                             "node": {
                                                                 "stx": {
+                                                                    "argKinds": ["rfl"],
+                                                                    "kind": "Lean.Parser.Tactic.tacticRfl",
                                                                     "range": {
                                                                         "synthetic": False,
                                                                         "start": {
