@@ -156,8 +156,12 @@ class CommandResponse(TypedDict):
     infotree: NotRequired[Any]
 
 
+_SORRY_WARNING = "declaration uses 'sorry'"
+
 # TODO: write a test validating partition of is_error + is_sorry + is_valid.
 # Write the truth table.
+
+
 def is_error(response: CommandResponse) -> bool:
     messages = response.get("messages")
     if messages is None:
@@ -166,11 +170,18 @@ def is_error(response: CommandResponse) -> bool:
     return any(m["severity"] == "error" for m in messages)
 
 
-def has_sorry(response: CommandResponse) -> bool:
-    sorries = response.get("sorries")
-    if sorries is None:
+def has_sorry_warning(response: CommandResponse) -> bool:
+    messages = response.get("messages")
+    if not messages:
         return False
-    return len(sorries) > 0
+    return any(
+        m.get("severity") == "warning" and _SORRY_WARNING in m.get("data", "")
+        for m in messages
+    )
+
+
+def has_sorry(response: CommandResponse) -> bool:
+    return bool(response.get("sorries")) or has_sorry_warning(response)
 
 
 def is_valid(response: CommandResponse) -> bool:
@@ -182,13 +193,12 @@ def is_valid(response: CommandResponse) -> bool:
 
 def is_sorry(response: CommandResponse) -> bool:
     """
-    Information about sorry shows up twice:
+    Information about sorry shows up in two ways:
     - as an element in the `sorries` array
-    - as a "warning" message with data `declaration uses 'sorry'`
+    - as a "warning" message containing `declaration uses 'sorry'`
 
-    We rely on the `sorries` array.
-    Having a non-empty `sorries` array is not enough to be a sorry.
-    You also need to have no errors.
+    We check the `sorries` array first, and fallback to checking the warning message.
+    Having sorry is not enough to be classified as sorry; you also need to have no errors.
     """
     return not is_error(response) and has_sorry(response)
 
