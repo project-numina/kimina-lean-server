@@ -134,10 +134,12 @@ def has_error_response(
                 for message in feedback.get("messages", [])  # type: ignore
                 if message.get("severity") == "warning"
             ]
+            # Lean < 4.28 writes 'sorry', Lean >= 4.28 writes `sorry`.
             sorry_data_values = [
                 warning_data
                 for warning_data in warning_data_values
                 if "declaration uses 'sorry'" in warning_data
+                or "declaration uses `sorry`" in warning_data
             ]
             has_error = has_error or bool(sorry_data_values)
 
